@@ -1,0 +1,16 @@
+<h2 class="page-header">Register New NodeServer</h2>
+<form (submit)="onRegisterSubmit()">
+  <div class="form-group">
+    <label>NodeServer Name</label>
+    <input type="text" [(ngModel)]="name" name="name" class="form-control">
+  </div>
+  <div>
+      <label>Node Server Number</label><br />
+      <select (change)="onSelect($event.target.value)" type="button" class="btn btn-default dropdown-toggle btn-block">
+          <option *ngFor="let num of indexes" [ngValue]="indexes">
+              {{indexes[num-1]}}
+          </option>
+      </select>
+  </div><br>
+  <input type="submit" class="btn btn-primary pull-right" value="Submit">
+</form>

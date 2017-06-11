@@ -1,0 +1,13 @@
+
+<footer class="footer">
+  <div *ngIf="polyglot" class="container text-center">
+    <div class="panel panel-default" style="max-width:800px;margin-left:auto; margin-right:auto;">
+        <div *ngIf="polyglot && this.authService.loggedIn()" class="panel-body">
+          <p align="center">Polyglot Status: <span class='label label-default'>{{polyglot.connected ? 'Connected' : 'Disconnected'}}</span>
+            <br>(c) 2017 UDI<br>
+            <a href="http://ud-polyglot.readthedocs.io/en/development/">Documentation</a>
+          </p>
+        </div>
+      </div>
+  </div>
+</footer>

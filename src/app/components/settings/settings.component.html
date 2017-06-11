@@ -1,0 +1,56 @@
+<form [formGroup]="settingsForm" class="form-horizontal">
+  <fieldset>
+    <legend>ISY Settings</legend>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">Address / Hostname</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="isyaddress">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">Port</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="isyport">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">Username</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="isyusername">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">Password</label>
+      <div class="col-lg-10">
+        <input type="password" class="form-control" formControlName="isypassword" placeholder="Password">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" formControlName="isyhttps"> Use HTTPS
+          </label>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>MQTT Settings</legend>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">Address / Hostname</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="mqttaddress">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">MQTT Port</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="mqttport">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">WebSockets Port</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="mqttwsport">
+      </div>
+    </div>
+     <input type="submit" class="btn btn-primary pull-right" value="Save" (click)="saveSettings(getDirtyValues(settingsForm))">
+  </fieldset>
+</form>

@@ -1,20 +1,75 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { RouterModule, Routes } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FlashMessagesModule } from 'angular2-flash-messages';
+import { BootstrapModalModule } from 'ng2-bootstrap-modal';
+
+import { SettingsService } from './services/settings.service';
+import { WebsocketsService } from './services/websockets.service';
+import { FlashMessagesService } from 'angular2-flash-messages';
+import { AddnodeService } from './services/addnode.service';
+import { ValidateService } from './services/validate.service';
+import { AuthService } from './services/auth.service';
+
+import { AuthGuard } from './guards/auth.guard';
 
 import { AppComponent } from './app.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { AddnodeComponent } from './components/addnode/addnode.component';
+import { HomeComponent } from './components/home/home.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { LoginComponent } from './components/login/login.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { ConfirmComponent } from './components/confirm/confirm.component';
+import { NodepopComponent } from './components/nodepop/nodepop.component';
+import { DriverpopComponent } from './components/driverpop/driverpop.component';
+
+
+
+const appRoutes: Routes = [
+  {path: '', component: HomeComponent},
+  {path: 'login', component: LoginComponent},
+  {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
+  {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
+  {path: 'addnode', component: AddnodeComponent, canActivate: [AuthGuard]},
+  {path: 'settings', component: SettingsComponent, canActivate: [AuthGuard]},
+  {path: '**', redirectTo: ''}
+]
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavbarComponent,
+    AddnodeComponent,
+    HomeComponent,
+    ProfileComponent,
+    DashboardComponent,
+    LoginComponent,
+    SettingsComponent,
+    FooterComponent,
+    ConfirmComponent,
+    NodepopComponent,
+    DriverpopComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    ReactiveFormsModule,
+    HttpModule,
+    RouterModule.forRoot(appRoutes),
+    FlashMessagesModule,
+    BootstrapModalModule
   ],
-  providers: [],
+  entryComponents: [
+    ConfirmComponent,
+    NodepopComponent
+  ],
+  providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

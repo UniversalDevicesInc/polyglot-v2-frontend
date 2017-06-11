@@ -1,0 +1,16 @@
+<table *ngIf="drivers && (selectedNode != null)" class="table table-striped table-hover ">
+ <thead>
+   <tr>
+     <th>Driver</th>
+     <th>UOM</th>
+     <th>Value</th>
+   </tr>
+ </thead>
+ <tbody>
+   <tr *ngFor="let driver of drivers">
+     <td>{{driver.driver}}</td>
+     <td>{{driver.uom}}</td>
+     <td>{{driver.value}}</td>
+   </tr>
+ </tbody>
+</table>

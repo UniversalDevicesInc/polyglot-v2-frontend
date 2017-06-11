@@ -1,0 +1,16 @@
+<div class="collection">
+<h2 align=center>NodeServers</h2>
+  <div *ngFor="let nodeServer of nodeServers" class="column">
+    <div class="col-md-6 col-md-6 center-block">
+      <div class="thumbnail">
+          <h2 class="align-top" align="center">{{nodeServer.name}}</h2>
+          <p align="center">Current Status: <span class='label label-default'>{{nodeServer.isConnected ? 'Connected' : 'Disconnected'}}</span></p>
+          <div class="btn-group btn-group-justified">
+            <button class="btn btn-default" (click)=showNodes(nodeServer) style="width: 50%" role="button">Nodes <span class="badge">{{nodeServer.nodes.length}}</span></button>
+            <button class="btn btn-default" (click)=showConfirm(nodeServer) style="width: 50%" role="button">Delete</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-nodepop [node]="selectedNode"></app-nodepop>

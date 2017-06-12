@@ -28,7 +28,7 @@ export class NavbarComponent implements OnInit {
   }
 
   onLogoutClick() {
-    if (this.sockets) {
+    if (this.sockets && this.sockets.connected) {
       this.sockets.sendMessage('connections', {connected: false})
       this.sockets.stop()
     }

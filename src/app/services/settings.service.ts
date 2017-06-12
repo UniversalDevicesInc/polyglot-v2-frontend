@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Http, Headers } from '@angular/http'
+import { environment } from '../../environments/environment'
 
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/map'
@@ -25,7 +26,7 @@ export class SettingsService {
     this.loadToken()
     headers.append('Authorization', this.authToken)
     headers.append('Content-Type', 'application/json')
-    return this.http.get('http://10.0.0.75:3000/frontend/settings', {headers: headers})
+    return this.http.get(environment.PG_URI + '/frontend/settings', {headers: headers})
       .map(res => res.json())
   }
 
@@ -34,7 +35,7 @@ export class SettingsService {
     this.loadToken()
     headers.append('Authorization', this.authToken)
     headers.append('Content-Type', 'application/json')
-    return this.http.post('http://10.0.0.75:3000/frontend/settings', settings, {headers: headers})
+    return this.http.post(environment.PG_URI + 'frontend/settings', settings, {headers: headers})
       .map(res => res.json())
   }
 

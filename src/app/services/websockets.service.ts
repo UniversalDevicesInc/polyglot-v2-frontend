@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Paho } from 'ng2-mqtt/mqttws31'
-import { environment } from '../../environments/environment'
+//import { environment } from '../../environments/environment'
 import { SettingsService } from './settings.service'
 import { AuthService } from './auth.service'
 import { NodeServer } from '../models/nodeserver.model'
@@ -34,12 +34,12 @@ export class WebsocketsService {
   ) {}
 
   start() {
-    //this.settingsService.loadSettings()
+    this.settingsService.loadSettings()
     if (!this.id) {
       this.id = 'polyglot_frontend-' + this.randomString(5)
       // this._seq = Math.floor(Math.random() * 90000) + 10000
     }
-    this.client = new Paho.MQTT.Client(environment.MQTT_HOST, Number(environment.MQTT_PORT), this.id)
+    this.client = new Paho.MQTT.Client(this.settingsService.settings.mqttHost, Number(this.settingsService.settings.mqttWSPort), this.id)
     this.onMessage()
     this.onConnectionLost()
     const message = {node: this.id, connected: false}

@@ -42,7 +42,6 @@ export class LoginComponent implements OnInit {
         })
 
       } else {
-        console.log(data)
         this.router.navigate(['/login'])
         this.flashMessage.show(data.msg, {
           cssClass: 'alert-danger',

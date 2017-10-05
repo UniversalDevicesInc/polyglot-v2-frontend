@@ -86,7 +86,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getNodeServerResponses() {
     this.subResponses = this.sockets.nodeServerResponse.subscribe(response => {
       if (response.hasOwnProperty('success')) {
-        console.log(response)
         if (response.success) {
           this.flashMessage.show(response.msg, {
             cssClass: 'alert-success',

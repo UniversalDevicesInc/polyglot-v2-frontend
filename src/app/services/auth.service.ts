@@ -22,7 +22,6 @@ export class AuthService {
   authenticateUser(user) {
     const headers = new Headers()
     headers.append('Content-Type', 'application/json')
-    console.log(environment.PG_URI)
     return this.http.post(environment.PG_URI + '/frontend/authenticate', user, {headers: headers})
       .map(res => res.json())
   }

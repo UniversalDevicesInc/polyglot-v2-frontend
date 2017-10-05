@@ -112,7 +112,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   getSettingResponses() {
     this.subResponses = this.sockets.settingsResponse.subscribe(response => {
       if (response.hasOwnProperty('success')) {
-        console.log(response)
         if (response.success) {
           this.flashMessage.show('Settings saved successfully.', {
             cssClass: 'alert-success',

@@ -5,4 +5,5 @@ export class NodeServer {
   token: string
   encyptPayload: boolean
   isConnected: boolean
+  customParams: Object
 }

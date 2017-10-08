@@ -6,8 +6,9 @@
           <h2 class="align-top" align="center">{{nodeServer.name}}({{nodeServer.profileNum}})</h2>
           <p align="center">Current Status: <span class='label label-default'>{{nodeServer.isConnected ? 'Connected' : 'Disconnected'}}</span></p>
           <div class="btn-group btn-group-justified">
-            <button class="btn btn-default" (click)=showNodes(nodeServer) style="width: 50%" role="button">Nodes <span class="badge">{{nodeServer.nodes.length}}</span></button>
-            <button class="btn btn-default" (click)=showConfirm(nodeServer) style="width: 50%" role="button">Delete</button>
+            <button class="btn btn-default" (click)=showNodes(nodeServer) style="width: 33%" role="button">Nodes <span class="badge">{{nodeServer.nodes.length}}</span></button>
+            <button class="btn btn-default" (click)=redirect(nodeServer.profileNum) style="width: 34%" role="button">Details</button>
+            <button class="btn btn-default" (click)=showConfirm(nodeServer) style="width: 33%" role="button">Delete</button>
           </div>
       </div>
     </div>

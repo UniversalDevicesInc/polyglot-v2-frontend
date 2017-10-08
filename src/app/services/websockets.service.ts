@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core'
 import { Paho } from 'ng2-mqtt/mqttws31'
-//import { environment } from '../../environments/environment'
 import { SettingsService } from './settings.service'
 import { AuthService } from './auth.service'
 import { NodeServer } from '../models/nodeserver.model'
@@ -39,7 +38,11 @@ export class WebsocketsService {
       this.id = 'polyglot_frontend-' + this.randomString(5)
       // this._seq = Math.floor(Math.random() * 90000) + 10000
     }
-    this.client = new Paho.MQTT.Client(this.settingsService.settings.mqttHost, Number(this.settingsService.settings.mqttWSPort), this.id)
+    let host = location.hostname
+    if (!(this.settingsService.settings.mqttHost === '127.0.0.1')) {
+      host = this.settingsService.settings.mqttHost
+    }
+    this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.mqttWSPort) || 8083, this.id)
     this.onMessage()
     this.onConnectionLost()
     const message = {node: this.id, connected: false}
@@ -58,7 +61,7 @@ export class WebsocketsService {
     this.connected = true
     this.client.subscribe('udi/polyglot/connections/polyglot', null)
     this.client.subscribe('udi/polyglot/frontend/#', null)
-    const message = {connected: true}
+    const message = { connected: true }
     this.sendMessage('connections', message)
   }
 
@@ -162,7 +165,7 @@ export class WebsocketsService {
 
   nodeServerResponses(message) {
     Observable.of(message.response).subscribe(data => this.nodeServerResponse.next(data))
-    return this.nodeServerData
+    return this.nodeServerResponse
   }
 
   processSettings(message) {

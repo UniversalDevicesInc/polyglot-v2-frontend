@@ -4,28 +4,28 @@
     <div class="form-group">
       <label class="col-lg-2 control-label">Address / Hostname</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" formControlName="isyaddress">
+        <input type="text" class="form-control" formControlName="isyHost">
       </div>
     </div>
     <div class="form-group">
       <label class="col-lg-2 control-label">Port</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" formControlName="isyport">
+        <input type="text" class="form-control" formControlName="isyPort">
       </div>
     </div>
     <div class="form-group">
       <label class="col-lg-2 control-label">Username</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" formControlName="isyusername">
+        <input type="text" class="form-control" formControlName="isyUsername">
       </div>
     </div>
     <div class="form-group">
       <label class="col-lg-2 control-label">Password</label>
       <div class="col-lg-10">
-        <input type="password" class="form-control" formControlName="isypassword" placeholder="Password">
+        <input type="password" class="form-control" formControlName="isyPassword" placeholder="Password">
         <div class="checkbox">
           <label>
-            <input type="checkbox" formControlName="isyhttps"> Use HTTPS
+            <input type="checkbox" formControlName="isyHttps"> Use HTTPS
           </label>
         </div>
       </div>
@@ -36,19 +36,19 @@
     <div class="form-group">
       <label class="col-lg-2 control-label">Address / Hostname</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" formControlName="mqttaddress">
+        <input type="text" class="form-control" formControlName="mqttHost">
       </div>
     </div>
     <div class="form-group">
       <label class="col-lg-2 control-label">MQTT Port</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" formControlName="mqttport">
+        <input type="text" class="form-control" formControlName="mqttPort">
       </div>
     </div>
     <div class="form-group">
       <label class="col-lg-2 control-label">WebSockets Port</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" formControlName="mqttwsport">
+        <input type="text" class="form-control" formControlName="mqttWSPort">
       </div>
     </div>
      <input type="submit" class="btn btn-primary pull-right" value="Save" (click)="saveSettings(getDirtyValues(settingsForm))">

@@ -30,14 +30,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.settingsForm = this.fb.group({
-      isyaddress: ['', Validators.required],
-      isyport: [80, Validators.required],
-      isyusername: ['', Validators.required],
-      isypassword: '',
-      isyhttps: false,
-      mqttaddress: ['', Validators.required],
-      mqttport: 1883,
-      mqttwsport: 8083
+      isyHost: ['', Validators.required],
+      isyPort: [80, Validators.required],
+      isyUsername: ['', Validators.required],
+      isyPassword: '',
+      isyHttps: false,
+      mqttHost: ['', Validators.required],
+      mqttPort: 1883,
+      mqttWSPort: 8083
     })
     this.getSettings()
     this.getSettingResponses()
@@ -91,20 +91,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
         window.scrollTo(0, 0)
       }
     } else {
-      this.sendSettingsREST(settings)
+      this.flashMessage.show('Websockets not connected to Polyglot. Settings not saved.', {
+        cssClass: 'alert-danger',
+        timeout: 5000})
+      window.scrollTo(0, 0)
     }
   }
 
   getSettings() {
     this.subSettings = this.sockets.settingsData.subscribe(settings => {
       this.settingsForm.patchValue({
-        isyaddress: settings.isyaddress,
-        isyport: settings.isyport,
-        isyusername: settings.isyusername,
-        isyhttps: settings.isyhttps,
-        mqttaddress: settings.mqttaddress,
-        mqttport: settings.mqttport,
-        mqttwsport: settings.mqttwsport
+        isyHost: settings.isyHost,
+        isyPort: settings.isyPort,
+        isyUsername: settings.isyUsername,
+        isyHttps: settings.isyHttps,
+        mqttHost: settings.mqttHost,
+        mqttPort: settings.mqttPort,
+        mqttWSPort: settings.mqttWSPort
       })
     })
   }

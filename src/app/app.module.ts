@@ -28,6 +28,11 @@ import { FooterComponent } from './components/footer/footer.component';
 import { ConfirmComponent } from './components/confirm/confirm.component';
 import { NodepopComponent } from './components/nodepop/nodepop.component';
 import { DriverpopComponent } from './components/driverpop/driverpop.component';
+import { NsdetailsComponent } from './components/nsdetails/nsdetails.component';
+import { NodedetailsComponent } from './components/nodedetails/nodedetails.component';
+import { CustomdetailsComponent } from './components/customdetails/customdetails.component';
+import { InstallprofileComponent } from './components/installprofile/installprofile.component';
+import { ShowlogComponent } from './components/showlog/showlog.component';
 
 
 
@@ -38,6 +43,7 @@ const appRoutes: Routes = [
   {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
   {path: 'addnode', component: AddnodeComponent, canActivate: [AuthGuard]},
   {path: 'settings', component: SettingsComponent, canActivate: [AuthGuard]},
+  {path: 'nsdetails/:id', component: NsdetailsComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo: ''}
 ]
 
@@ -54,7 +60,12 @@ const appRoutes: Routes = [
     FooterComponent,
     ConfirmComponent,
     NodepopComponent,
-    DriverpopComponent
+    DriverpopComponent,
+    NsdetailsComponent,
+    NodedetailsComponent,
+    CustomdetailsComponent,
+    InstallprofileComponent,
+    ShowlogComponent,
   ],
   imports: [
     BrowserModule,

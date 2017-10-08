@@ -13,6 +13,7 @@ export class SettingsService {
 
   authToken: any
   settings: any
+  currentNode: any
 
   constructor(private http: Http) { }
 
@@ -35,7 +36,16 @@ export class SettingsService {
     this.loadToken()
     headers.append('Authorization', this.authToken)
     headers.append('Content-Type', 'application/json')
-    return this.http.post(environment.PG_URI + 'frontend/settings', settings, {headers: headers})
+    return this.http.post(environment.PG_URI + '/frontend/settings', settings, {headers: headers})
+      .map(res => res.json())
+  }
+
+  setProfile(profile) {
+    const headers = new Headers()
+    this.loadToken()
+    headers.append('Authorization', this.authToken)
+    headers.append('Content-Type', 'application/json')
+    return this.http.post(environment.PG_URI + '/frontend/settings', profile, {headers: headers})
       .map(res => res.json())
   }
 

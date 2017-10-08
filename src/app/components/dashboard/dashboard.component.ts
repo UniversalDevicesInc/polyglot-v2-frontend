@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { WebsocketsService } from '../../services/websockets.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { NodeServer } from '../../models/nodeserver.model'
+import { Router } from '@angular/router'
 import { DialogService } from 'ng2-bootstrap-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { NodepopComponent } from '../nodepop/nodepop.component'
+import { SettingsService } from '../../services/settings.service'
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +17,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   nodeServers: NodeServer[]
   confirmResult: boolean = null
+  nodeDetails: any
   selectedNode: any
   private subNodeServers: any
   private subResponses: any
@@ -23,7 +26,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private sockets: WebsocketsService,
     private flashMessage: FlashMessagesService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private router: Router,
+    private settingsService: SettingsService
   ) { }
 
   ngOnInit() {
@@ -33,6 +38,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     }, 1000)
     this.getNodeServers()
+    this.getNodeServerResponses()
+    this.nodeDetails = null;
   }
 
   ngOnDestroy() {
@@ -99,6 +106,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       }
     })
+  }
+
+  redirect(profileNum) {
+    //this.settingsService.currentNode = profileNum
+    this.router.navigate(['/nsdetails', profileNum])
   }
 
 }

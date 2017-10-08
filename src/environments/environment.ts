@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  PG_URI: 'http://10.0.0.110:3000'
+  PG_URI: 'http://10.0.0.75:3000'
 }

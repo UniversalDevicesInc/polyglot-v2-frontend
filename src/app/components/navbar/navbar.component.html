@@ -17,7 +17,7 @@
         <li *ngIf="authService.loggedIn()" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}"><a [routerLink]="['/dashboard']">Dashboard</a></li>
         <li *ngIf="authService.loggedIn()" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}"><a [routerLink]="['/addnode']">Add NodeServer</a></li>
         <li *ngIf="authService.loggedIn()" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}"><a [routerLink]="['/profile']">Profile</a></li>
-        <!-- <li *ngIf="authService.loggedIn()" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}"><a [routerLink]="['/settings']">Settings</a></li> -->
+        <li *ngIf="authService.loggedIn()" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}"><a [routerLink]="['/settings']">Settings</a></li>
         <li *ngIf="!authService.loggedIn()" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}"><a [routerLink]="['/login']">Login</a></li>
         <li *ngIf="authService.loggedIn()"><a (click)="onLogoutClick()" href="#">Logout</a></li>
       </ul>

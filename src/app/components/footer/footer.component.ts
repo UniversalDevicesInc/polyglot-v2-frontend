@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { WebsocketsService } from '../../services/websockets.service';
 import { AuthService } from '../../services/auth.service'
+import { SettingsService } from '../../services/settings.service'
 
 @Component({
   selector: 'app-footer',
@@ -15,6 +16,7 @@ export class FooterComponent implements OnInit {
 
   constructor(
     private sockets: WebsocketsService,
+    private settings: SettingsService,
     private authService: AuthService
   ) { }
 

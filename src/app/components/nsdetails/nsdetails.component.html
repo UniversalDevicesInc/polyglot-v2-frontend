@@ -1,0 +1,18 @@
+<div class="column">
+  <div class="col-md-20 col-md-20 center-block" align="center">
+    <div class="thumbnail">
+        <h2 class="align-top" align="center">{{selectedNodeServer.name}}({{selectedNodeServer.profileNum}})</h2>
+        <p align="center">Current Status: <span class='label label-default'>{{selectedNodeServer.isConnected ? 'Connected' : 'Disconnected'}}</span></p>
+        <div class="btn-group btn-group-justified">
+          <button class="btn btn-default" (click)="showControl('nodes')" style="width: 25%" role="button">Nodes <span class="badge">{{selectedNodeServer.nodes.length}}</span></button>
+          <button class="btn btn-default" (click)="showControl('custom')" style="width: 25%" role="button">Custom Paramaters</button>
+          <button class="btn btn-default" (click)="showControl('profile')" style="width: 25%" role="button">Profile</button>
+          <button class="btn btn-default" (click)=showConfirm(selectedNodeServer) style="width: 25%" role="button">Delete</button>
+        </div>
+    </div>
+  </div>
+</div>
+<hr />
+<app-nodedetails></app-nodedetails>
+<app-customdetails></app-customdetails>
+<app-installprofile></app-installprofile>

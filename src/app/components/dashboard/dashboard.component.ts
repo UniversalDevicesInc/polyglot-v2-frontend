@@ -32,14 +32,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    setTimeout(() => {
-      if (!(this.sockets.connected)) {
-          this.sockets.start()
-      }
-    }, 1000)
-    this.getNodeServers()
-    this.getNodeServerResponses()
-    this.nodeDetails = null;
+    this.sockets.start((connected) => {
+        if (connected) {
+          this.getNodeServers()
+          this.getNodeServerResponses()
+          this.nodeDetails = null;
+        }
+    })
   }
 
   ngOnDestroy() {

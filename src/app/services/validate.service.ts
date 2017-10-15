@@ -6,7 +6,7 @@ export class ValidateService {
   constructor() { }
 
  validateRegister(node) {
-   if (node.name === undefined || node.profileNum === undefined) {
+   if (node.name === undefined || node.profileNum === undefined || node.type === undefined) {
      return false
    } else {
      return true

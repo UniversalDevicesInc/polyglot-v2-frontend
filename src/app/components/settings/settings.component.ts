@@ -29,6 +29,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.sockets.start()
     this.settingsForm = this.fb.group({
       isyHost: ['', Validators.required],
       isyPort: [80, Validators.required],

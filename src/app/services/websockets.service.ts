@@ -4,14 +4,12 @@ import { SettingsService } from './settings.service'
 import { AuthService } from './auth.service'
 import { NodeServer } from '../models/nodeserver.model'
 import { Mqttmessage } from '../models/mqttmessage.model'
-
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Subject } from 'rxjs/Subject'
 
 @Injectable()
 export class WebsocketsService {
-
   client: Paho.MQTT.Client
   // connected: boolean
   id: string
@@ -23,6 +21,8 @@ export class WebsocketsService {
   public settingsData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerResponse: Subject<any> = new Subject
   public settingsResponse: Subject<any> = new Subject
+  public nsTypeResponse: Subject<any> = new Subject
+  public logData: Subject<any> = new Subject
   public nsResponses: Array<any> = new Array
   public setResponses: Array<any> = new Array
   private _seq = Math.floor(Math.random() * 90000) + 10000
@@ -32,7 +32,8 @@ export class WebsocketsService {
     private settingsService: SettingsService
   ) {}
 
-  start() {
+  start(cb = function(connected: boolean){}) {
+    if (this.connected) { if (cb) { return cb(true) }}
     this.settingsService.loadSettings()
     if (!this.id) {
       this.id = 'polyglot_frontend-' + this.randomString(5)
@@ -51,9 +52,13 @@ export class WebsocketsService {
     this._willMessage.qos = 0
     this._willMessage.retained = false
     this.client.connect(
-      {onSuccess: this.onConnected.bind(this),
-      willMessage: this._willMessage}
-    )
+      { onSuccess: this.onConnected.bind(this),
+      willMessage: this._willMessage
+      //useSSL: true
+     })
+     setTimeout(() => {
+      if (cb) { return cb(this.connected ? true : false) }
+    }, 1000)
   }
 
   onConnected() {
@@ -61,6 +66,8 @@ export class WebsocketsService {
     this.connected = true
     this.client.subscribe('udi/polyglot/connections/polyglot', null)
     this.client.subscribe('udi/polyglot/frontend/#', null)
+    this.client.subscribe('udi/polyglot/log/' + this.id, null)
+    //this.client.subscribe('udi/polyglot/log/' + this.id, null)
     const message = { connected: true }
     this.sendMessage('connections', message)
   }
@@ -80,6 +87,7 @@ export class WebsocketsService {
     if (topic === 'connections') { topic = 'udi/polyglot/connections/frontend'
     } else if (topic === 'settings') { topic = 'udi/polyglot/frontend/settings'
     } else if (topic === 'nodeservers') { topic = 'udi/polyglot/frontend/nodeservers'
+    } else if (topic === 'log') { topic = 'udi/polyglot/frontend/log'
     } else { topic = 'udi/polyglot/ns/' + topic }
     packet.destinationName = topic
     packet.retained = retained
@@ -96,6 +104,8 @@ export class WebsocketsService {
         this.processNodeServers(msg)
       } else if (message.destinationName === 'udi/polyglot/frontend/settings') {
         this.processSettings(msg)
+      } else if (message.destinationName === 'udi/polyglot/frontend/log/' + this.id) {
+        this.processLog(msg)
       }
     }
   }
@@ -105,10 +115,12 @@ export class WebsocketsService {
       try {
         setTimeout(() => {
           if (this.authService.loggedIn()) {
-            this.client.connect(
-              {onSuccess: this.onConnected.bind(this),
-              willMessage: this._willMessage}
-            )
+            if (!(this.connected)) {
+              this.client.connect(
+                {onSuccess: this.onConnected.bind(this),
+                willMessage: this._willMessage}
+              )
+            }
           }
           setTimeout(() => {
             this.onConnectionLost()
@@ -136,6 +148,15 @@ export class WebsocketsService {
       return text
   }
 
+  processLog(message) {
+    this.getLog(message)
+  }
+
+  getLog(message) {
+    Observable.of(message).subscribe(data => this.logData.next(data))
+    return this.logData
+  }
+
   processConnection(message) {
     this.getPolyglot(message)
   }
@@ -153,6 +174,8 @@ export class WebsocketsService {
             return
           }
         })
+    } else if (message.hasOwnProperty('nodetypes')) {
+      this.nsTypeResponses(message)
     } else {
       this.getNodeServers(message)
     }
@@ -166,6 +189,11 @@ export class WebsocketsService {
   nodeServerResponses(message) {
     Observable.of(message.response).subscribe(data => this.nodeServerResponse.next(data))
     return this.nodeServerResponse
+  }
+
+  nsTypeResponses(message) {
+    Observable.of(message.nodetypes).subscribe(data => this.nsTypeResponse.next(data))
+    return this.nsTypeResponse
   }
 
   processSettings(message) {
@@ -190,7 +218,5 @@ export class WebsocketsService {
     Observable.of(message.response).subscribe(data => this.settingsResponse.next(data))
     return this.settingsData
   }
-
-
 
 }

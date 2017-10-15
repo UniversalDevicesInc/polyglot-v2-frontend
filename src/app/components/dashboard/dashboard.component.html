@@ -1,7 +1,7 @@
 <div class="collection">
 <h2 align=center>NodeServers</h2>
   <div *ngFor="let nodeServer of nodeServers" class="column">
-    <div class="col-md-6 col-md-6 center-block">
+    <div *ngIf="nodeServer.type === 'local'" class="col-md-6 col-md-6 center-block">
       <div class="thumbnail">
           <h2 class="align-top" align="center">{{nodeServer.name}}({{nodeServer.profileNum}})</h2>
           <p align="center">Current Status: <span class='label label-default'>{{nodeServer.isConnected ? 'Connected' : 'Disconnected'}}</span></p>
@@ -9,6 +9,15 @@
             <button class="btn btn-default" (click)=showNodes(nodeServer) style="width: 33%" role="button">Nodes <span class="badge">{{nodeServer.nodes.length}}</span></button>
             <button class="btn btn-default" (click)=redirect(nodeServer.profileNum) style="width: 34%" role="button">Details</button>
             <button class="btn btn-default" (click)=showConfirm(nodeServer) style="width: 33%" role="button">Delete</button>
+          </div>
+      </div>
+    </div>
+    <div *ngIf="nodeServer.type === 'unmanaged'" class="col-md-6 col-md-6 center-block">
+      <div class="thumbnail">
+          <h2 class="align-top" align="center">{{nodeServer.name}}({{nodeServer.profileNum}})</h2>
+          <p align="center">Current Status: <span class='label label-danger'>Unmanaged</span></p>
+          <div class="btn-group btn-group-justified">
+            <button class="btn btn-default" style="width: 100%" role="button">No Details Available</button>
           </div>
       </div>
     </div>

@@ -43,6 +43,7 @@ const appRoutes: Routes = [
   {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
   {path: 'addnode', component: AddnodeComponent, canActivate: [AuthGuard]},
   {path: 'settings', component: SettingsComponent, canActivate: [AuthGuard]},
+  {path: 'log', component: ShowlogComponent, canActivate: [AuthGuard]},
   {path: 'nsdetails/:id', component: NsdetailsComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo: ''}
 ]

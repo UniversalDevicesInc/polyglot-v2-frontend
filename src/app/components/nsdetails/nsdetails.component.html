@@ -1,14 +1,21 @@
 <div class="column">
-  <div class="col-md-20 col-md-20 center-block" align="center">
+  <div *ngIf="selectedNodeServer.type === 'local'" class="col-md-20 col-md-20 center-block" align="center">
     <div class="thumbnail">
         <h2 class="align-top" align="center">{{selectedNodeServer.name}}({{selectedNodeServer.profileNum}})</h2>
         <p align="center">Current Status: <span class='label label-default'>{{selectedNodeServer.isConnected ? 'Connected' : 'Disconnected'}}</span></p>
         <div class="btn-group btn-group-justified">
-          <button class="btn btn-default" (click)="showControl('nodes')" style="width: 25%" role="button">Nodes <span class="badge">{{selectedNodeServer.nodes.length}}</span></button>
-          <button class="btn btn-default" (click)="showControl('custom')" style="width: 25%" role="button">Custom Paramaters</button>
-          <button class="btn btn-default" (click)="showControl('profile')" style="width: 25%" role="button">Profile</button>
-          <button class="btn btn-default" (click)=showConfirm(selectedNodeServer) style="width: 25%" role="button">Delete</button>
+          <button class="btn btn-default" (click)="showControl('nodes')" style="width: 20%" role="button">Nodes <span class="badge">{{selectedNodeServer.nodes.length}}</span></button>
+          <button class="btn btn-default" (click)="showControl('custom')" style="width: 20%" role="button">Custom Paramaters</button>
+          <button class="btn btn-default" (click)="showControl('profile')" style="width: 20%" role="button">Profile</button>
+          <button class="btn btn-default" (click)="showControl('log')" style="width: 20%" role="button">Log</button>
+          <button class="btn btn-default" (click)=showConfirm(selectedNodeServer) style="width: 20%" role="button">Delete</button>
         </div>
+    </div>
+  </div>
+  <div *ngIf="selectedNodeServer.type === 'unmanaged'" class="col-md-20 col-md-20 center-block" align="center">
+    <div class="thumbnail">
+        <h2 class="align-top" align="center">{{selectedNodeServer.name}}({{selectedNodeServer.profileNum}})</h2>
+        <p align="center">Current Status: <span class='label label-danger'>Unmanaged</span></p>
     </div>
   </div>
 </div>

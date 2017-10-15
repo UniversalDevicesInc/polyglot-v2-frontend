@@ -5,5 +5,6 @@
 
 export const environment = {
   production: false,
-  PG_URI: 'http://10.0.0.75:3000'
+  PG_URI: 'http://polyglot:3000',
+  WS_URI: 'ws://polyglot:3000'
 }

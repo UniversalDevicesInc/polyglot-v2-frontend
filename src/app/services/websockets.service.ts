@@ -18,6 +18,7 @@ export class WebsocketsService {
   public connected = false
   public polyglotData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerData: ReplaySubject<any> = new ReplaySubject(1)
+  public installedNSData: ReplaySubject<any> = new ReplaySubject(1)
   public settingsData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerResponse: Subject<any> = new Subject
   public settingsResponse: Subject<any> = new Subject
@@ -176,6 +177,8 @@ export class WebsocketsService {
         })
     } else if (message.hasOwnProperty('nodetypes')) {
       this.nsTypeResponses(message)
+    } else if (message.hasOwnProperty('installedns')) {
+      this.getinstalledNS(message)
     } else {
       this.getNodeServers(message)
     }
@@ -184,6 +187,11 @@ export class WebsocketsService {
   getNodeServers(message) {
     Observable.of(message.nodeservers).subscribe(data => this.nodeServerData.next(data))
     return this.nodeServerData
+  }
+
+  getinstalledNS(message) {
+    Observable.of(message.installedns).subscribe(data => this.installedNSData.next(data))
+    return this.installedNSData
   }
 
   nodeServerResponses(message) {

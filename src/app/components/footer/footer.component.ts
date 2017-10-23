@@ -10,6 +10,8 @@ import { SettingsService } from '../../services/settings.service'
 })
 export class FooterComponent implements OnInit {
 
+  private subSettings: any
+  public isyVersion: String
   public polyglot: {
     connected: false
   }
@@ -22,10 +24,17 @@ export class FooterComponent implements OnInit {
 
   ngOnInit() {
     this.getPolyglot()
+    this.getSettings()
   }
 
   getPolyglot() {
     this.sockets.polyglotData.subscribe(polyglot => this.polyglot = polyglot)
+  }
+
+  getSettings() {
+    this.subSettings = this.sockets.settingsData.subscribe(settings => {
+      this.isyVersion = settings.isyVersion
+    })
   }
 
 }

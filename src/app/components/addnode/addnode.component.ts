@@ -23,15 +23,14 @@ export class AddnodeComponent implements OnInit {
 
   private subNodeServers: any
   private subNsTypes: any
-  public nsTypes: any
+  public nsTypes: string[] = []
   public indexes: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   public types: string[] = ['Local (Co-Resident with Polyglot)', 'Remote']
   public typeSet: string[] = ['local', 'remote']
-  public installedNS: string[] = []
   public received: boolean
   public selectedIndex: number = this.indexes[0]
   public selectedType: string = this.typeSet[0]
-  public selectedNS: string = this.installedNS[0]
+  public selectedNS: Object = this.nsTypes[0]
 
   constructor(
     private validateService: ValidateService,
@@ -73,7 +72,7 @@ export class AddnodeComponent implements OnInit {
       message: `Adding this NodeServer will automatically reboot the ISY.`})
       .subscribe((isConfirmed) => {
         this.onRegisterSubmit(isConfirmed)
-    });
+    })
   }
 
   getNodeServers() {
@@ -91,26 +90,24 @@ export class AddnodeComponent implements OnInit {
   getNsTypes() {
     this.subNsTypes = this.sockets.nsTypeResponse.subscribe(nsTypes => {
       this.received = true
-      this.nsTypes = nsTypes
-      Object.keys(nsTypes).forEach((type) => {
-        this.installedNS.push(type)
-      })
-      this.selectedNS = this.installedNS[0]
+      this.nsTypes = nsTypes.notInUse
+      this.selectedNS = this.nsTypes[0]
     })
   }
 
   onRegisterSubmit(confirmed) {
     if (!confirmed) { return }
-    var name = ""
     if (this.selectedType === 'local') {
-      name = this.selectedNS
+      var name = this.selectedNS['name']
+      var path = this.selectedNS['_folder']
     } else {
       name = this.name
     }
     const node = {
-      name: name,
+      name: name || this.name,
       profileNum: this.profileNum,
-      type: this.selectedType
+      type: this.selectedType,
+      path: path || ''
     }
 
     if (!this.validateService.validateRegister(node)) {

@@ -33,6 +33,7 @@ import { NodedetailsComponent } from './components/nodedetails/nodedetails.compo
 import { CustomdetailsComponent } from './components/customdetails/customdetails.component';
 import { InstallprofileComponent } from './components/installprofile/installprofile.component';
 import { ShowlogComponent } from './components/showlog/showlog.component';
+import { GetnsComponent } from './components/getns/getns.component';
 
 
 
@@ -44,6 +45,7 @@ const appRoutes: Routes = [
   {path: 'addnode', component: AddnodeComponent, canActivate: [AuthGuard]},
   {path: 'settings', component: SettingsComponent, canActivate: [AuthGuard]},
   {path: 'log', component: ShowlogComponent, canActivate: [AuthGuard]},
+  {path: 'getns', component: GetnsComponent, canActivate: [AuthGuard]},
   {path: 'nsdetails/:id', component: NsdetailsComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo: ''}
 ]
@@ -67,6 +69,7 @@ const appRoutes: Routes = [
     CustomdetailsComponent,
     InstallprofileComponent,
     ShowlogComponent,
+    GetnsComponent,
   ],
   imports: [
     BrowserModule,

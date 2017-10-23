@@ -26,4 +26,11 @@ export class AddnodeService {
     this.authToken = token
   }
 
+  getNSList() {
+    var nsIndexURL = 'https://raw.githubusercontent.com/Einstein42/udi-polyglotv2/master/nsindex/index.json'
+    const headers = new Headers()
+    return this.http.get(nsIndexURL, {headers: headers})
+      .map(res => res.json())
+  }
+
 }

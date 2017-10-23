@@ -101,6 +101,20 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  sendControl(command) {
+    if (this.sockets.connected) {
+      let cmd = {
+        node: this.selectedNodeServer.profileNum,
+      }
+      cmd[command] = ""
+      this.sockets.sendMessage(this.selectedNodeServer.profileNum, cmd, false, false)
+      this.flashMessage.show(`Sent ${command} command to NodeServer ${this.selectedNodeServer.name}.`, {
+        cssClass: 'alert-success',
+        timeout: 5000})
+      window.scrollTo(0, 0)
+    }
+  }
+
   getNodeServerResponses() {
     this.subResponses = this.sockets.nodeServerResponse.subscribe(response => {
       if (response.hasOwnProperty('success')) {

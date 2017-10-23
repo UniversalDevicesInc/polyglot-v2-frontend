@@ -34,6 +34,8 @@ import { CustomdetailsComponent } from './components/customdetails/customdetails
 import { InstallprofileComponent } from './components/installprofile/installprofile.component';
 import { ShowlogComponent } from './components/showlog/showlog.component';
 import { GetnsComponent } from './components/getns/getns.component';
+import { NscontrolComponent } from './components/nscontrol/nscontrol.component';
+import { NslogComponent } from './components/nslog/nslog.component';
 
 
 
@@ -70,6 +72,8 @@ const appRoutes: Routes = [
     InstallprofileComponent,
     ShowlogComponent,
     GetnsComponent,
+    NscontrolComponent,
+    NslogComponent,
   ],
   imports: [
     BrowserModule,

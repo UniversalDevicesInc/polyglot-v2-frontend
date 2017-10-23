@@ -1,0 +1,14 @@
+<div *ngIf="nsdetails.currentlyEnabled === 'log'">
+  <div style="text-align: center;">
+    <h1>Real-time {{nsdetails.selectedNodeServer.name}} log file.</h1>
+    <button onclick="window.scrollTo(0,document.body.scrollHeight)" class="btn btn-default">Scroll to Bottom</button>
+  </div><br />
+  <div class="well well-lg">
+    <pre>
+      <div id='log' *ngFor="let data of logData">{{data}}</div>
+    </pre>
+  </div>
+  <div style="text-align: center;">
+    <button onclick="window.scrollTo(0,0)" class="btn btn-default">Scroll to Top</button>
+  </div><br />
+</div>

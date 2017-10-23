@@ -1,0 +1,10 @@
+<div *ngIf="nsdetails.currentlyEnabled === 'control'">
+  <div style="text-align: center;">
+    <h1>NodeServer Controls</h1>
+  </div>
+  <div class="btn-group btn-group-justified">
+    <button class="btn btn-default" (click)="sendControl('start')" style="width: 33%" role="button">Start</button>
+    <button class="btn btn-default" (click)="sendControl('stop')" style="width: 34%" role="button">Stop</button>
+    <button class="btn btn-default" (click)="sendControl('restart')" style="width: 33%" role="button">Restart</button>
+  </div>
+</div>

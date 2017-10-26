@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NodeServer } from '../../models/nodeserver.model'
-import { ActivatedRoute } from "@angular/router"
+import { Router, ActivatedRoute } from "@angular/router"
 import { DialogService } from 'ng2-bootstrap-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
@@ -26,7 +26,8 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     private settingsService: SettingsService,
     private dialogService: DialogService,
     private flashMessage: FlashMessagesService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.route.params.subscribe((params) => {
         this.profileNum = params["id"]
@@ -61,6 +62,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   deleteNodeServer(nodeServer, confirmed) {
     if (confirmed) {
       this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}}, false, true)
+      this.router.navigate(['/dashboard'])
     }
   }
 

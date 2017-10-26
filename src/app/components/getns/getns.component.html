@@ -25,6 +25,7 @@
            <button (click)=addConfirm(ns) class="btn btn-default">Install</button>
          </td>
          <td *ngIf="isInstalled(ns)" style="vertical-align:middle">
+           <button (click)=updateNS(ns) class="btn btn-default">Update</button>
            <button (click)=delConfirm(ns) class="btn btn-default">Uninstall</button>
          </td>
        </tr>

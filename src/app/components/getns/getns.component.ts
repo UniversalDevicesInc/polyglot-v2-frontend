@@ -48,6 +48,9 @@ export class GetnsComponent implements OnInit, OnDestroy {
       this.nsList = nsList
       this.received = true
     })
+    this.flashMessage.show(`Refreshed NodeServers List from Server.`, {
+      cssClass: 'alert-success',
+      timeout: 3000})
   }
 
   installNS(ns, confirmed) {
@@ -56,6 +59,17 @@ export class GetnsComponent implements OnInit, OnDestroy {
         if (connected) {
           this.sockets.sendMessage('nodeservers', { 'installns': ns }, false, true)
           this.flashMessage.show(`Installing ${ns.name} please wait...`, {
+            cssClass: 'alert-success',
+            timeout: 5000})
+        }
+    })
+  }
+
+  updateNS(ns) {
+    this.sockets.start((connected) => {
+        if (connected) {
+          this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
+          this.flashMessage.show(`Updating ${ns.name} please wait...`, {
             cssClass: 'alert-success',
             timeout: 5000})
         }

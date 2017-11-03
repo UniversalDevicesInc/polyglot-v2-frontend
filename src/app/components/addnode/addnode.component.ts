@@ -28,7 +28,6 @@ export class AddnodeComponent implements OnInit {
   public types: string[] = ['Local (Co-Resident with Polyglot)', 'Remote']
   public typeSet: string[] = ['local', 'remote']
   public received: boolean
-  public selectedIndex: number = this.indexes[0]
   public selectedType: string = this.typeSet[0]
   public selectedNS: Object = this.nsTypes[0]
 
@@ -63,7 +62,6 @@ export class AddnodeComponent implements OnInit {
         }
     })
     this.getNodeServers()
-    this.profileNum = this.selectedIndex
   }
 
   showConfirm() {
@@ -84,6 +82,7 @@ export class AddnodeComponent implements OnInit {
           this.indexes.splice(ind, 1)
         }
       })
+      this.profileNum = this.indexes[0]
     })
   }
 

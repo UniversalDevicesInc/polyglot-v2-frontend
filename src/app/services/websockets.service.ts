@@ -44,7 +44,7 @@ export class WebsocketsService {
     if (!(this.settingsService.settings.mqttHost === '127.0.0.1')) {
       host = this.settingsService.settings.mqttHost
     }
-    this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.mqttWSPort) || 8083, this.id)
+    this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.listenPort) || 3000, this.id)
     this.onMessage()
     this.onConnectionLost()
     const message = {node: this.id, connected: false}
@@ -54,8 +54,10 @@ export class WebsocketsService {
     this._willMessage.retained = false
     this.client.connect(
       { onSuccess: this.onConnected.bind(this),
-      willMessage: this._willMessage
-      //useSSL: true
+      willMessage: this._willMessage,
+      useSSL: true,
+      userName: this.id,
+      password: this.settingsService.settings.secret
      })
      setTimeout(() => {
       if (cb) { return cb(this.connected ? true : false) }
@@ -205,6 +207,7 @@ export class WebsocketsService {
   }
 
   processSettings(message) {
+    this.settingsService.storeSettings(message.settings)
     if (message.hasOwnProperty('response') && message.hasOwnProperty('seq')) {
         this.setResponses.forEach((item) => {
           if (item.seq === message.seq) {

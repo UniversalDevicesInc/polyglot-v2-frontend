@@ -12,6 +12,8 @@ import { WebsocketsService } from '../../services/websockets.service'
 })
 export class NavbarComponent implements OnInit {
 
+  isCollapsed:boolean = true
+
   constructor(
     public authService: AuthService,
     private router: Router,

@@ -1,3 +1,10 @@
+<div *ngIf="gotSettings">
+  <div *ngIf="!isyConnected" class="alert alert-dismissible alert-danger text-center">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <p *ngIf="isyFound">ISY automatically discovered at {{isyHttps ? 'https' : 'http'}}://{{isyHost}}:{{isyPort}} however the username and password need to be set in the settings menu.</p>
+    <p *ngIf="!isyFound">ISY was not automatically discovered on your local network. Please configure it in the settings menu now.</p>
+  </div>
+</div>
 <div class="collection">
 <h2 align=center>NodeServers</h2>
   <div *ngFor="let nodeServer of nodeServers" class="column">

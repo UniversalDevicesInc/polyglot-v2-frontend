@@ -19,6 +19,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   confirmResult: boolean = null
   nodeDetails: any
   selectedNode: any
+  public isyConnected: boolean
+  public isyFound: boolean
+  public isyHttps: boolean
+  public isyHost: string
+  public isyPort: string
+  public gotSettings: boolean
+  private subSettings: any
   private subNodeServers: any
   private subResponses: any
 
@@ -34,6 +41,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.sockets.start((connected) => {
         if (connected) {
+          this.getSettings()
           this.getNodeServers()
           this.getNodeServerResponses()
           this.nodeDetails = null;
@@ -110,6 +118,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   redirect(profileNum) {
     //this.settingsService.currentNode = profileNum
     this.router.navigate(['/nsdetails', profileNum])
+  }
+
+  getSettings() {
+    this.subSettings = this.sockets.settingsData.subscribe(settings => {
+      this.isyConnected = settings.isyConnected
+      this.isyFound = settings.isyFound
+      this.isyHttps = settings.isyHttps
+      this.isyHost = settings.isyHost
+      this.isyPort = settings.isyPort
+      this.gotSettings = true
+    })
   }
 
 }

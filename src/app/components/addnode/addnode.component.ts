@@ -49,7 +49,7 @@ export class AddnodeComponent implements OnInit {
   }
 
   onSelectNS(index) {
-    this.selectedNS = index
+    this.selectedNS = this.nsTypes[index]
   }
 
 
@@ -97,6 +97,7 @@ export class AddnodeComponent implements OnInit {
   onRegisterSubmit(confirmed) {
     if (!confirmed) { return }
     if (this.selectedType === 'local') {
+      console.log(this.selectedNS['name'])
       var name = this.selectedNS['name']
       var path = this.selectedNS['_folder']
     } else {
@@ -108,7 +109,7 @@ export class AddnodeComponent implements OnInit {
       type: this.selectedType,
       path: path || ''
     }
-
+    console.log(node)
     if (!this.validateService.validateRegister(node)) {
       this.flashMessage.show('Please fill in all fields', {cssClass: 'alert-danger', timeout: 3000})
       return false

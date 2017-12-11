@@ -11,7 +11,7 @@
   <div *ngIf="nsTypes.length > 0 && selectedType === 'local'">
       <label>Available Node Servers</label><br />
       <select (change)="onSelectNS($event.target.value)" type="button" class="btn btn-default dropdown-toggle btn-block">
-          <option *ngFor="let ns of this.nsTypes; let i = index" [value]="ns">
+          <option *ngFor="let ns of this.nsTypes; let i = index" [value]="i">
               {{ns.name}}
           </option>
       </select>

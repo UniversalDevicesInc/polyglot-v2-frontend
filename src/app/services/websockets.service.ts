@@ -41,7 +41,7 @@ export class WebsocketsService {
       // this._seq = Math.floor(Math.random() * 90000) + 10000
     }
     let host = location.hostname
-    if (!(this.settingsService.settings.mqttHost === '127.0.0.1')) {
+    if (!(this.settingsService.settings.mqttHost === 'localhost')) {
       host = this.settingsService.settings.mqttHost
     }
     this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.listenPort) || 3000, this.id)

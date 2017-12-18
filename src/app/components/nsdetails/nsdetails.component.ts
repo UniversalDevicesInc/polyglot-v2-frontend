@@ -85,16 +85,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
 
   saveCustom(params) {
     if (this.sockets.connected) {
-      if (JSON.stringify(params) !== '{}') {
         var updatedParams = JSON.parse(JSON.stringify(params))
         updatedParams['profileNum'] = this.selectedNodeServer.profileNum
         this.sockets.sendMessage('nodeservers', {customparams: updatedParams}, false, true)
-      } else {
-        this.flashMessage.show('No Settings Changed.', {
-          cssClass: 'alert-danger',
-          timeout: 5000})
-        window.scrollTo(0, 0)
-      }
     } else {
       this.flashMessage.show('Websockets not connected to Polyglot. Custom Parameters not saved.', {
         cssClass: 'alert-danger',

@@ -17,14 +17,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   nodeServers: NodeServer[]
   confirmResult: boolean = null
-  nodeDetails: any
+  nodeDetails: any = null
   selectedNode: any
-  public isyConnected: boolean
+
   public isyFound: boolean
   public isyHttps: boolean
   public isyHost: string
   public isyPort: string
   public gotSettings: boolean
+  public isyConnected: boolean
   private subSettings: any
   private subNodeServers: any
   private subResponses: any
@@ -39,19 +40,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.getSettings()
-          this.getNodeServers()
-          this.getNodeServerResponses()
-          this.nodeDetails = null;
-        }
-    })
+      if (!this.sockets.connected) this.sockets.start()
+      this.getSettings()
+      this.getNodeServers()
+      this.getNodeServerResponses()
   }
 
   ngOnDestroy() {
     if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
+    if (this.subSettings) { this.subSettings.unsubscribe() }
   }
 
   deleteNodeServer(nodeServer, confirmed) {

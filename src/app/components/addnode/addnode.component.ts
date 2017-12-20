@@ -96,38 +96,45 @@ export class AddnodeComponent implements OnInit {
 
   onRegisterSubmit(confirmed) {
     if (!confirmed) { return }
-    if (this.selectedType === 'local') {
-      var name = this.selectedNS['name']
-      var path = this.selectedNS['_folder']
-    } else {
-      name = this.name
-    }
-    const node = {
-      name: name || this.name,
-      profileNum: this.profileNum,
-      type: this.selectedType,
-      path: path || ''
-    }
-    if (!this.validateService.validateRegister(node)) {
-      this.flashMessage.show('Please fill in all fields', {cssClass: 'alert-danger', timeout: 3000})
-      return false
-    }
-
-    if (!this.validateService.validateProfileNum(node.profileNum)) {
-      this.flashMessage.show('Please use 1 through 10 for Node Server Number.', {cssClass: 'alert-danger', timeout: 3000})
-      return false
-    }
-
-    if (this.sockets.connected) {
-      this.sockets.sendMessage('nodeservers', {addns: node}, false, true)
-      this.flashMessage.show(`Successfully submitted ${node.type} NodeServer ${node.name} at slot ${node.profileNum}`, {cssClass: 'alert-success', timeout: 3000})
-      window.scrollTo(0, 0)
-      this.router.navigate(['/dashboard'])
-    } else {
-      this.flashMessage.show('Websockets not connected to Polyglot. Node not added.', {
+    if (!this.sockets.isyConnected) {
+      this.flashMessage.show('ISY not connected to Polyglot. Can\'t add NodeServers.', {
         cssClass: 'alert-danger',
         timeout: 5000})
       window.scrollTo(0, 0)
+    } else {
+      if (this.selectedType === 'local') {
+        var name = this.selectedNS['name']
+        var path = this.selectedNS['_folder']
+      } else {
+        name = this.name
+      }
+      const node = {
+        name: name || this.name,
+        profileNum: this.profileNum,
+        type: this.selectedType,
+        path: path || ''
+      }
+      if (!this.validateService.validateRegister(node)) {
+        this.flashMessage.show('Please fill in all fields', {cssClass: 'alert-danger', timeout: 3000})
+        return false
+      }
+
+      if (!this.validateService.validateProfileNum(node.profileNum)) {
+        this.flashMessage.show('Please use 1 through 10 for Node Server Number.', {cssClass: 'alert-danger', timeout: 3000})
+        return false
+      }
+
+      if (this.sockets.connected) {
+        this.sockets.sendMessage('nodeservers', {addns: node}, false, true)
+        this.flashMessage.show(`Successfully submitted ${node.type} NodeServer ${node.name} at slot ${node.profileNum}`, {cssClass: 'alert-success', timeout: 3000})
+        window.scrollTo(0, 0)
+        this.router.navigate(['/dashboard'])
+      } else {
+        this.flashMessage.show('Websockets not connected to Polyglot. Node not added.', {
+          cssClass: 'alert-danger',
+          timeout: 5000})
+        window.scrollTo(0, 0)
+      }
     }
   }
 }

@@ -1,25 +1,49 @@
 <div *ngIf="nsdetails.currentlyEnabled === 'custom'">
-  <h1>Custom Configuration Parameters</h1>
-  <table class="table">
-      <thead>
-          <tr>
-              <td>Key</td>
-              <td>Value</td>
-          </tr>
-      </thead>
-      <tbody>
-          <tr *ngFor="let key of arrayOfKeys; let i = index" style="margin-bottom: 10px;">
-              <td>{{key}}</td>
-              <td><input class="form-control input-sm" type="text" #value value={{customParams[key]}}></td>
-              <td align="middle"><button class="btn btn-primary btn-xs" (click)="saveCustom(key, value.value)">Save</button></td>
-              <td><button class="btn btn-primary btn-xs" (click)="removeCustom(key, i)">Delete</button></td>
-          </tr>
-      </tbody>
-  </table>
-  <div class="addCustom" align="center">
-    <input #newkey id="newkey" placeholder="key" value= ""/>
-    <input #newvalue id="newvalue" placeholder="value" value=""/>
-    <button class="btn btn-primary btn-xs" (click)="addCustom(newkey.value, newvalue.value)">Add Custom Parameter</button>
+  <div *ngIf="nsdetails.selectedNodeServer">
+    <h2>Advanced Configuration</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <td>Option</td>
+                <td>Value</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="margin-bottom: 10px;">
+                <td>shortPoll</td>
+                <td><input class="form-control input-sm" type="number" #short value={{nsdetails.selectedNodeServer.shortPoll}}></td>
+                <td align="middle"><button class="btn btn-primary btn-xs" (click)="nsdetails.savePolls(short.value, long.value)">Save</button></td>
+            </tr>
+            <tr style="margin-bottom: 10px;">
+                <td>longPoll</td>
+                <td><input class="form-control input-sm" type="number" #long value={{nsdetails.selectedNodeServer.longPoll}}></td>
+                <td align="middle"><button class="btn btn-primary btn-xs" (click)="nsdetails.savePolls(short.value, long.value)">Save</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <h2>Custom Configuration Parameters</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <td>Key</td>
+                <td>Value</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let key of nsdetails.arrayOfKeys; let i = index" style="margin-bottom: 10px;">
+                <td>{{key}}</td>
+                <td><input class="form-control input-sm" type="text" #value value={{nsdetails.customParams[key]}}></td>
+                <td align="middle"><button class="btn btn-primary btn-xs" (click)="nsdetails.saveCustom(key, value.value)">Save</button></td>
+                <td><button class="btn btn-primary btn-xs" (click)="nsdetails.removeCustom(key, i)">Delete</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="addCustom" align="center">
+      <input #newkey id="newkey" placeholder="key" value= ""/>
+      <input #newvalue id="newvalue" placeholder="value" value=""/>
+      <button class="btn btn-primary btn-xs" (click)="addCustom(newkey.value, newvalue.value)">Add Custom Parameter</button>
+    </div>
   </div>
 </div>
 <br />

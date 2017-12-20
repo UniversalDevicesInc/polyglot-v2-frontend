@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { AuthService } from '../../services/auth.service'
 import { Router } from '@angular/router'
 import { FlashMessagesService } from 'angular2-flash-messages'
@@ -10,9 +10,11 @@ import { WebsocketsService } from '../../services/websockets.service'
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
 
   isCollapsed:boolean = true
+  connected: boolean = false
+  private subMqttState: any
 
   constructor(
     public authService: AuthService,
@@ -22,19 +24,23 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.authService.loggedIn()) {
-      if (!this.sockets.connected) {
-          this.sockets.start()
-      }
-    }
+    this.getMqttState()
+  }
+
+  ngOnDestroy() {
+    if (this.subMqttState) { this.subMqttState.unsubscribe() }
+  }
+
+  getMqttState() {
+    this.subMqttState = this.sockets.mqttConnected.subscribe(mqttState => {
+      this.connected = mqttState
+    })
   }
 
   onLogoutClick() {
-    if (this.sockets && this.sockets.connected) {
-      this.sockets.sendMessage('connections', {connected: false})
-      this.sockets.stop()
-    }
     this.authService.logout()
+    if (this.subMqttState) { this.subMqttState.unsubscribe() }
+    this.sockets.stop()
     this.flashMessage.show('You are logged out.', {
       cssClass: 'alert-success',
       timeout: 3000

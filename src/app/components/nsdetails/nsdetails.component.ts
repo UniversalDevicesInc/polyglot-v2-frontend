@@ -17,6 +17,10 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   nodeServers: NodeServer[]
   private subNodeServers: any
   private subResponses: any
+  private logConn: any
+  public logData: string[]=[]
+  public arrayOfKeys: any
+  public customParams: any
   public profileNum: any
   public selectedNodeServer: any
   public currentlyEnabled: any
@@ -35,17 +39,16 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.selectedNodeServer = JSON.parse(localStorage.getItem('ns'))
-    setTimeout(() => {
-      if (!(this.sockets.connected)) {
-          this.sockets.start()
-      }
-    }, 1000)
+    if (!this.sockets.connected) this.sockets.start()
     this.getNodeServers()
     this.getNodeServerResponses()
   }
 
   ngOnDestroy() {
+    if (this.sockets.connected) {
+      this.sockets.sendMessage('log', { stop: this.selectedNodeServer.profileNum })
+    }
+    if (this.logConn) { this.logConn.unsubscribe() }
     if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
   }
@@ -69,6 +72,13 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   showControl(type) {
     if (this.currentlyEnabled === type) { return this.currentlyEnabled = null }
     this.currentlyEnabled = type
+    if (type === 'log') {
+      if (this.sockets.connected) {
+        this.sockets.sendMessage('log', { start: this.selectedNodeServer.profileNum })
+        this.getLog()
+      }
+    }
+
  }
 
   getNodeServers() {
@@ -77,15 +87,63 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       for (const i in this.nodeServers) {
         if (this.nodeServers[i].profileNum === this.profileNum) {
           this.selectedNodeServer = this.nodeServers[i]
-          localStorage.setItem('ns', JSON.stringify(this.selectedNodeServer))
+          this.customParams = JSON.parse(JSON.stringify(this.selectedNodeServer.customParams))
+          this.arrayOfKeys = Object.keys(this.customParams)
         }
       }
     })
   }
 
-  saveCustom(params) {
+  savePolls(shortPoll, longPoll) {
+    shortPoll = parseInt(shortPoll)
+    longPoll = parseInt(longPoll)
+    if (typeof shortPoll === 'number' && typeof longPoll === 'number') {
+      if (shortPoll < longPoll) {
+        if (this.sockets.connected) {
+          var message = {
+            shortPoll: shortPoll,
+            longPoll: longPoll
+          }
+          var updatedPolls = JSON.parse(JSON.stringify(message))
+          updatedPolls['profileNum'] = this.selectedNodeServer.profileNum
+          this.sockets.sendMessage('nodeservers', {polls: updatedPolls}, false, true)
+        } else {
+          this.flashMessage.show('Websockets not connected to Polyglot. Poll Parameters not saved.', {
+            cssClass: 'alert-danger',
+            timeout: 5000})
+          window.scrollTo(0, 0)
+        }
+      } else {
+        this.badValidate('shortPoll must be smaller than longPoll')
+      }
+    } else {
+      this.badValidate('Both Poll values must be numbers')
+    }
+  }
+
+  badValidate(message) {
+    this.flashMessage.show(message, {
+      cssClass: 'alert-danger',
+      timeout: 5000})
+    window.scrollTo(0, 0)
+  }
+
+  saveCustom(key: string, value) {
+    this.customParams[key] = value
+    this.arrayOfKeys = Object.keys(this.customParams)
+    this.sendCustom()
+  }
+
+  removeCustom(key: string, index) {
+    this.arrayOfKeys.splice(index, 1)
+    delete this.customParams[key]
+    this.sendCustom()
+  }
+
+  sendCustom() {
     if (this.sockets.connected) {
-        var updatedParams = JSON.parse(JSON.stringify(params))
+        // Deepcopy hack
+        var updatedParams = JSON.parse(JSON.stringify(this.customParams))
         updatedParams['profileNum'] = this.selectedNodeServer.profileNum
         this.sockets.sendMessage('nodeservers', {customparams: updatedParams}, false, true)
     } else {
@@ -94,6 +152,20 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
         timeout: 5000})
       window.scrollTo(0, 0)
     }
+  }
+
+  getLog() {
+    if (this.logConn) { return }
+    this.logConn = this.sockets.logData.subscribe(data => {
+      try {
+        var message = data
+        if (message.hasOwnProperty('node')) {
+          if (message.node === 'polyglot') {
+            this.logData.push(data.log)
+          }
+        }
+      } catch (e) { }
+    })
   }
 
   sendControl(command) {

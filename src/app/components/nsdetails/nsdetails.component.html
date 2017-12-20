@@ -1,11 +1,11 @@
-<div class="column">
+<div *ngIf="selectedNodeServer" class="column">
   <div *ngIf="selectedNodeServer.type !== 'unmanaged'" class="col-md-20 col-md-20 center-block" align="center">
     <div class="thumbnail">
         <h2 class="align-top" align="center">{{selectedNodeServer.name}}({{selectedNodeServer.profileNum}})</h2>
         <p align="center">Current Status: <span class='label label-default'>{{selectedNodeServer.isConnected ? 'Connected' : 'Disconnected'}}</span></p>
         <div class="btn-group btn-group-justified">
           <button class="btn btn-default" (click)="showControl('nodes')" style="width: 20%" role="button">Nodes <span class="badge">{{selectedNodeServer.nodes.length}}</span></button>
-          <button class="btn btn-default" (click)="showControl('custom')" style="width: 20%" role="button">Custom Paramaters</button>
+          <button class="btn btn-default" (click)="showControl('custom')" style="width: 20%" role="button">Configuration</button>
           <button class="btn btn-default" (click)="showControl('control')" style="width: 20%" role="button">Control</button>
           <button class="btn btn-default" (click)="showControl('log')" style="width: 20%" role="button">Log</button>
           <button class="btn btn-default" (click)=showConfirm(selectedNodeServer) style="width: 20%" role="button">Delete</button>

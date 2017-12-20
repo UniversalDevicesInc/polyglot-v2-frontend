@@ -16,6 +16,7 @@ export class WebsocketsService {
   _willMessage: Paho.MQTT.Message
 
   public connected = false
+  public isyConnected = false
   public polyglotData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerData: ReplaySubject<any> = new ReplaySubject(1)
   public installedNSData: ReplaySubject<any> = new ReplaySubject(1)
@@ -23,6 +24,7 @@ export class WebsocketsService {
   public nodeServerResponse: Subject<any> = new Subject
   public settingsResponse: Subject<any> = new Subject
   public nsTypeResponse: Subject<any> = new Subject
+  public mqttConnected: Subject<boolean> = new ReplaySubject(1)
   public logData: Subject<any> = new Subject
   public nsResponses: Array<any> = new Array
   public setResponses: Array<any> = new Array
@@ -44,7 +46,9 @@ export class WebsocketsService {
     if (!(this.settingsService.settings.mqttHost === 'localhost')) {
       host = this.settingsService.settings.mqttHost
     }
-    this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.listenPort) || 3000, this.id)
+    if (!this.client) {
+      this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.listenPort) || 3000, this.id)
+    }
     this.onMessage()
     this.onConnectionLost()
     const message = {node: this.id, connected: false}
@@ -67,6 +71,7 @@ export class WebsocketsService {
   onConnected() {
     // console.log('Connected')
     this.connected = true
+    this.connectionState(true)
     this.client.subscribe('udi/polyglot/connections/polyglot', null)
     this.client.subscribe('udi/polyglot/frontend/#', null)
     this.client.subscribe('udi/polyglot/log/' + this.id, null)
@@ -115,31 +120,32 @@ export class WebsocketsService {
 
   onConnectionLost() {
     this.client.onConnectionLost = (responseObject: Object) => {
-      try {
-        setTimeout(() => {
-          if (this.authService.loggedIn()) {
-            if (!(this.connected)) {
-              this.client.connect(
-                {onSuccess: this.onConnected.bind(this),
-                willMessage: this._willMessage}
-              )
-            }
-          }
-          setTimeout(() => {
-            this.onConnectionLost()
-          }, 5000)
-        }, 2000)
-      } catch (err) {
-        console.log(err)
-      }
+      this.connectionState(false)
       this.connected = false
+      this.retryConnection()
+    }
+  }
+
+  retryConnection() {
+    if (this.authService.loggedIn()) {
+      if (!(this.connected)) {
+        this.start((connected) => {
+            if (!connected) {
+              setTimeout(() => {
+                this.retryConnection()
+              }, 5000)
+            }
+        })
+      }
     }
   }
 
   stop() {
+    this.sendMessage('connections', {connected: false})
     this.client.disconnect()
+    this.connectionState(false)
     this.connected = false
-    console.log('MQTT: Disconnected')
+    //console.log('MQTT: Disconnected')
   }
 
   randomString(length) {
@@ -149,6 +155,10 @@ export class WebsocketsService {
           text += possible.charAt(Math.floor(Math.random() * possible.length))
       }
       return text
+  }
+
+  connectionState(newState: boolean) {
+    if (this.mqttConnected !== undefined) this.mqttConnected.next(newState)
   }
 
   processLog(message) {
@@ -207,7 +217,6 @@ export class WebsocketsService {
   }
 
   processSettings(message) {
-    this.settingsService.storeSettings(message.settings)
     if (message.hasOwnProperty('response') && message.hasOwnProperty('seq')) {
         this.setResponses.forEach((item) => {
           if (item.seq === message.seq) {
@@ -216,6 +225,8 @@ export class WebsocketsService {
           }
         })
     } else {
+      //this.settingsService.storeSettings(message.settings)
+      if (message.settings.hasOwnProperty('isyConnected')) this.isyConnected = message.settings.isyConnected
       this.getSettings(message)
     }
   }

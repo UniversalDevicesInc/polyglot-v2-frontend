@@ -27,6 +27,7 @@ export class ProfileComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    if (!this.sockets.connected) this.sockets.start()
     this.profileForm = this.fb.group({
       username: '',
       password: ''
@@ -44,11 +45,8 @@ export class ProfileComponent implements OnInit {
   }
 
   logout() {
-    if (this.sockets && this.sockets.connected) {
-      this.sockets.sendMessage('connections', {connected: false})
-      this.sockets.stop()
-    }
     this.authService.logout()
+    this.sockets.stop()
     this.flashMessage.show('Password Changed. Logging you out.', {
       cssClass: 'alert-success',
       timeout: 3000

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
+import { WebsocketsService } from '../../services/websockets.service'
 import { Router } from '@angular/router'
 import { FlashMessagesService } from 'angular2-flash-messages'
 
@@ -15,6 +16,7 @@ export class LoginComponent implements OnInit {
   password: String
 
   constructor(
+    private sockets: WebsocketsService,
     private authService: AuthService,
     private router: Router,
     private flashMessage: FlashMessagesService,

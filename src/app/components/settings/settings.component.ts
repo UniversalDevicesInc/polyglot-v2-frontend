@@ -29,7 +29,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.sockets.start()
+    if (!this.sockets.connected) this.sockets.start()
     this.settingsForm = this.fb.group({
       isyHost: ['', Validators.required],
       isyPort: [80, Validators.required],
@@ -37,8 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       isyPassword: '',
       isyHttps: false,
       mqttHost: ['', Validators.required],
-      mqttPort: 1883,
-      mqttWSPort: 8083
+      mqttPort: 1883
     })
     this.getSettings()
     this.getSettingResponses()
@@ -107,8 +106,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         isyUsername: settings.isyUsername,
         isyHttps: settings.isyHttps,
         mqttHost: settings.mqttHost,
-        mqttPort: settings.mqttPort,
-        mqttWSPort: settings.mqttWSPort
+        mqttPort: settings.mqttPort
       })
     })
   }

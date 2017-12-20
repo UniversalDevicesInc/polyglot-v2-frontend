@@ -5,7 +5,7 @@ import { ConfirmComponent } from '../confirm/confirm.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
-import _ from "lodash";
+import _ from "lodash"
 
 @Component({
   selector: 'app-getns',
@@ -30,13 +30,13 @@ export class GetnsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getNSList()
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
-          this.getNsTypes()
-          this.getNodeServerResponses()
-        }
-    })
+    if (!this.sockets.connected) {
+      this.sockets.start()
+    } else {
+      this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
+      this.getNsTypes()
+      this.getNodeServerResponses()
+    }
   }
 
   ngOnDestroy() {

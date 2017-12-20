@@ -12,6 +12,7 @@ export class AddnodeService {
     private http: Http
   ) { }
 
+  /*
   registerNodeServer(node) {
     const headers = new Headers()
     this.loadToken()
@@ -20,6 +21,7 @@ export class AddnodeService {
     return this.http.post(environment.PG_URI + '/frontend/addns', node, {headers: headers})
       .map(res => res.json())
   }
+  */
 
   loadToken() {
     const token = localStorage.getItem('id_token')

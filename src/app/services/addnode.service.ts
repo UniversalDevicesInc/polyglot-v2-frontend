@@ -35,4 +35,11 @@ export class AddnodeService {
       .map(res => res.json())
   }
 
+  getPolyglotVersion() {
+    var polyglotPackage = 'https://raw.githubusercontent.com/Einstein42/udi-polyglotv2/master/package.json'
+    const headers = new Headers()
+    return this.http.get(polyglotPackage, {headers: headers})
+      .map(res => res.json())
+  }
+
 }

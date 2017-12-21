@@ -22,6 +22,7 @@ export class WebsocketsService {
   public installedNSData: ReplaySubject<any> = new ReplaySubject(1)
   public settingsData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerResponse: Subject<any> = new Subject
+  public upgradeData: Subject<any> = new Subject
   public settingsResponse: Subject<any> = new Subject
   public nsTypeResponse: Subject<any> = new Subject
   public mqttConnected: Subject<boolean> = new ReplaySubject(1)
@@ -94,6 +95,7 @@ export class WebsocketsService {
     const packet = new Paho.MQTT.Message(msg)
     if (topic === 'connections') { topic = 'udi/polyglot/connections/frontend'
     } else if (topic === 'settings') { topic = 'udi/polyglot/frontend/settings'
+    } else if (topic === 'upgrade') { topic = 'udi/polyglot/frontend/upgrade'
     } else if (topic === 'nodeservers') { topic = 'udi/polyglot/frontend/nodeservers'
     } else if (topic === 'log') { topic = 'udi/polyglot/frontend/log'
     } else { topic = 'udi/polyglot/ns/' + topic }
@@ -110,6 +112,8 @@ export class WebsocketsService {
         this.processConnection(msg)
       } else if (message.destinationName === 'udi/polyglot/frontend/nodeservers') {
         this.processNodeServers(msg)
+      } else if (message.destinationName === 'udi/polyglot/frontend/upgrade') {
+        this.processUpgrade(msg)
       } else if (message.destinationName === 'udi/polyglot/frontend/settings') {
         this.processSettings(msg)
       } else if (message.destinationName === 'udi/polyglot/frontend/log/' + this.id) {
@@ -239,6 +243,15 @@ export class WebsocketsService {
   settingsResponses(message) {
     Observable.of(message.response).subscribe(data => this.settingsResponse.next(data))
     return this.settingsData
+  }
+
+  processUpgrade(message) {
+    this.getUpgrade(message)
+  }
+
+  getUpgrade(message) {
+    Observable.of(message).subscribe(data => this.upgradeData.next(data))
+    return this.upgradeData
   }
 
 }

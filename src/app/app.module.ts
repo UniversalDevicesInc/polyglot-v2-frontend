@@ -37,8 +37,6 @@ import { GetnsComponent } from './components/getns/getns.component';
 import { NscontrolComponent } from './components/nscontrol/nscontrol.component';
 import { NslogComponent } from './components/nslog/nslog.component';
 
-
-
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
@@ -86,7 +84,7 @@ const appRoutes: Routes = [
   ],
   entryComponents: [
     ConfirmComponent,
-    NodepopComponent
+    NodepopComponent,
   ],
   providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService],
   bootstrap: [AppComponent]

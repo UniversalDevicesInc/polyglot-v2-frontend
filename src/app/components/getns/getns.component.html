@@ -4,29 +4,31 @@
 </div><br />
 
 <div *ngIf="received">
-  <table *ngFor="let ns of nsList; let i = index"  [class.active]="i == selectedRow" class="table table-striped table-bordered table-hover">
-    <table  class="table table-striped table-bordered table-hover">
+  <table class="table table-striped table-bordered table-hover">
+    <table class="table table-striped table-bordered table-hover">
      <thead>
        <tr>
-         <th width="10%">Name {{i + 1}}</th>
+         <th width="15%">Name</th>
          <th width="10%">Author</th>
          <th width="10%">Language</th>
-         <th width="70%">Description</th>
-         <th width="10%"></th>
+         <th width="51%">Description</th>
+         <th width="14%"></th>
        </tr>
      </thead>
      <tbody>
-       <tr text-align="center">
+       <tr *ngFor="let ns of nsList; let i = index"  [class.active]="i == selectedRow" text-align="center">
          <td style="vertical-align:middle">{{ns.name}}</td>
          <td style="vertical-align:middle">{{ns.author}}</td>
          <td style="vertical-align:middle">{{ns.language}}</td>
          <td style="vertical-align:middle">{{ns.desc}}</td>
-         <td *ngIf="!isInstalled(ns)" style="vertical-align:middle">
-           <button (click)=addConfirm(ns) class="btn btn-default">Install</button>
+         <td *ngIf="!isInstalled(ns)" style="text-align: center; vertical-align:middle; margin: auto;">
+           <button (click)=addConfirm(ns) class="btn btn-default btn-sm">Install</button>
          </td>
-         <td *ngIf="isInstalled(ns)" style="vertical-align:middle">
-           <button (click)=updateNS(ns) class="btn btn-default">Update</button>
-           <button (click)=delConfirm(ns) class="btn btn-default">Uninstall</button>
+         <td *ngIf="isInstalled(ns)" style="text-align: center; vertical-align:middle; margin: auto;">
+           <div class="btn-group" role="group">
+             <button (click)=updateNS(ns) class="btn btn-default btn-sm">Update</button>
+             <button (click)=delConfirm(ns) class="btn btn-default btn-sm">Uninstall</button>
+           </div>
          </td>
        </tr>
      </tbody>

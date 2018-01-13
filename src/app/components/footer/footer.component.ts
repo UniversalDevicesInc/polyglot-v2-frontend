@@ -5,6 +5,7 @@ import { SettingsService } from '../../services/settings.service'
 import { AddnodeService } from '../../services/addnode.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { DialogService } from 'ng2-bootstrap-modal'
+import { Router } from '@angular/router'
 import { ConfirmComponent } from '../confirm/confirm.component'
 
 @Component({
@@ -36,6 +37,7 @@ export class FooterComponent implements OnInit {
     private dialogService: DialogService,
     private addNodeService: AddnodeService,
     private flashMessage: FlashMessagesService,
+    private router: Router,
     private sockets: WebsocketsService,
     private settings: SettingsService,
     private authService: AuthService
@@ -96,8 +98,17 @@ export class FooterComponent implements OnInit {
           timeout: 20000})
         this.upgrading = false
         window.scrollTo(0, 0)
+        setTimeout(() => {
+          this.logout()
+        }, 2000)
       }
     })
+  }
+
+  logout() {
+    this.authService.logout()
+    this.sockets.stop()
+    this.router.navigate(['/login'])
   }
 
   getSettings() {

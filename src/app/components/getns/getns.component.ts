@@ -30,13 +30,13 @@ export class GetnsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getNSList()
-    if (!this.sockets.connected) {
-      this.sockets.start()
-    } else {
-      this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
-      this.getNsTypes()
-      this.getNodeServerResponses()
-    }
+    this.sockets.start((connected) => {
+      if (connected) {
+        this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
+        this.getNsTypes()
+        this.getNodeServerResponses()
+      }
+    })
   }
 
   ngOnDestroy() {
@@ -66,13 +66,22 @@ export class GetnsComponent implements OnInit, OnDestroy {
   }
 
   updateNS(ns) {
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
-          this.flashMessage.show(`Updating ${ns.name} please wait...`, {
-            cssClass: 'alert-success',
-            timeout: 5000})
-        }
+    this.dialogService.addDialog(ConfirmComponent, {
+      title: 'Upload profile to ISY?',
+      message: `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will reboot the ISY. 'Cancel' will proceed with the update WITHOUT uploading the profile.`
+    }).subscribe((isConfirmed) => {
+      if (isConfirmed) {
+        ns['updateProfile'] = isConfirmed
+      }
+      this.sockets.start((connected) => {
+          if (connected) {
+            this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
+            delete ns.updateProfile
+            this.flashMessage.show(`Updating ${ns.name} please wait...`, {
+              cssClass: 'alert-success',
+              timeout: 5000})
+          }
+      })
     })
   }
 

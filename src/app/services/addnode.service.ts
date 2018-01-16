@@ -29,7 +29,7 @@ export class AddnodeService {
   }
 
   getNSList() {
-    var nsIndexURL = 'https://raw.githubusercontent.com/Einstein42/udi-polyglotv2/master/nsindex/index.json'
+    var nsIndexURL = 'https://s3.amazonaws.com/3csolutions/udi/nsindex/index.json'
     const headers = new Headers()
     return this.http.get(nsIndexURL, {headers: headers})
       .map(res => res.json())

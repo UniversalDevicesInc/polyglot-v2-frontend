@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'
+import { AfterViewChecked, ElementRef, ViewChild, Component, OnInit, OnDestroy } from '@angular/core'
 import { environment } from '../../../environments/environment'
 import { Observable } from 'rxjs/Rx'
 import { WebsocketsService } from '../../services/websockets.service'
@@ -16,10 +16,13 @@ export class NslogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+
   }
+
+
 
   ngOnDestroy() {
-
   }
+
 
 }

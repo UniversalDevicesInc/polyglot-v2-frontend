@@ -66,8 +66,8 @@ export class AddnodeComponent implements OnInit {
 
   showConfirm() {
     this.dialogService.addDialog(ConfirmComponent, {
-      title: 'Delete NodeServer',
-      message: `Adding this NodeServer will automatically reboot the ISY.`})
+      title: 'Add NodeServer',
+      message: `Typically it is only necessary to restart the admin console by closing and re-opening it. If this doesn't show your new NodeServer, use the Reboot ISY button on the navigation bar above.`})
       .subscribe((isConfirmed) => {
         this.onRegisterSubmit(isConfirmed)
     })

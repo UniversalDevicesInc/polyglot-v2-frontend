@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { AddnodeService } from '../../services/addnode.service'
 import { DialogService } from 'ng2-bootstrap-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
+import { ModalNsUpdateComponent } from '../modal-ns-update/modal-ns-update.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
@@ -66,22 +67,24 @@ export class GetnsComponent implements OnInit, OnDestroy {
   }
 
   updateNS(ns) {
-    this.dialogService.addDialog(ConfirmComponent, {
+    this.dialogService.addDialog(ModalNsUpdateComponent, {
       title: 'Upload profile to ISY?',
-      message: `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will reboot the ISY. 'Cancel' will proceed with the update WITHOUT uploading the profile.`
+      message: `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will NOT automatically reboot the ISY. Typically only a restart of the admin console is necessary. However, if your expected changes do not appear, please restart the ISY with the 'Reboot ISY' button above. 'No' will proceed with the update WITHOUT uploading the profile.`
     }).subscribe((isConfirmed) => {
-      if (isConfirmed) {
-        ns['updateProfile'] = isConfirmed
+      if (isConfirmed !== null) {
+        if (isConfirmed) {
+          ns['updateProfile'] = isConfirmed
+        }
+        this.sockets.start((connected) => {
+            if (connected) {
+              this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
+              delete ns.updateProfile
+              this.flashMessage.show(`Updating ${ns.name} please wait...`, {
+                cssClass: 'alert-success',
+                timeout: 5000})
+            }
+        })
       }
-      this.sockets.start((connected) => {
-          if (connected) {
-            this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
-            delete ns.updateProfile
-            this.flashMessage.show(`Updating ${ns.name} please wait...`, {
-              cssClass: 'alert-success',
-              timeout: 5000})
-          }
-      })
     })
   }
 

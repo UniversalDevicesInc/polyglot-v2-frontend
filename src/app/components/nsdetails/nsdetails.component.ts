@@ -56,15 +56,28 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   showConfirm(nodeServer) {
     this.dialogService.addDialog(ConfirmComponent, {
       title: 'Delete NodeServer',
-      message: `This Will delete the ${nodeServer.name} NodeServer. Are you sure?`})
+      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
         this.deleteNodeServer(nodeServer, isConfirmed)
     });
   }
 
+  confirmNodeDelete(i) {
+    this.dialogService.addDialog(ConfirmComponent, {
+      title: 'Delete Node?',
+      message: `This will delete the node: ${i.address} from Polyglot and ISY if it exists. Are you sure?`})
+      .subscribe((isConfirmed) => {
+        this.deleteNode(i)
+    });
+  }
+
+  deleteNode(i) {
+    this.sockets.sendMessage('nodeservers', {removenode: {address: i.address, profileNum: this.selectedNodeServer.profileNum}}, false, true)
+  }
+
   deleteNodeServer(nodeServer, confirmed) {
     if (confirmed) {
-      this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}}, false, true)
+      this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}})
       this.router.navigate(['/dashboard'])
     }
   }

@@ -31,11 +31,12 @@ import { DriverpopComponent } from './components/driverpop/driverpop.component';
 import { NsdetailsComponent } from './components/nsdetails/nsdetails.component';
 import { NodedetailsComponent } from './components/nodedetails/nodedetails.component';
 import { CustomdetailsComponent } from './components/customdetails/customdetails.component';
-import { InstallprofileComponent } from './components/installprofile/installprofile.component';
 import { ShowlogComponent } from './components/showlog/showlog.component';
 import { GetnsComponent } from './components/getns/getns.component';
 import { NscontrolComponent } from './components/nscontrol/nscontrol.component';
 import { NslogComponent } from './components/nslog/nslog.component';
+import { ModalNsUpdateComponent } from './components/modal-ns-update/modal-ns-update.component';
+import { NsnoticesComponent } from './components/nsnotices/nsnotices.component';
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
@@ -67,11 +68,12 @@ const appRoutes: Routes = [
     NsdetailsComponent,
     NodedetailsComponent,
     CustomdetailsComponent,
-    InstallprofileComponent,
     ShowlogComponent,
     GetnsComponent,
     NscontrolComponent,
     NslogComponent,
+    ModalNsUpdateComponent,
+    NsnoticesComponent,
   ],
   imports: [
     BrowserModule,
@@ -85,6 +87,7 @@ const appRoutes: Routes = [
   entryComponents: [
     ConfirmComponent,
     NodepopComponent,
+    ModalNsUpdateComponent,
   ],
   providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService],
   bootstrap: [AppComponent]

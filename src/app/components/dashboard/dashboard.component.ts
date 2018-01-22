@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showConfirm(nodeServer) {
     this.dialogService.addDialog(ConfirmComponent, {
       title: 'Delete NodeServer',
-      message: `This Will delete the ${nodeServer.name} NodeServer. Are you sure?`})
+      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
         this.deleteNodeServer(nodeServer, isConfirmed)
     });

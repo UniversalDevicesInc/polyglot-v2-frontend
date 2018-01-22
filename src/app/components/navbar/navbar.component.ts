@@ -3,6 +3,8 @@ import { AuthService } from '../../services/auth.service'
 import { Router } from '@angular/router'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { WebsocketsService } from '../../services/websockets.service'
+import { DialogService } from 'ng2-bootstrap-modal'
+import { ConfirmComponent } from '../confirm/confirm.component'
 
 
 @Component({
@@ -19,6 +21,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   constructor(
     public authService: AuthService,
     private router: Router,
+    private dialogService: DialogService,
     private flashMessage: FlashMessagesService,
     public sockets: WebsocketsService
   ) { }
@@ -31,10 +34,23 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.subMqttState) { this.subMqttState.unsubscribe() }
   }
 
+  showConfirm() {
+    this.dialogService.addDialog(ConfirmComponent, {
+      title: 'Reboot ISY?',
+      message: `This will reboot the ISY. This is usually not necessary. You should try to restart the admin console first. Are you sure?`})
+      .subscribe((isConfirmed) => {
+        this.rebootClick()
+    })
+  }
+
   getMqttState() {
     this.subMqttState = this.sockets.mqttConnected.subscribe(mqttState => {
       this.connected = mqttState
     })
+  }
+
+  rebootClick() {
+    this.sockets.sendMessage('nodeservers', {rebootISY: {}})
   }
 
   onLogoutClick() {

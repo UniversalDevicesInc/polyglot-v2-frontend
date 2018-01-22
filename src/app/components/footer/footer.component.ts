@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { WebsocketsService } from '../../services/websockets.service'
 import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
@@ -13,7 +13,7 @@ import { ConfirmComponent } from '../confirm/confirm.component'
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css']
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent implements OnInit, OnDestroy {
 
   Math: any
   private subSettings: any
@@ -50,6 +50,11 @@ export class FooterComponent implements OnInit {
       this.getPolyVersion()
     }, 1000)
     this.getUpgrade()
+  }
+
+  ngOnDestroy() {
+    if (this.subUpgrade) { this.subUpgrade.unsubscribe() }
+    if (this.subSettings) { this.subSettings.unsubscribe() }
   }
 
   getPolyglot() {
@@ -106,6 +111,9 @@ export class FooterComponent implements OnInit {
   }
 
   logout() {
+    this.updateAvail = false
+    if (this.subUpgrade) { this.subUpgrade.unsubscribe() }
+    if (this.subSettings) { this.subSettings.unsubscribe() }
     this.authService.logout()
     this.sockets.stop()
     this.router.navigate(['/login'])

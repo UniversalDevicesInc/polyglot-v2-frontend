@@ -13,7 +13,7 @@
           <h4 class="align-top" align="center">{{nodeServer.name}}({{nodeServer.profileNum}})</h4>
           <p align="center">Current Status:
             <span *ngIf="nodeServer.isConnected" class='label label-success'>Connected</span>
-            <span *ngIf="!nodeServer.isConnected" class='label label-danger'>Connected</span>
+            <span *ngIf="!nodeServer.isConnected" class='label label-danger'>Disconnected</span>
           </p>
           <div class="btn-group btn-group-justified">
             <button class="btn btn-default btn-sm" (click)=showNodes(nodeServer) style="width: 33%" role="button">Nodes <span style="vertical-align: top" class="badge badge-default">{{nodeServer.nodes.length}}</span></button>

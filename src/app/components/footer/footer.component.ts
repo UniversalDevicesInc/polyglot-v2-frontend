@@ -137,9 +137,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   checkUpgrade() {
     if (this.pgVersion && this.gitVersion) {
-      if (this.compareVersions(this.pgVersion, '<', this.gitVersion)) {
-        this.updateAvail = true
-      }
+      this.updateAvail = this.compareVersions(this.pgVersion, '<', this.gitVersion)
     }
   }
 

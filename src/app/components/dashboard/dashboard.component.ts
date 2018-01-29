@@ -84,6 +84,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getNodeServers() {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
+      nodeServers.sort((a, b) => {
+        return parseInt(a.profileNum, 10) - parseInt(b.profileNum, 10)
+      })
       this.nodeServers = nodeServers
       if (this.selectedNode) {
         for (const i in this.nodeServers) {

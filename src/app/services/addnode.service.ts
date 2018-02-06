@@ -12,7 +12,7 @@ export class AddnodeService {
   ) { }
 
   getNSList() {
-    var nsIndexURL = 'https://8skwp2eayd.execute-api.us-east-1.amazonaws.com/prod/list?sort'
+    var nsIndexURL = 'https://t5b8ulpgfj.execute-api.us-east-1.amazonaws.com/prod/list?sort'
     const headers = new Headers()
     return this.http.get(nsIndexURL, {headers: headers})
       .map(res => res.json())

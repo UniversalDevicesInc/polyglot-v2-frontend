@@ -39,7 +39,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       title: 'Reboot ISY?',
       message: `This will reboot the ISY. This is usually not necessary. You should try to restart the admin console first. Are you sure?`})
       .subscribe((isConfirmed) => {
-        this.rebootClick()
+        if (isConfirmed) { this.rebootClick() }
     })
   }
 

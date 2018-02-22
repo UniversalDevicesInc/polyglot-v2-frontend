@@ -45,6 +45,19 @@
         <input type="text" class="form-control" formControlName="mqttPort">
       </div>
     </div>
-     <input type="submit" class="btn btn-primary pull-right" value="Save" (click)="saveSettings(getDirtyValues(settingsForm))">
+  </fieldset><br  />
+  <fieldset>
+    <legend>Firmware Management</legend>
+    <div class="form-group">
+      <label class="col-lg-2 control-label">Use Beta Firmware</label>
+      <div class="col-lg-10">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" formControlName="useBeta">
+          </label>
+        </div>
+      </div>
+    </div>
+    <input type="submit" class="btn btn-primary pull-right" value="Save" (click)="saveSettings(getDirtyValues(settingsForm))">
   </fieldset>
 </form>

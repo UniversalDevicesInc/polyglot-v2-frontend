@@ -58,8 +58,10 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       title: 'Delete NodeServer',
       message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
-        this.deleteNodeServer(nodeServer, isConfirmed)
-    });
+        if (isConfirmed) {
+          this.deleteNodeServer(nodeServer, isConfirmed)
+        }
+    })
   }
 
   confirmNodeDelete(i) {
@@ -67,8 +69,10 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       title: 'Delete Node?',
       message: `This will delete the node: ${i.address} from Polyglot and ISY if it exists. Are you sure?`})
       .subscribe((isConfirmed) => {
-        this.deleteNode(i)
-    });
+        if (isConfirmed) {
+          this.deleteNode(i)
+        }
+    })
   }
 
   deleteNode(i) {
@@ -76,10 +80,8 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   deleteNodeServer(nodeServer, confirmed) {
-    if (confirmed) {
       this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}})
       this.router.navigate(['/dashboard'])
-    }
   }
 
   showControl(type) {

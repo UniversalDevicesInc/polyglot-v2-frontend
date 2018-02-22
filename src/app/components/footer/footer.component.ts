@@ -22,7 +22,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   public polyPackage: String
   public isyVersion: String
   public pgVersion: String
-  public gitVersion: String
+  public currentVersion: String
   public updateAvail: boolean = false
   public upgradeData: any
   private upgrading: boolean = false
@@ -46,9 +46,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getPolyglot()
     this.getSettings()
-    setTimeout(() => {
-      this.getPolyVersion()
-    }, 1000)
+    this.getPolyVersion()
     this.getUpgrade()
   }
 
@@ -127,17 +125,18 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   getPolyVersion() {
-    this.addNodeService.getPolyglotVersion().subscribe(pkgjson => {
-      this.polyPackage = pkgjson
-      this.gitVersion = pkgjson.version
+    this.addNodeService.upgradeAvailable$.subscribe(doc => {
+      this.polyPackage = doc
+      this.currentVersion = doc.version
+      console.log(doc, doc.version)
       this.gotPackage = true
       this.checkUpgrade()
     })
   }
 
   checkUpgrade() {
-    if (this.pgVersion && this.gitVersion) {
-      this.updateAvail = this.compareVersions(this.pgVersion, '<', this.gitVersion)
+    if (this.pgVersion && this.currentVersion) {
+      this.updateAvail = this.compareVersions(this.pgVersion, '<', this.currentVersion)
     }
   }
 
@@ -163,7 +162,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   showConfirm() {
     this.dialogService.addDialog(ConfirmComponent, {
-      title: `Upgrade Polyglot? New version available ${this.gitVersion}`,
+      title: `Upgrade Polyglot? New version available ${this.currentVersion}`,
       message: `Upgrading Polyglot from here will automatically download the latest binary for your system type and extract it OVER the existing binary. It will
                 then exit Polyglot. If you do NOT have the auto-start scripts installed for linux(systemctl) or OSX(launchctl) then Polyglot will NOT restart
                 automatically. You will have to manually restart. If you are not using the binary, upgrade via git. Continue?`

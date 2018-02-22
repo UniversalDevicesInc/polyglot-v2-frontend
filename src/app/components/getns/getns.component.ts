@@ -3,6 +3,7 @@ import { AddnodeService } from '../../services/addnode.service'
 import { DialogService } from 'ng2-bootstrap-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { ModalNsUpdateComponent } from '../modal-ns-update/modal-ns-update.component'
+import { ModalNsAddComponent } from '../modal-ns-add/modal-ns-add.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
@@ -53,6 +54,31 @@ export class GetnsComponent implements OnInit, OnDestroy {
     this.flashMessage.show(`Refreshed NodeServers List from Server.`, {
       cssClass: 'alert-success',
       timeout: 3000})
+  }
+
+  addNS() {
+    this.dialogService.addDialog(ModalNsAddComponent, {
+      title: 'Add NodeServer to Polyglot Repository',
+      message: `Please enter the Github repository link to submit to the Polyglot team for addition into the NodeServer Store.`
+    }).subscribe((nslink) => {
+        if (nslink) {
+          this.addNodeService.submitNewNS(nslink).subscribe(response => {
+            this.flashMessage.show(`Submitted new NodeServer for approval to the Polyglot team.`, {
+              cssClass: 'alert-success',
+              timeout: 5000})
+          }, err => {
+            try {
+              this.flashMessage.show(`Error submitting new NodeServer. ${JSON.parse(err._body).error}`, {
+                cssClass: 'alert-danger',
+                timeout: 5000})
+            } catch (err) {
+              this.flashMessage.show(`Error submitting new NodeServer. Unable to parse response from server.`, {
+                cssClass: 'alert-danger',
+                timeout: 5000})
+            }
+          })
+        }
+    })
   }
 
   installNS(ns, confirmed) {

@@ -36,6 +36,7 @@ import { GetnsComponent } from './components/getns/getns.component';
 import { NscontrolComponent } from './components/nscontrol/nscontrol.component';
 import { NslogComponent } from './components/nslog/nslog.component';
 import { ModalNsUpdateComponent } from './components/modal-ns-update/modal-ns-update.component';
+import { ModalNsAddComponent } from './components/modal-ns-add/modal-ns-add.component';
 import { NsnoticesComponent } from './components/nsnotices/nsnotices.component';
 
 const appRoutes: Routes = [
@@ -73,6 +74,7 @@ const appRoutes: Routes = [
     NscontrolComponent,
     NslogComponent,
     ModalNsUpdateComponent,
+    ModalNsAddComponent,
     NsnoticesComponent,
   ],
   imports: [
@@ -88,6 +90,7 @@ const appRoutes: Routes = [
     ConfirmComponent,
     NodepopComponent,
     ModalNsUpdateComponent,
+    ModalNsAddComponent,
   ],
   providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService],
   bootstrap: [AppComponent]

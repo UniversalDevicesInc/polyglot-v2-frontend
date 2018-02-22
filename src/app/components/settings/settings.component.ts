@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
+import { AddnodeService } from '../../services/addnode.service'
 import { Router } from '@angular/router'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -25,7 +26,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       private authService: AuthService,
       private router: Router,
       private flashMessage: FlashMessagesService,
-      private settingsService: SettingsService
+      private settingsService: SettingsService,
+      private addNodeService: AddnodeService
   ) {}
 
   ngOnInit() {
@@ -37,7 +39,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       isyPassword: '',
       isyHttps: false,
       mqttHost: ['', Validators.required],
-      mqttPort: 1883
+      mqttPort: 1883,
+      useBeta: false
     })
     this.getSettings()
     this.getSettingResponses()
@@ -100,13 +103,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   getSettings() {
     this.subSettings = this.sockets.settingsData.subscribe(settings => {
+      this.settingsService.storeSettings(settings)
+      this.addNodeService.getPolyglotVersion()
       this.settingsForm.patchValue({
         isyHost: settings.isyHost,
         isyPort: settings.isyPort,
         isyUsername: settings.isyUsername,
         isyHttps: settings.isyHttps,
         mqttHost: settings.mqttHost,
-        mqttPort: settings.mqttPort
+        mqttPort: settings.mqttPort,
+        useBeta: settings.useBeta || false,
       })
     })
   }

@@ -1,6 +1,8 @@
 <div style="text-align: center;">
   <h1>Polyglot NodeServer Store</h1>
+  <h4 *ngIf="nsList">Current NodeServers: <span style="vertical-align: top" class="badge badge-default">{{nsList.length}}</span></h4>
   <button (click)=getNSList() class="btn btn-default">Refresh</button>
+  <button (click)=addNS() class="btn btn-default">Add New NodeServer</button>
 </div><br />
 
 <div *ngIf="received">
@@ -19,7 +21,7 @@
      </thead>
      <tbody>
        <tr *ngFor="let ns of nsList; let i = index"  [class.active]="i == selectedRow" text-align="center">
-         <td style="vertical-align:middle">{{ns.name}}</td>
+         <td style="vertical-align:middle"><a href={{ns.url}}>{{ns.name}}</a></td>
          <td style="vertical-align:middle">{{ns.version}}</td>
          <td style="vertical-align:middle">{{ns.author}}</td>
          <td style="vertical-align:middle">{{ns.language}}</td>

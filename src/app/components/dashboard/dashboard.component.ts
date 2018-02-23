@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { WebsocketsService } from '../../services/websockets.service'
+import { AddnodeService } from '../../services/addnode.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { NodeServer } from '../../models/nodeserver.model'
 import { Router } from '@angular/router'
@@ -34,6 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private sockets: WebsocketsService,
     private flashMessage: FlashMessagesService,
+    private addNodeService: AddnodeService,
     private dialogService: DialogService,
     private router: Router,
     private settingsService: SettingsService
@@ -44,6 +46,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.getSettings()
       this.getNodeServers()
       this.getNodeServerResponses()
+      this.addNodeService.getPolyglotVersion()
   }
 
   ngOnDestroy() {

@@ -44,7 +44,7 @@ export class AddnodeService {
       }
       //var polyglotPackage = 'https://raw.githubusercontent.com/UniversalDevicesInc/polyglot-v2/master/package.json'
       const headers = new Headers()
-      return this.http.get(polyglotVersionDoc, {headers: headers})
+      this.http.get(polyglotVersionDoc, {headers: headers})
         .map(res => res.json())
         .subscribe(doc => this.checkUpgrade(doc))
     } catch (err) {

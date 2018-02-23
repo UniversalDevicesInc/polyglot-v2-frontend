@@ -47,6 +47,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.getPolyglot()
     this.getSettings()
     this.getPolyVersion()
+    //setTimeout(() => { this.addNodeService.getPolyglotVersion() }, 1000)
     this.getUpgrade()
   }
 

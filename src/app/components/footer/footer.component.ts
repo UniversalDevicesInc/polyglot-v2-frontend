@@ -47,7 +47,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.getPolyglot()
     this.getSettings()
     this.getPolyVersion()
-    //setTimeout(() => { this.addNodeService.getPolyglotVersion() }, 1000)
     this.getUpgrade()
   }
 
@@ -57,7 +56,10 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   getPolyglot() {
-    this.sockets.polyglotData.subscribe(polyglot => this.polyglot = polyglot)
+    this.sockets.polyglotData.subscribe(polyglot => {
+      this.polyglot = polyglot
+      console.log(this.polyglot)
+    })
   }
 
   getUpgrade() {
@@ -129,7 +131,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.addNodeService.upgradeAvailable$.subscribe(doc => {
       this.polyPackage = doc
       this.currentVersion = doc.version
-      console.log(doc, doc.version)
       this.gotPackage = true
       this.checkUpgrade()
     })

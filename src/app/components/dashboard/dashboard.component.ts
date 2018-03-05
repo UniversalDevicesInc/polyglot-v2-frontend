@@ -47,6 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.getNodeServers()
       this.getNodeServerResponses()
       this.addNodeService.getPolyglotVersion()
+
   }
 
   ngOnDestroy() {
@@ -126,6 +127,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getSettings() {
     this.subSettings = this.sockets.settingsData.subscribe(settings => {
+      this.addNodeService.getPolyglotVersion()
       this.isyConnected = settings.isyConnected
       this.isyFound = settings.isyFound
       this.isyHttps = settings.isyHttps

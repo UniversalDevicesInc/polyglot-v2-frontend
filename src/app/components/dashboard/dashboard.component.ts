@@ -4,7 +4,7 @@ import { AddnodeService } from '../../services/addnode.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { NodeServer } from '../../models/nodeserver.model'
 import { Router } from '@angular/router'
-import { DialogService } from 'ng2-bootstrap-modal'
+import { SimpleModalService } from "ngx-simple-modal"
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { NodepopComponent } from '../nodepop/nodepop.component'
 import { SettingsService } from '../../services/settings.service'
@@ -27,6 +27,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public isyPort: string
   public gotSettings: boolean
   public isyConnected: boolean
+  public mqttConnected: boolean = false
+  private subConnected: any
   private subSettings: any
   private subNodeServers: any
   private subResponses: any
@@ -36,55 +38,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private sockets: WebsocketsService,
     private flashMessage: FlashMessagesService,
     private addNodeService: AddnodeService,
-    private dialogService: DialogService,
+    private simpleModalService: SimpleModalService,
     private router: Router,
     private settingsService: SettingsService
   ) { }
 
   ngOnInit() {
-      if (!this.sockets.connected) this.sockets.start()
-      this.getSettings()
-      this.getNodeServers()
-      this.getNodeServerResponses()
-      this.addNodeService.getPolyglotVersion()
-
+    this.getConnected()
+    this.getSettings()
+    this.getNodeServers()
+    this.getNodeServerResponses()
+    this.addNodeService.getPolyglotVersion()
   }
 
   ngOnDestroy() {
+    if (this.subConnected) { this.subConnected.unsubscribe() }
+    if (this.subSettings) { this.subSettings.unsubscribe() }
     if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
-    if (this.subSettings) { this.subSettings.unsubscribe() }
   }
 
-  deleteNodeServer(nodeServer, confirmed) {
-    if (confirmed) {
-      this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}}, false, true)
-    }
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+    })
   }
-
-  showConfirm(nodeServer) {
-    this.dialogService.addDialog(ConfirmComponent, {
-      title: 'Delete NodeServer',
-      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
-      .subscribe((isConfirmed) => {
-        this.deleteNodeServer(nodeServer, isConfirmed)
-    });
-  }
-
-  showNodes(nodeServer) {
-    if (this.selectedNode === nodeServer) { return this.selectedNode = null}
-    if (nodeServer.nodes.length === 0) {
-      this.flashMessage.show('This NodeServer has no nodes defined.', {
-        cssClass: 'alert-danger',
-        timeout: 3000})
-      return window.scrollTo(0, 0)
-    }
-    this.selectedNode = nodeServer
-   /*this.dialogService.addDialog(NodepopComponent, {
-     title: `${nodeServer.name} nodes`,
-     message: nodeServer.nodes},
-     { closeByClickingOutside:true }) */
- }
 
   getNodeServers() {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
@@ -120,11 +98,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     })
   }
 
-  redirect(profileNum) {
-    //this.settingsService.currentNode = profileNum
-    this.router.navigate(['/nsdetails', profileNum])
-  }
-
   getSettings() {
     this.subSettings = this.sockets.settingsData.subscribe(settings => {
       this.addNodeService.getPolyglotVersion()
@@ -135,6 +108,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.isyPort = settings.isyPort
       this.gotSettings = true
     })
+  }
+
+  deleteNodeServer(nodeServer) {
+    this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}}, false, true)
+  }
+
+  showConfirm(nodeServer) {
+    this.simpleModalService.addModal(ConfirmComponent, {
+      title: 'Delete NodeServer',
+      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
+      .subscribe((isConfirmed) => {
+        if (isConfirmed)
+          if (this.mqttConnected)
+            this.deleteNodeServer(nodeServer)
+          else
+            this.showDisconnected()
+    })
+  }
+
+  showNodes(nodeServer) {
+    if (this.selectedNode === nodeServer) { return this.selectedNode = null}
+    if (nodeServer.nodes.length === 0) {
+      this.flashMessage.show('This NodeServer has no nodes defined.', {
+        cssClass: 'alert-danger',
+        timeout: 3000})
+      return window.scrollTo(0, 0)
+    }
+    this.selectedNode = nodeServer
+  }
+
+  showDisconnected() {
+    this.flashMessage.show('Error not connected to Polyglot.', {
+      cssClass: 'alert-danger',
+      timeout: 3000})
+  }
+
+  redirect(profileNum) {
+    //this.settingsService.currentNode = profileNum
+    this.router.navigate(['/nsdetails', profileNum])
   }
 
 }

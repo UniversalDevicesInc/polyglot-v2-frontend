@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
 import { AddnodeService } from '../../services/addnode.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
-import { DialogService } from 'ng2-bootstrap-modal'
+import { SimpleModalService } from 'ngx-simple-modal'
 import { Router } from '@angular/router'
 import { ConfirmComponent } from '../confirm/confirm.component'
 
@@ -16,49 +16,96 @@ import { ConfirmComponent } from '../confirm/confirm.component'
 export class FooterComponent implements OnInit, OnDestroy {
 
   Math: any
+  private subConnected: any
+  private subLoggedIn: any
   private subSettings: any
+  private subPolyVersion: any
   private subUpgrade: any
   private gotPackage: boolean = false
   public polyPackage: String
+  public loggedIn: boolean = false
   public isyVersion: String
   public pgVersion: String
   public currentVersion: String
   public updateAvail: boolean = false
   public upgradeData: any
+  public timeStarted: any
+  public uptime: any
+  public mqttConnected: any
+  public uptimeInterval: any
   private upgrading: boolean = false
   private progress = {
     percent: 0
   }
-  public polyglot: {
-    connected: false
-  }
 
   constructor(
-    private dialogService: DialogService,
+    private simpleModalService: SimpleModalService,
     private addNodeService: AddnodeService,
     private flashMessage: FlashMessagesService,
     private router: Router,
     private sockets: WebsocketsService,
     private settings: SettingsService,
-    private authService: AuthService
+    public authService: AuthService
   ) { this.Math = Math }
 
   ngOnInit() {
-    this.getPolyglot()
+    this.getConnected()
+    this.getLoggedIn()
     this.getSettings()
     this.getPolyVersion()
     this.getUpgrade()
+    if (this.authService.loggedIn())
+      if (!this.sockets.connected) this.sockets.start()
   }
 
   ngOnDestroy() {
-    if (this.subUpgrade) { this.subUpgrade.unsubscribe() }
-    if (this.subSettings) { this.subSettings.unsubscribe() }
+    this.cleanup()
   }
 
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+    })
+  }
+
+  /*
   getPolyglot() {
-    this.sockets.polyglotData.subscribe(polyglot => {
+    this.subPolyglot = this.sockets.polyglotData.subscribe(polyglot => {
+      console.log(polyglot)
       this.polyglot = polyglot
-      console.log(this.polyglot)
+    })
+  } */
+
+  getLoggedIn() {
+    this.subLoggedIn = this.authService.isLoggedIn.subscribe(state => {
+      this.loggedIn = state
+      if (state)
+        if (!this.sockets.connected) this.sockets.start()
+      if (!state)
+        this.cleanup()
+    })
+  }
+
+  getSettings() {
+    this.subSettings = this.sockets.settingsData.subscribe(settings => {
+      this.isyVersion = settings.isyVersion
+      this.pgVersion = settings.pgVersion
+      this.timeStarted = settings.timeStarted
+      this.calculateUptime()
+      if (!this.uptimeInterval) {
+        this.uptimeInterval = setInterval(() => {
+          this.calculateUptime()
+        }, 1000)
+      }
+    })
+  }
+
+  getPolyVersion() {
+    this.subPolyVersion = this.addNodeService.upgradeSubject.subscribe(doc => {
+      this.polyPackage = doc
+      this.currentVersion = doc.version
+      this.gotPackage = true
+      this.checkUpgrade()
     })
   }
 
@@ -113,27 +160,23 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   logout() {
     this.updateAvail = false
-    if (this.subUpgrade) { this.subUpgrade.unsubscribe() }
-    if (this.subSettings) { this.subSettings.unsubscribe() }
+    this.cleanup()
+    //this.sockets.stop()
     this.authService.logout()
-    this.sockets.stop()
+    this.flashMessage.show('You are logged out.', {
+      cssClass: 'alert-success',
+      timeout: 3000
+    })
     this.router.navigate(['/login'])
   }
 
-  getSettings() {
-    this.subSettings = this.sockets.settingsData.subscribe(settings => {
-      this.isyVersion = settings.isyVersion
-      this.pgVersion = settings.pgVersion
-    })
-  }
-
-  getPolyVersion() {
-    this.addNodeService.upgradeAvailable$.subscribe(doc => {
-      this.polyPackage = doc
-      this.currentVersion = doc.version
-      this.gotPackage = true
-      this.checkUpgrade()
-    })
+  cleanup() {
+    if (this.subConnected) { this.subConnected.unsubscribe() }
+    //if (this.subPolyglot) { this.subPolyglot.unsubscribe() }
+    if (this.subSettings) { this.subSettings.unsubscribe() }
+    if (this.subPolyVersion) { this.subPolyVersion.unsubscribe() }
+    if (this.subUpgrade) { this.subUpgrade.unsubscribe() }
+    if (this.uptimeInterval) { clearInterval(this.uptimeInterval) }
   }
 
   checkUpgrade() {
@@ -163,20 +206,47 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   showConfirm() {
-    this.dialogService.addDialog(ConfirmComponent, {
+    this.simpleModalService.addModal(ConfirmComponent, {
       title: `Upgrade Polyglot? New version available ${this.currentVersion}`,
       message: `Upgrading Polyglot from here will automatically download the latest binary for your system type and extract it OVER the existing binary. It will
                 then exit Polyglot. If you do NOT have the auto-start scripts installed for linux(systemctl) or OSX(launchctl) then Polyglot will NOT restart
                 automatically. You will have to manually restart. If you are not using the binary, upgrade via git. Continue?`
       })
       .subscribe((isConfirmed) => {
-        this.upgradeSubmit(isConfirmed)
+        if (isConfirmed)
+          this.upgradeSubmit()
     })
   }
 
-  upgradeSubmit(confim) {
+  upgradeSubmit() {
     this.upgrading = true
     this.sockets.sendMessage('upgrade', {start: ''})
+  }
+
+  calculateUptime() {
+    //var seconds = Math.floor(()/1000)
+    var d = Math.abs(+ new Date() - this.timeStarted) / 1000
+    var r = {}
+    var s = {
+        'Year(s)': 31536000,
+        'Month(s)': 2592000,
+        'Week(s)': 604800,
+        'Day(s)': 86400,
+        'Hour(s)': 3600,
+        'Minute(s)': 60,
+        'Second(s)': 1
+    }
+
+    Object.keys(s).forEach(function(key){
+        r[key] = Math.floor(d / s[key])
+        d -= r[key] * s[key]
+    })
+    let uptime = ''
+    for (let key in r) {
+      if (r[key] !== 0 )
+        uptime += `${r[key]} ${key} `
+    }
+    this.uptime = uptime
   }
 
 }

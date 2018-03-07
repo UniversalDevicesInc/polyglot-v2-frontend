@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Paho } from 'ng2-mqtt/mqttws31'
+import * as mqtt from 'mqtt'
 import { SettingsService } from './settings.service'
 import { AuthService } from './auth.service'
 import { NodeServer } from '../models/nodeserver.model'
@@ -7,16 +7,15 @@ import { Mqttmessage } from '../models/mqttmessage.model'
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Subject } from 'rxjs/Subject'
+import 'rxjs/add/observable/of'
 
 @Injectable()
 export class WebsocketsService {
-  client: Paho.MQTT.Client
-  // connected: boolean
+  client: any
   id: string
-  _willMessage: Paho.MQTT.Message
 
-  public connected = false
-  public isyConnected = false
+  public connected: boolean = false
+  public isyConnected: boolean = false
   public polyglotData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerData: ReplaySubject<any> = new ReplaySubject(1)
   public installedNSData: ReplaySubject<any> = new ReplaySubject(1)
@@ -25,7 +24,7 @@ export class WebsocketsService {
   public upgradeData: Subject<any> = new Subject
   public settingsResponse: Subject<any> = new Subject
   public nsTypeResponse: Subject<any> = new Subject
-  public mqttConnected: Subject<boolean> = new ReplaySubject(1)
+  public mqttConnected: ReplaySubject<boolean> = new ReplaySubject(1)
   public logData: Subject<any> = new Subject
   public nsResponses: Array<any> = new Array
   public setResponses: Array<any> = new Array
@@ -36,49 +35,73 @@ export class WebsocketsService {
     private settingsService: SettingsService
   ) {}
 
-  start(cb = function(connected: boolean){}) {
-    if (this.connected) { if (cb) { return cb(true) }}
+  start() {
+    if (this.connected) return
     this.settingsService.loadSettings()
     if (!this.id) {
       this.id = 'polyglot_frontend-' + this.randomString(5)
       // this._seq = Math.floor(Math.random() * 90000) + 10000
     }
     let host = location.hostname
-    if (!(this.settingsService.settings.mqttHost === 'localhost')) {
+    if (!(this.settingsService.settings['mqttHost'] === 'localhost')) {
       host = this.settingsService.settings.mqttHost
     }
-    if (!this.client) {
-      this.client = new Paho.MQTT.Client(host, Number(this.settingsService.settings.listenPort) || 3000, this.id)
+    let options = {
+      rejectUnauthorized: false,
+      clientId: this.id,
+      clean: true,
+      //reconnectPeriod: 5000,
+      //connectTimeout: 30 * 1000,
+      username: this.id,
+      password: this.settingsService.settings.secret,
     }
-    this.onMessage()
-    this.onConnectionLost()
-    const message = {node: this.id, connected: false}
-    this._willMessage = new Paho.MQTT.Message(JSON.stringify(message))
-    this._willMessage.destinationName = 'udi/polyglot/connections/frontend'
-    this._willMessage.qos = 0
-    this._willMessage.retained = false
-    this.client.connect(
-      { onSuccess: this.onConnected.bind(this),
-      willMessage: this._willMessage,
-      useSSL: true,
-      userName: this.id,
-      password: this.settingsService.settings.secret
-     })
-     setTimeout(() => {
-      if (cb) { return cb(this.connected ? true : false) }
-    }, 1000)
-  }
+    /*options['will'] = {
+      topic: 'udi/polyglot/connections/frontend',
+      payload: JSON.stringify({node: this.id, connected: false}),
+      qos: 0,
+      retain: false
+    } */
+    if (!this.client) {
+      this.client = mqtt.connect(`${this.settingsService.settings.useHttps ? 'wss://' : 'ws://'}${host}:${this.settingsService.settings.listenPort || location.port}`, options)
+    } else {
+      this.client.reconnect()
+    }
+    this.client.on('connect', () => {
+      this.connectionState(true)
+      this.client.subscribe('udi/polyglot/connections/polyglot', null)
+      this.client.subscribe('udi/polyglot/frontend/#', null)
+      this.client.subscribe('udi/polyglot/log/' + this.id, null)
+      //this.client.subscribe('udi/polyglot/log/' + this.id, null)
+      const message = { connected: true }
+      this.sendMessage('connections', message)
+    })
 
-  onConnected() {
-    // console.log('Connected')
-    this.connected = true
-    this.connectionState(true)
-    this.client.subscribe('udi/polyglot/connections/polyglot', null)
-    this.client.subscribe('udi/polyglot/frontend/#', null)
-    this.client.subscribe('udi/polyglot/log/' + this.id, null)
-    //this.client.subscribe('udi/polyglot/log/' + this.id, null)
-    const message = { connected: true }
-    this.sendMessage('connections', message)
+    this.client.on('message', (topic, message, packet) => {
+      const msg = JSON.parse(message.toString())
+      if (msg.node === undefined || msg.node.substring(0, 18) === 'polyglot_frontend-') { return }
+      if (topic === 'udi/polyglot/connections/polyglot') {
+        //this.processConnection(msg)
+        this.polyglotData.next(msg)
+      } else if (topic === 'udi/polyglot/frontend/nodeservers') {
+        this.processNodeServers(msg)
+      } else if (topic === 'udi/polyglot/frontend/upgrade') {
+        //this.processUpgrade(msg)
+        this.upgradeData.next(msg)
+      } else if (topic === 'udi/polyglot/frontend/settings') {
+        this.processSettings(msg)
+      } else if (topic === 'udi/polyglot/frontend/log/' + this.id) {
+        this.logData.next(msg)
+      }
+    })
+
+    this.client.on('reconnect', () => {
+      this.connectionState(false)
+    })
+
+    this.client.on('error', (err) => {
+      console.log('MQTT recieved error: ' + err.toString())
+      this.connectionState(false)
+    })
   }
 
   sendMessage(topic, message, retained = false, needResponse = false) {
@@ -92,64 +115,22 @@ export class WebsocketsService {
       this._seq++
     }
 
-    const packet = new Paho.MQTT.Message(msg)
     if (topic === 'connections') { topic = 'udi/polyglot/connections/frontend'
     } else if (topic === 'settings') { topic = 'udi/polyglot/frontend/settings'
     } else if (topic === 'upgrade') { topic = 'udi/polyglot/frontend/upgrade'
     } else if (topic === 'nodeservers') { topic = 'udi/polyglot/frontend/nodeservers'
     } else if (topic === 'log') { topic = 'udi/polyglot/frontend/log'
     } else { topic = 'udi/polyglot/ns/' + topic }
-    packet.destinationName = topic
-    packet.retained = retained
-    this.client.send(packet)
-  }
-
-  onMessage() {
-    this.client.onMessageArrived = (message: Paho.MQTT.Message) => {
-      const msg = JSON.parse(message.payloadString)
-      if (msg.node === undefined || msg.node.substring(0, 18) === 'polyglot_frontend-') { return }
-      if (message.destinationName === 'udi/polyglot/connections/polyglot') {
-        this.processConnection(msg)
-      } else if (message.destinationName === 'udi/polyglot/frontend/nodeservers') {
-        this.processNodeServers(msg)
-      } else if (message.destinationName === 'udi/polyglot/frontend/upgrade') {
-        this.processUpgrade(msg)
-      } else if (message.destinationName === 'udi/polyglot/frontend/settings') {
-        this.processSettings(msg)
-      } else if (message.destinationName === 'udi/polyglot/frontend/log/' + this.id) {
-        this.processLog(msg)
-      }
-    }
-  }
-
-  onConnectionLost() {
-    this.client.onConnectionLost = (responseObject: Object) => {
-      this.connectionState(false)
-      this.connected = false
-      this.retryConnection()
-    }
-  }
-
-  retryConnection() {
-    if (this.authService.loggedIn()) {
-      if (!(this.connected)) {
-        this.start((connected) => {
-            if (!connected) {
-              setTimeout(() => {
-                this.retryConnection()
-              }, 5000)
-            }
-        })
-      }
-    }
+    //packet.destinationName = topic
+    //packet.retained = retained
+    this.client.publish(topic, msg, { qos: 0, retained: retained})
   }
 
   stop() {
     this.sendMessage('connections', {connected: false})
-    this.client.disconnect()
+    this.client.end()
     this.connectionState(false)
     this.connected = false
-    //console.log('MQTT: Disconnected')
   }
 
   randomString(length) {
@@ -162,9 +143,11 @@ export class WebsocketsService {
   }
 
   connectionState(newState: boolean) {
-    if (this.mqttConnected !== undefined) this.mqttConnected.next(newState)
+    this.connected = newState
+    this.mqttConnected.next(newState)
   }
 
+  /*
   processLog(message) {
     this.getLog(message)
   }
@@ -174,32 +157,39 @@ export class WebsocketsService {
     return this.logData
   }
 
+
   processConnection(message) {
     this.getPolyglot(message)
   }
 
+
   getPolyglot(message) {
     Observable.of(message).subscribe(data => this.polyglotData.next(data))
     return this.polyglotData
-  }
+  } */
 
   processNodeServers(message) {
     if (message.hasOwnProperty('response') && message.hasOwnProperty('seq')) {
         this.nsResponses.forEach((item) => {
           if (item.seq === message.seq) {
-            this.nodeServerResponses(message)
+            //this.nodeServerResponses(message)
+            this.nodeServerResponse.next(message.response)
             return
           }
         })
     } else if (message.hasOwnProperty('nodetypes')) {
-      this.nsTypeResponses(message)
+      //this.nsTypeResponses(message)
+      this.nsTypeResponse.next(message.nodetypes)
     } else if (message.hasOwnProperty('installedns')) {
-      this.getinstalledNS(message)
+      //this.getinstalledNS(message)
+      this.installedNSData.next(message.installedns)
     } else {
-      this.getNodeServers(message)
+      //this.getNodeServers(message)
+      this.nodeServerData.next(message.nodeservers)
     }
   }
 
+  /*
   getNodeServers(message) {
     Observable.of(message.nodeservers).subscribe(data => this.nodeServerData.next(data))
     return this.nodeServerData
@@ -218,27 +208,30 @@ export class WebsocketsService {
   nsTypeResponses(message) {
     Observable.of(message.nodetypes).subscribe(data => this.nsTypeResponse.next(data))
     return this.nsTypeResponse
-  }
+  } */
 
   processSettings(message) {
     if (message.hasOwnProperty('response') && message.hasOwnProperty('seq')) {
         this.setResponses.forEach((item) => {
           if (item.seq === message.seq) {
-            this.settingsResponses(message)
-            return
+            //this.settingsResponses(message)
+            this.settingsResponse.next(message.response)
+            //return
           }
         })
     } else {
-      //this.settingsService.storeSettings(message.settings)
       if (message.settings.hasOwnProperty('isyConnected')) this.isyConnected = message.settings.isyConnected
-      this.getSettings(message)
+      //this.getSettings(message)
+      this.settingsData.next(message.settings)
     }
   }
 
+  /*
   getSettings(message) {
     Observable.of(message.settings).subscribe(data => this.settingsData.next(data))
     return this.settingsData
   }
+
 
   settingsResponses(message) {
     Observable.of(message.response).subscribe(data => this.settingsResponse.next(data))
@@ -252,6 +245,6 @@ export class WebsocketsService {
   getUpgrade(message) {
     Observable.of(message).subscribe(data => this.upgradeData.next(data))
     return this.upgradeData
-  }
+  } */
 
 }

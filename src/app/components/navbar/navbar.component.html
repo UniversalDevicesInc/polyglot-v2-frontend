@@ -29,7 +29,7 @@
 </nav>
 
 <div *ngIf="authService.loggedIn()">
-  <div *ngIf="!connected" class="alert alert-dismissible alert-danger text-center">
+  <div *ngIf="!mqttConnected" class="alert alert-dismissible alert-danger text-center">
     <p>Not connected to server... Try refreshing the page. This will disappear once the connection is re-established.</p>
   </div>
 </div>

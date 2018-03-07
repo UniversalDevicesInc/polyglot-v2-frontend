@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { AuthService } from '../../services/auth.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { SettingsService } from '../../services/settings.service'
@@ -12,8 +12,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./profile.component.css']
 })
 
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
 
+  public mqttConnected: boolean = false
+  private subConnected: any
   public profileForm: FormGroup
   user: Object
 
@@ -27,32 +29,41 @@ export class ProfileComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (!this.sockets.connected) this.sockets.start()
+    this.getConnected()
     this.profileForm = this.fb.group({
       username: '',
       password: ''
     })
     this.authService.getProfile().subscribe(profile => {
-      this.user = profile.user
+      this.user = profile['user']
       this.profileForm.patchValue({
-        username: profile.user.username
+        username: profile['user'].username
       })
     },
-  err => {
-    console.log(err)
-    return false
-  })
+    err => {
+      console.log(err)
+      return false
+    })
+  }
+
+  ngOnDestroy() {
+    if (this.subConnected) { this.subConnected.unsubscribe() }
+  }
+
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+    })
   }
 
   logout() {
     this.authService.logout()
-    this.sockets.stop()
+    //this.sockets.stop()
     this.flashMessage.show('Password Changed. Logging you out.', {
       cssClass: 'alert-success',
       timeout: 3000
     })
     this.router.navigate(['/login'])
-    return false
   }
 
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ValidateService } from '../../services/validate.service'
 import { AddnodeService } from '../../services/addnode.service'
 import { WebsocketsService } from '../../services/websockets.service'
@@ -6,7 +6,7 @@ import { NodeServer } from '../../models/nodeserver.model'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { DashboardComponent } from '../dashboard/dashboard.component'
 import { Router } from '@angular/router'
-import { DialogService } from 'ng2-bootstrap-modal'
+import { SimpleModalService } from "ngx-simple-modal"
 import { ConfirmComponent } from '../confirm/confirm.component'
 
 
@@ -15,26 +15,28 @@ import { ConfirmComponent } from '../confirm/confirm.component'
   templateUrl: './addnode.component.html',
   styleUrls: ['./addnode.component.css']
 })
-export class AddnodeComponent implements OnInit {
+export class AddnodeComponent implements OnInit, OnDestroy {
   name: string
   profileNum: number
   baseUrl: String
   nodeServers: NodeServer[]
 
+  public mqttConnected: boolean = false
+  private subConnected: any
   private subNodeServers: any
   private subNsTypes: any
   public nsTypes: string[] = []
   public indexes: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   public types: string[] = ['Local (Co-Resident with Polyglot)', 'Remote']
   public typeSet: string[] = ['local', 'remote']
-  public received: boolean
+  public received: boolean = false
   public selectedType: string = this.typeSet[0]
   public selectedNS: Object = this.nsTypes[0]
 
   constructor(
     private validateService: ValidateService,
     private flashMessage: FlashMessagesService,
-    private dialogService: DialogService,
+    private simpleModalService: SimpleModalService,
     private addNodeService: AddnodeService,
     private sockets: WebsocketsService,
     private router: Router
@@ -54,22 +56,23 @@ export class AddnodeComponent implements OnInit {
 
 
   ngOnInit() {
-    this.received = false
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
-          this.getNsTypes()
-        }
-    })
+    //if (!this.sockets.connected) this.sockets.start()
+    this.getConnected()
+    this.getNsTypes()
     this.getNodeServers()
   }
 
-  showConfirm() {
-    this.dialogService.addDialog(ConfirmComponent, {
-      title: 'Add NodeServer',
-      message: `Typically it is only necessary to restart the admin console by closing and re-opening it. If this doesn't show your new NodeServer, use the Reboot ISY button on the navigation bar above.`})
-      .subscribe((isConfirmed) => {
-        this.onRegisterSubmit(isConfirmed)
+  ngOnDestroy() {
+    if (this.subConnected) { this.subConnected.unsubscribe() }
+    if (this.subNsTypes) { this.subNsTypes.unsubscribe() }
+    if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
+  }
+
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+      if (connected)
+        this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
     })
   }
 
@@ -92,6 +95,21 @@ export class AddnodeComponent implements OnInit {
       this.nsTypes = nsTypes.notInUse
       this.selectedNS = this.nsTypes[0]
     })
+  }
+
+  showConfirm() {
+    this.simpleModalService.addModal(ConfirmComponent, {
+      title: 'Add NodeServer',
+      message: `Typically it is only necessary to restart the admin console by closing and re-opening it. If this doesn't show your new NodeServer, use the Reboot ISY button on the navigation bar above.`})
+      .subscribe((isConfirmed) => {
+        this.onRegisterSubmit(isConfirmed)
+    })
+  }
+
+  showDisconnected() {
+    this.flashMessage.show('Error not connected to Polyglot.', {
+      cssClass: 'alert-danger',
+      timeout: 3000})
   }
 
   onRegisterSubmit(confirmed) {

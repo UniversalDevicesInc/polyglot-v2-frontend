@@ -14,7 +14,7 @@ export class ValidateService {
  }
 
  validateProfileNum(profileNum) {
-   return profileNum >= 1 && profileNum < 11
+   return profileNum >= 1 && profileNum < 26
  }
 
 }

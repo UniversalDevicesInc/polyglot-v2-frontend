@@ -16,22 +16,24 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 export class SettingsComponent implements OnInit, OnDestroy {
 
-    public settingsForm: FormGroup
-    private subSettings: any
-    private subResponses: any
+  public mqttConnected: boolean = false
+  private subConnected: any
+  public settingsForm: FormGroup
+  private subSettings: any
+  private subResponses: any
 
-    constructor(
-      private fb: FormBuilder,
-      private sockets: WebsocketsService,
-      private authService: AuthService,
-      private router: Router,
-      private flashMessage: FlashMessagesService,
-      private settingsService: SettingsService,
-      private addNodeService: AddnodeService
+  constructor(
+    private fb: FormBuilder,
+    private sockets: WebsocketsService,
+    private authService: AuthService,
+    private router: Router,
+    private flashMessage: FlashMessagesService,
+    private settingsService: SettingsService,
+    private addNodeService: AddnodeService
   ) {}
 
   ngOnInit() {
-    if (!this.sockets.connected) this.sockets.start()
+    this.getConnected()
     this.settingsForm = this.fb.group({
       isyHost: ['', Validators.required],
       isyPort: [80, Validators.required],
@@ -47,58 +49,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.subConnected) { this.subConnected.unsubscribe() }
     if (this.subSettings) { this.subSettings.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
   }
 
-  sendSettingsREST(settings) {
-    this.settingsService.setSettings(settings).subscribe(data => {
-      if (data.success) {
-        this.flashMessage.show('Settings saved successfully.', {
-          cssClass: 'alert-success',
-          timeout: 5000})
-        window.scrollTo(0, 0)
-      } else {
-        this.flashMessage.show(data.msg, {
-          cssClass: 'alert-danger',
-          timeout: 5000})
-        window.scrollTo(0, 0)
-      }
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
     })
-  }
-
-  getDirtyValues(cg) {
-    const dirtyValues = {}
-    Object.keys(cg.controls).forEach((c) => {
-      const currentControl = cg.get(c)
-
-      if (currentControl.dirty) {
-        if (currentControl.controls) {
-          dirtyValues[c] = this.getDirtyValues(currentControl)
-        } else {
-          dirtyValues[c] = currentControl.value
-        }
-      }
-    })
-    return dirtyValues
-  }
-
-  saveSettings(settings) {
-    if (this.sockets.connected) {
-      if (JSON.stringify(settings) !== '{}') {
-        this.sockets.sendMessage('settings', {updatesettings: settings}, false, true)
-      } else {
-        this.flashMessage.show('No Settings Changed.', {
-          cssClass: 'alert-danger',
-          timeout: 5000})
-        window.scrollTo(0, 0)
-      }
-    } else {
-      this.flashMessage.show('Websockets not connected to Polyglot. Settings not saved.', {
-        cssClass: 'alert-danger',
-        timeout: 5000})
-      window.scrollTo(0, 0)
-    }
   }
 
   getSettings() {
@@ -133,6 +92,56 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
       }
     })
+  }
+
+  sendSettingsREST(settings) {
+    this.settingsService.setSettings(settings).subscribe(data => {
+      if (data['success']) {
+        this.flashMessage.show('Settings saved successfully.', {
+          cssClass: 'alert-success',
+          timeout: 5000})
+        window.scrollTo(0, 0)
+      } else {
+        this.flashMessage.show(data['msg'], {
+          cssClass: 'alert-danger',
+          timeout: 5000})
+        window.scrollTo(0, 0)
+      }
+    })
+  }
+
+  getDirtyValues(cg) {
+    const dirtyValues = {}
+    Object.keys(cg.controls).forEach((c) => {
+      const currentControl = cg.get(c)
+
+      if (currentControl.dirty) {
+        if (currentControl.controls) {
+          dirtyValues[c] = this.getDirtyValues(currentControl)
+        } else {
+          dirtyValues[c] = currentControl.value
+        }
+      }
+    })
+    return dirtyValues
+  }
+
+  saveSettings(settings) {
+    if (this.mqttConnected) {
+      if (JSON.stringify(settings) !== '{}') {
+        this.sockets.sendMessage('settings', {updatesettings: settings}, false, true)
+      } else {
+        this.flashMessage.show('No Settings Changed.', {
+          cssClass: 'alert-danger',
+          timeout: 5000})
+        window.scrollTo(0, 0)
+      }
+    } else {
+      this.flashMessage.show('Not connected to Polyglot. Settings not saved.', {
+        cssClass: 'alert-danger',
+        timeout: 5000})
+      window.scrollTo(0, 0)
+    }
   }
 
 }

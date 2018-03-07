@@ -58,3 +58,4 @@ typings/
 .env
 
 # Project Specific
+dist/

@@ -1,11 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http'
 import { RouterModule, Routes } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FlashMessagesModule } from 'angular2-flash-messages';
-import { BootstrapModalModule } from 'ng2-bootstrap-modal';
+import { SimpleModalModule } from 'ngx-simple-modal';
 
 import { SettingsService } from './services/settings.service';
 import { WebsocketsService } from './services/websockets.service';
@@ -81,10 +81,10 @@ const appRoutes: Routes = [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule,
+    HttpClientModule,
     RouterModule.forRoot(appRoutes),
     FlashMessagesModule,
-    BootstrapModalModule
+    SimpleModalModule
   ],
   entryComponents: [
     ConfirmComponent,

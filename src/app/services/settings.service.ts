@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core'
-import { Http, Headers } from '@angular/http'
+import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/map'
 
-import { NodeServer } from '../models/nodeserver.model'
+//import { NodeServer } from '../models/nodeserver.model'
 
 
 @Injectable()
@@ -15,7 +15,7 @@ export class SettingsService {
   settings: any
   currentNode: any
 
-  constructor(private http: Http) { }
+  constructor(private http: HttpClient) { }
 
   loadToken() {
     const token = localStorage.getItem('id_token')
@@ -23,30 +23,33 @@ export class SettingsService {
   }
 
   getSettings () {
-    const headers = new Headers()
     this.loadToken()
-    headers.append('Authorization', this.authToken)
-    headers.append('Content-Type', 'application/json')
-    return this.http.get(environment.PG_URI + '/frontend/settings', {headers: headers})
-      .map(res => res.json())
+    const headers = new HttpHeaders({
+      Authorization: this.authToken,
+      'Content-Type': 'application/json'
+    })
+    this.http.get(`${environment.PG_URI}/frontend/settings`, {headers: headers})
+    .subscribe(settings => {
+      this.storeSettings(settings)
+    })
   }
 
   setSettings(settings) {
-    const headers = new Headers()
     this.loadToken()
-    headers.append('Authorization', this.authToken)
-    headers.append('Content-Type', 'application/json')
-    return this.http.post(environment.PG_URI + '/frontend/settings', settings, {headers: headers})
-      .map(res => res.json())
+    const headers = new HttpHeaders({
+      Authorization: this.authToken,
+      'Content-Type': 'application/json'
+    })
+    return this.http.post(`${environment.PG_URI}/frontend/settings`, settings, {headers: headers})
   }
 
   setProfile(profile) {
-    const headers = new Headers()
     this.loadToken()
-    headers.append('Authorization', this.authToken)
-    headers.append('Content-Type', 'application/json')
-    return this.http.post(environment.PG_URI + '/frontend/settings', profile, {headers: headers})
-      .map(res => res.json())
+    const headers = new HttpHeaders({
+      Authorization: this.authToken,
+      'Content-Type': 'application/json'
+    })
+    return this.http.post(`${environment.PG_URI}/frontend/settings`, profile, {headers: headers})
   }
 
   storeSettings(settings) {

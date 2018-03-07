@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { environment } from '../../../environments/environment'
 import { Observable } from 'rxjs/Rx'
 import { WebsocketsService } from '../../services/websockets.service'
+import { FlashMessagesService } from 'angular2-flash-messages'
 
 @Component({
   selector: 'app-showlog',
@@ -10,6 +11,8 @@ import { WebsocketsService } from '../../services/websockets.service'
 })
 export class ShowlogComponent implements OnInit, OnDestroy {
 
+  public mqttConnected: boolean = false
+  private subConnected: any
   public logData: string[]=[]
   private logConn: any
   private actionUrl: string
@@ -19,22 +22,27 @@ export class ShowlogComponent implements OnInit, OnDestroy {
 
   constructor(
     private sockets: WebsocketsService,
+    private flashMessage: FlashMessagesService
   ) {}
 
   ngOnInit() {
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.sockets.sendMessage('log', { start: 'polyglot' })
-          this.getLog()
-        }
-    })
+    this.getConnected()
+    this.getLog()
   }
 
   ngOnDestroy() {
-    if (this.sockets.connected) {
+    if (this.subConnected) this.subConnected.unsubscribe()
+    if (this.logConn) this.logConn.unsubscribe()
+    if (this.mqttConnected)
       this.sockets.sendMessage('log', { stop: 'polyglot' })
-    }
-    if (this.logConn) { this.logConn.unsubscribe() }
+  }
+
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+      if (connected)
+        this.sockets.sendMessage('log', { start: 'polyglot' })
+    })
   }
 
   getLog() {
@@ -49,6 +57,12 @@ export class ShowlogComponent implements OnInit, OnDestroy {
         }
       } catch (e) { }
     })
+  }
+
+  showDisconnected() {
+    this.flashMessage.show('Error not connected to Polyglot.', {
+      cssClass: 'alert-danger',
+      timeout: 3000})
   }
 
   /*

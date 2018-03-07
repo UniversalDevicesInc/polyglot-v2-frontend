@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { AddnodeService } from '../../services/addnode.service'
-import { DialogService } from 'ng2-bootstrap-modal'
+import { SimpleModalService } from 'ngx-simple-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { ModalNsUpdateComponent } from '../modal-ns-update/modal-ns-update.component'
 import { ModalNsAddComponent } from '../modal-ns-add/modal-ns-add.component'
@@ -17,6 +17,8 @@ import _ from "lodash"
 export class GetnsComponent implements OnInit, OnDestroy {
 
   Math: any
+  public mqttConnected: boolean = false
+  private subConnected: any
   public nsList: any
   private subResponses: any
   public received: boolean = false
@@ -27,23 +29,29 @@ export class GetnsComponent implements OnInit, OnDestroy {
     private addNodeService: AddnodeService,
     private sockets: WebsocketsService,
     private settingsService: SettingsService,
-    private dialogService: DialogService,
     private flashMessage: FlashMessagesService,
+    private simpleModalService: SimpleModalService
   ) { this.Math = Math }
 
   ngOnInit() {
+    this.getConnected()
     this.getNSList()
-    this.sockets.start((connected) => {
-      if (connected) {
-        this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
-        this.getNsTypes()
-        this.getNodeServerResponses()
-      }
-    })
+    this.getNsTypes()
+    this.getNodeServerResponses()
   }
 
   ngOnDestroy() {
+    if (this.subConnected) { this.subConnected.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
+    if (this.subNsTypes) { this.subNsTypes.unsubscribe() }
+  }
+
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+      if (connected)
+        this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
+    })
   }
 
   getNSList() {
@@ -54,112 +62,6 @@ export class GetnsComponent implements OnInit, OnDestroy {
     this.flashMessage.show(`Refreshed NodeServers List from Server.`, {
       cssClass: 'alert-success',
       timeout: 3000})
-  }
-
-  addNS() {
-    this.dialogService.addDialog(ModalNsAddComponent, {
-      title: 'Add NodeServer to Polyglot Repository',
-      message: `Please enter the Github repository link to submit to the Polyglot team for addition into the NodeServer Store.`
-    }).subscribe((nslink) => {
-        if (nslink) {
-          this.addNodeService.submitNewNS(nslink).subscribe(response => {
-            this.flashMessage.show(`Submitted new NodeServer for approval to the Polyglot team.`, {
-              cssClass: 'alert-success',
-              timeout: 5000})
-          }, err => {
-            try {
-              this.flashMessage.show(`Error submitting new NodeServer. ${JSON.parse(err._body).error}`, {
-                cssClass: 'alert-danger',
-                timeout: 5000})
-            } catch (err) {
-              this.flashMessage.show(`Error submitting new NodeServer. Unable to parse response from server.`, {
-                cssClass: 'alert-danger',
-                timeout: 5000})
-            }
-          })
-        }
-    })
-  }
-
-  installNS(ns, confirmed) {
-    if (!confirmed) { return }
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.sockets.sendMessage('nodeservers', { 'installns': ns }, false, true)
-          this.flashMessage.show(`Installing ${ns.name} please wait...`, {
-            cssClass: 'alert-success',
-            timeout: 5000})
-        }
-    })
-  }
-
-  updateNS(ns) {
-    this.dialogService.addDialog(ModalNsUpdateComponent, {
-      title: 'Upload profile to ISY?',
-      message: `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will NOT automatically reboot the ISY. Typically only a restart of the admin console is necessary. However, if your expected changes do not appear, please restart the ISY with the 'Reboot ISY' button above. 'No' will proceed with the update WITHOUT uploading the profile.`
-    }).subscribe((isConfirmed) => {
-      if (isConfirmed !== null) {
-        if (isConfirmed) {
-          ns['updateProfile'] = isConfirmed
-        }
-        this.sockets.start((connected) => {
-            if (connected) {
-              this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
-              delete ns.updateProfile
-              this.flashMessage.show(`Updating ${ns.name} please wait...`, {
-                cssClass: 'alert-success',
-                timeout: 5000})
-            }
-        })
-      }
-    })
-  }
-
-  uninstallNS(ns, confirmed) {
-    if (!confirmed) { return }
-    this.sockets.start((connected) => {
-        if (connected) {
-          this.sockets.sendMessage('nodeservers', { 'uninstallns': ns }, false, true)
-          this.flashMessage.show(`Uninstalling ${ns.name} please wait...`, {
-            cssClass: 'alert-success',
-            timeout: 5000})
-        }
-    })
-  }
-
-  updateAvailable(ns) {
-    let version = '0'
-    if (this.installedTypes) {
-      let idx = this.installedTypes.findIndex(n => n.name === ns.name)
-      if (idx > -1)
-        version = this.installedTypes[idx].credits[0].version
-    }
-    return this.compareVersions(version, '<', ns.version)
-  }
-
-  isInstalled(ns) {
-    let idx = -1
-    if (this.installedTypes)
-      idx = this.installedTypes.findIndex(n => n.name === ns.name)
-    return idx > -1
-  }
-
-  addConfirm(ns) {
-    this.dialogService.addDialog(ConfirmComponent, {
-      title: 'Install NodeServer?',
-      message: `Do you really want to install the NodeServer named ${ns.name}? This will clone the repository from: ${ns.url}`})
-      .subscribe((isConfirmed) => {
-        this.installNS(ns, isConfirmed)
-    })
-  }
-
-  delConfirm(ns) {
-    this.dialogService.addDialog(ConfirmComponent, {
-      title: 'Uninstall NodeServer?',
-      message: `Do you really want to uninstall the NodeServer named ${ns.name}? This will completely delete the NodeServer folder from Polyglot. CANNOT BE UNDONE.`})
-      .subscribe((isConfirmed) => {
-        this.uninstallNS(ns, isConfirmed)
-    })
   }
 
   getNodeServerResponses() {
@@ -185,6 +87,112 @@ export class GetnsComponent implements OnInit, OnDestroy {
       this.received = true
       this.installedTypes = nsTypes.installed
     })
+  }
+
+  addNS() {
+    this.simpleModalService.addModal(ModalNsAddComponent, {
+      title: 'Add NodeServer to Polyglot Repository',
+      message: `Please enter the Github repository link to submit to the Polyglot team for addition into the NodeServer Store.`
+    }).subscribe((nslink) => {
+        if (nslink) {
+          this.addNodeService.submitNewNS(nslink).subscribe(response => {
+            this.flashMessage.show(`Submitted new NodeServer for approval to the Polyglot team.`, {
+              cssClass: 'alert-success',
+              timeout: 5000})
+          }, err => {
+            try {
+              this.flashMessage.show(`Error submitting new NodeServer. ${err.error.error}`, {
+                cssClass: 'alert-danger',
+                timeout: 5000})
+            } catch (err) {
+              this.flashMessage.show(`Error submitting new NodeServer. Unable to parse response from server.`, {
+                cssClass: 'alert-danger',
+                timeout: 5000})
+            }
+          })
+        }
+    })
+  }
+
+  installNS(ns) {
+    if (this.mqttConnected) {
+      this.sockets.sendMessage('nodeservers', { 'installns': ns }, false, true)
+      this.flashMessage.show(`Installing ${ns.name} please wait...`, {
+        cssClass: 'alert-success',
+        timeout: 5000})
+    } else this.showDisconnected()
+  }
+
+  updateNS(ns) {
+    this.simpleModalService.addModal(ModalNsUpdateComponent, {
+      title: 'Upload profile to ISY?',
+      message: `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will NOT automatically reboot the ISY. Typically only a restart of the admin console is necessary. However, if your expected changes do not appear, please restart the ISY with the 'Reboot ISY' button above. 'No' will proceed with the update WITHOUT uploading the profile.`
+    }).subscribe((isConfirmed) => {
+      if (isConfirmed !== null) {
+        if (isConfirmed) {
+          ns['updateProfile'] = isConfirmed
+        }
+          if (this.mqttConnected) {
+            this.sockets.sendMessage('nodeservers', { 'updatens': ns }, false, true)
+            delete ns.updateProfile
+            this.flashMessage.show(`Updating ${ns.name} please wait...`, {
+              cssClass: 'alert-success',
+              timeout: 5000})
+          } else this.showDisconnected()
+      }
+    })
+  }
+
+  uninstallNS(ns) {
+    if (this.mqttConnected) {
+      this.sockets.sendMessage('nodeservers', { 'uninstallns': ns }, false, true)
+      this.flashMessage.show(`Uninstalling ${ns.name} please wait...`, {
+        cssClass: 'alert-success',
+        timeout: 5000})
+    } else this.showDisconnected()
+  }
+
+  updateAvailable(ns) {
+    let version = '0'
+    if (this.installedTypes) {
+      let idx = this.installedTypes.findIndex(n => n.name === ns.name)
+      if (idx > -1)
+        version = this.installedTypes[idx].credits[0].version
+    }
+    return this.compareVersions(version, '<', ns.version)
+  }
+
+  isInstalled(ns) {
+    let idx = -1
+    if (this.installedTypes)
+      idx = this.installedTypes.findIndex(n => n.name === ns.name)
+    return idx > -1
+  }
+
+  addConfirm(ns) {
+    this.simpleModalService.addModal(ConfirmComponent, {
+      title: 'Install NodeServer?',
+      message: `Do you really want to install the NodeServer named ${ns.name}? This will clone the repository from: ${ns.url}`})
+      .subscribe((isConfirmed) => {
+        if (isConfirmed)
+          this.installNS(ns)
+    })
+  }
+
+  delConfirm(ns) {
+    this.simpleModalService.addModal(ConfirmComponent, {
+      title: 'Uninstall NodeServer?',
+      message: `Do you really want to uninstall the NodeServer named ${ns.name}? This will completely delete the NodeServer folder from Polyglot. CANNOT BE UNDONE.`})
+      .subscribe((isConfirmed) => {
+        if (isConfirmed)
+          this.uninstallNS(ns)
+    })
+  }
+
+  showDisconnected() {
+    this.flashMessage.show('Error not connected to Polyglot.', {
+      cssClass: 'alert-danger',
+      timeout: 3000})
   }
 
   compareVersions(v1, comparator, v2) {

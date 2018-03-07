@@ -3,7 +3,7 @@ import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NodeServer } from '../../models/nodeserver.model'
 import { Router, ActivatedRoute } from "@angular/router"
-import { DialogService } from 'ng2-bootstrap-modal'
+import { SimpleModalService } from 'ngx-simple-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
 
@@ -15,6 +15,8 @@ import { FlashMessagesService } from 'angular2-flash-messages'
 export class NsdetailsComponent implements OnInit, OnDestroy {
 
   nodeServers: NodeServer[]
+  public mqttConnected: boolean = false
+  private subConnected: any
   private subNodeServers: any
   private subResponses: any
   private logConn: any
@@ -22,13 +24,15 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   public arrayOfKeys: any
   public customParams: any
   public profileNum: any
+  public uptime: any
+  public uptimeInterval: any
   public selectedNodeServer: any
   public currentlyEnabled: any
 
   constructor(
     private sockets: WebsocketsService,
     private settingsService: SettingsService,
-    private dialogService: DialogService,
+    private simpleModalService: SimpleModalService,
     private flashMessage: FlashMessagesService,
     private route: ActivatedRoute,
     private router: Router
@@ -39,62 +43,77 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (!this.sockets.connected) this.sockets.start()
+    this.getConnected()
     this.getNodeServers()
     this.getNodeServerResponses()
   }
 
   ngOnDestroy() {
-    if (this.sockets.connected) {
+    if (this.mqttConnected) {
       this.sockets.sendMessage('log', { stop: this.selectedNodeServer.profileNum })
     }
     if (this.logConn) { this.logConn.unsubscribe() }
     if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
+    if (this.uptimeInterval) { clearInterval(this.uptimeInterval) }
+  }
+
+  getConnected() {
+    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+      this.mqttConnected = connected
+    })
   }
 
   showConfirm(nodeServer) {
-    this.dialogService.addDialog(ConfirmComponent, {
+    this.simpleModalService.addModal(ConfirmComponent, {
       title: 'Delete NodeServer',
       message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
-        if (isConfirmed) {
+        if (isConfirmed)
           this.deleteNodeServer(nodeServer, isConfirmed)
-        }
     })
   }
 
   confirmNodeDelete(i) {
-    this.dialogService.addDialog(ConfirmComponent, {
+    this.simpleModalService.addModal(ConfirmComponent, {
       title: 'Delete Node?',
       message: `This will delete the node: ${i.address} from Polyglot and ISY if it exists. Are you sure?`})
       .subscribe((isConfirmed) => {
-        if (isConfirmed) {
+        if (isConfirmed)
           this.deleteNode(i)
-        }
     })
   }
 
   deleteNode(i) {
-    this.sockets.sendMessage('nodeservers', {removenode: {address: i.address, profileNum: this.selectedNodeServer.profileNum}}, false, true)
+    if (this.mqttConnected)
+      this.sockets.sendMessage('nodeservers', {removenode: {address: i.address, profileNum: this.selectedNodeServer.profileNum}}, false, true)
+    else
+      this.showDisconnected()
   }
 
   deleteNodeServer(nodeServer, confirmed) {
+    if (this.mqttConnected) {
       this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}})
       this.router.navigate(['/dashboard'])
+    } else this.showDisconnected()
   }
 
   showControl(type) {
     if (this.currentlyEnabled === type) { return this.currentlyEnabled = null }
     this.currentlyEnabled = type
     if (type === 'log') {
-      if (this.sockets.connected) {
+      if (this.mqttConnected) {
         this.sockets.sendMessage('log', { start: this.selectedNodeServer.profileNum })
         this.getLog()
-      }
+      } else this.showDisconnected()
     }
+  }
 
- }
+  showDisconnected() {
+    this.flashMessage.show('Error not connected to Polyglot.', {
+      cssClass: 'alert-danger',
+      timeout: 3000})
+  }
 
   getNodeServers() {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
@@ -102,6 +121,11 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       for (const i in this.nodeServers) {
         if (this.nodeServers[i].profileNum === this.profileNum) {
           this.selectedNodeServer = this.nodeServers[i]
+          if (!this.uptimeInterval) {
+            this.uptimeInterval = setInterval(() => {
+              this.calculateUptime()
+            }, 1000)
+          }
           this.customParams = JSON.parse(JSON.stringify(this.selectedNodeServer.customParams))
           this.arrayOfKeys = Object.keys(this.customParams)
         }
@@ -109,12 +133,38 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     })
   }
 
+  calculateUptime() {
+    //var seconds = Math.floor(()/1000)
+    var d = Math.abs(+ new Date() - this.selectedNodeServer.timeStarted) / 1000
+    var r = {}
+    var s = {
+        'Year(s)': 31536000,
+        'Month(s)': 2592000,
+        'Week(s)': 604800,
+        'Day(s)': 86400,
+        'Hour(s)': 3600,
+        'Minute(s)': 60,
+        'Second(s)': 1
+    }
+
+    Object.keys(s).forEach(function(key){
+        r[key] = Math.floor(d / s[key])
+        d -= r[key] * s[key]
+    })
+    let uptime = ''
+    for (let key in r) {
+      if (r[key] !== 0 )
+        uptime += `${r[key]} ${key} `
+    }
+    this.uptime = uptime
+  }
+
   savePolls(shortPoll, longPoll) {
     shortPoll = parseInt(shortPoll)
     longPoll = parseInt(longPoll)
     if (typeof shortPoll === 'number' && typeof longPoll === 'number') {
       if (shortPoll < longPoll) {
-        if (this.sockets.connected) {
+        if (this.mqttConnected) {
           var message = {
             shortPoll: shortPoll,
             longPoll: longPoll
@@ -122,18 +172,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
           var updatedPolls = JSON.parse(JSON.stringify(message))
           updatedPolls['profileNum'] = this.selectedNodeServer.profileNum
           this.sockets.sendMessage('nodeservers', {polls: updatedPolls}, false, true)
-        } else {
-          this.flashMessage.show('Websockets not connected to Polyglot. Poll Parameters not saved.', {
-            cssClass: 'alert-danger',
-            timeout: 5000})
-          window.scrollTo(0, 0)
-        }
-      } else {
-        this.badValidate('shortPoll must be smaller than longPoll')
-      }
-    } else {
-      this.badValidate('Both Poll values must be numbers')
-    }
+        } else this.badValidate('Websockets not connected to Polyglot. Poll Parameters not saved.')
+      } else this.badValidate('shortPoll must be smaller than longPoll')
+    } else this.badValidate('Both Poll values must be numbers')
   }
 
   badValidate(message) {
@@ -161,12 +202,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
         var updatedParams = JSON.parse(JSON.stringify(this.customParams))
         updatedParams['profileNum'] = this.selectedNodeServer.profileNum
         this.sockets.sendMessage('nodeservers', {customparams: updatedParams}, false, true)
-    } else {
-      this.flashMessage.show('Websockets not connected to Polyglot. Custom Parameters not saved.', {
-        cssClass: 'alert-danger',
-        timeout: 5000})
-      window.scrollTo(0, 0)
-    }
+    } else this.badValidate('Websockets not connected to Polyglot. Custom Parameters not saved.')
   }
 
   getLog() {
@@ -184,7 +220,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   sendControl(command) {
-    if (this.sockets.connected) {
+    if (this.mqttConnected) {
       let cmd = {
         node: this.selectedNodeServer.profileNum,
       }

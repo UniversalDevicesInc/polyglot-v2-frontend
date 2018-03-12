@@ -7,10 +7,10 @@
    </tr>
  </thead>
  <tbody>
-   <tr *ngFor="let driver of drivers">
-     <td>{{driver.driver}}</td>
-     <td>{{driver.uom}}</td>
-     <td>{{driver.value}}</td>
+   <tr *ngFor="let driver of objectKeys(drivers)">
+     <td>{{driver}}</td>
+     <td>{{drivers[driver].uom}}</td>
+     <td>{{drivers[driver].value}}</td>
    </tr>
  </tbody>
 </table>

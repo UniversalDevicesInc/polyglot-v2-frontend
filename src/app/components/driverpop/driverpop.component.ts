@@ -6,7 +6,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./driverpop.component.css']
 })
 export class DriverpopComponent {
-
+  objectKeys = Object.keys
   @Input() drivers: any
   @Input() selectedNode: any
   constructor() { }

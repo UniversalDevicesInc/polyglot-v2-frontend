@@ -8,6 +8,7 @@ import { NsdetailsComponent } from '../nsdetails/nsdetails.component'
 })
 export class NodedetailsComponent implements OnInit {
 
+  objectKeys = Object.keys
   constructor(
     public nsdetails: NsdetailsComponent,
   ) { }

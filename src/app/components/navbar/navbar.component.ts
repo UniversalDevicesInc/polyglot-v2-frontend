@@ -52,9 +52,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   rebootClick() {
-    if (this.mqttConnected)
+    if (this.mqttConnected) {
       this.sockets.sendMessage('nodeservers', {rebootISY: {}})
-    else
+      this.flashMessage.show('Sent Reboot command to ISY.', {
+        cssClass: 'alert-success',
+        timeout: 3000})
+    } else
       this.showDisconnected()
   }
 
@@ -70,8 +73,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     //this.sockets.stop()
     this.flashMessage.show('You are logged out.', {
       cssClass: 'alert-success',
-      timeout: 3000
-    })
+      timeout: 3000})
     this.router.navigate(['/login'])
   }
 

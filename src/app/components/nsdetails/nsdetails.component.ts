@@ -121,7 +121,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       for (const i in this.nodeServers) {
         if (this.nodeServers[i].profileNum === this.profileNum) {
           this.selectedNodeServer = this.nodeServers[i]
-          if (!this.uptimeInterval) {
+          if (!this.uptimeInterval && this.selectedNodeServer.timeStarted) {
             this.uptimeInterval = setInterval(() => {
               this.calculateUptime()
             }, 1000)

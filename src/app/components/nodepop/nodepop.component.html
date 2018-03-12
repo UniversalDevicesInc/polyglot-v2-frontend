@@ -13,7 +13,7 @@
     <tr *ngFor="let node of node.nodes; let i = index" (click)="showDrivers(node.drivers, i)" [class.active]="i == selectedRow">
       <td>{{node.name}}</td>
       <td>{{node.address}}</td>
-      <td>{{node.node_def_id}}</td>
+      <td>{{node.nodedef}}</td>
       <td>{{node.enabled}}</td>
       <td>{{node.primary}}</td>
       <td>{{node.isprimary}}</td>

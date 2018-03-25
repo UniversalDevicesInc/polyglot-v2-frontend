@@ -1,12 +1,20 @@
 <div style="text-align: center;">
   <h1>Real-time Polyglot log file.</h1>
-  <button onclick="window.scrollTo(0,document.body.scrollHeight)" class="btn btn-default">Scroll to Bottom</button>
+  <!-- <button onclick="window.scrollTo(0,document.body.scrollHeight)" class="btn btn-default">Scroll to Bottom</button> -->
+  <button (click)="scrollToBottom()" class="btn btn-default">Scroll to Bottom</button>
+  <button (click)="settingsService.downloadLog('polyglot')" class="btn btn-default">Download Log</button>
+  <div>
+    <label>
+      <input name="autoScrollSwitch" type="checkbox" [(ngModel)]="autoScroll" [checked]="autoScroll">
+      AutoScroll
+    </label>
+  </div>
 </div><br />
-<div class="well well-lg">
-  <pre>
+<div class="well well-sm" style="height: 60vh">
+  <pre #logScroll style="overflow-y:auto; height: 96%">
     <div id='log' *ngFor="let data of logData">{{data}}</div>
   </pre>
 </div>
 <div style="text-align: center;">
-  <button onclick="window.scrollTo(0,0)" class="btn btn-default">Scroll to Top</button>
+  <button (click)="scrollToTop()" class="btn btn-default">Scroll to Top</button>
 </div><br />

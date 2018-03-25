@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'
+import { AfterViewChecked, ElementRef, ViewChild, Component, OnInit, OnDestroy } from '@angular/core'
 import { environment } from '../../../environments/environment'
 import { Observable } from 'rxjs/Rx'
+import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
 
@@ -9,7 +10,8 @@ import { FlashMessagesService } from 'angular2-flash-messages'
   templateUrl: './showlog.component.html',
   styleUrls: ['./showlog.component.css']
 })
-export class ShowlogComponent implements OnInit, OnDestroy {
+export class ShowlogComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('logScroll') private logScrollContainer: ElementRef;
 
   public mqttConnected: boolean = false
   private subConnected: any
@@ -19,13 +21,16 @@ export class ShowlogComponent implements OnInit, OnDestroy {
   private headers: Headers
   private websocket: any
   private receivedMsg: any
+  public autoScroll: boolean
 
   constructor(
+    public settingsService: SettingsService,
     private sockets: WebsocketsService,
     private flashMessage: FlashMessagesService
   ) {}
 
   ngOnInit() {
+    this.autoScroll = true
     this.getConnected()
     this.getLog()
   }
@@ -35,6 +40,9 @@ export class ShowlogComponent implements OnInit, OnDestroy {
     if (this.logConn) this.logConn.unsubscribe()
     if (this.mqttConnected)
       this.sockets.sendMessage('log', { stop: 'polyglot' })
+  }
+
+  ngAfterViewChecked() {
   }
 
   getConnected() {
@@ -53,6 +61,7 @@ export class ShowlogComponent implements OnInit, OnDestroy {
         if (message.hasOwnProperty('node')) {
           if (message.node === 'polyglot') {
             this.logData.push(data.log)
+            if (this.autoScroll) this.scrollToBottom()
           }
         }
       } catch (e) { }
@@ -63,6 +72,14 @@ export class ShowlogComponent implements OnInit, OnDestroy {
     this.flashMessage.show('Error not connected to Polyglot.', {
       cssClass: 'alert-danger',
       timeout: 3000})
+  }
+
+  scrollToTop() {
+    this.logScrollContainer.nativeElement.scrollTop = 0
+  }
+
+  scrollToBottom() {
+    this.logScrollContainer.nativeElement.scrollTop = this.logScrollContainer.nativeElement.scrollHeight
   }
 
   /*

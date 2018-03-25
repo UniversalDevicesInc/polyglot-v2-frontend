@@ -34,10 +34,11 @@ import { CustomdetailsComponent } from './components/customdetails/customdetails
 import { ShowlogComponent } from './components/showlog/showlog.component';
 import { GetnsComponent } from './components/getns/getns.component';
 import { NscontrolComponent } from './components/nscontrol/nscontrol.component';
-import { NslogComponent } from './components/nslog/nslog.component';
 import { ModalNsUpdateComponent } from './components/modal-ns-update/modal-ns-update.component';
 import { ModalNsAddComponent } from './components/modal-ns-add/modal-ns-add.component';
 import { NsnoticesComponent } from './components/nsnotices/nsnotices.component';
+
+import { DropdownDirective } from "./components/navbar/dropdown"
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
@@ -72,10 +73,10 @@ const appRoutes: Routes = [
     ShowlogComponent,
     GetnsComponent,
     NscontrolComponent,
-    NslogComponent,
     ModalNsUpdateComponent,
     ModalNsAddComponent,
     NsnoticesComponent,
+    DropdownDirective,
   ],
   imports: [
     BrowserModule,

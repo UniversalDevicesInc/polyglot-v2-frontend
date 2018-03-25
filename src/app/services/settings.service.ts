@@ -4,6 +4,10 @@ import { environment } from '../../environments/environment'
 
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/toPromise'
+import { finalize, tap } from 'rxjs/operators';
+
+import { saveAs } from 'file-saver/FileSaver'
 
 //import { NodeServer } from '../models/nodeserver.model'
 
@@ -20,6 +24,26 @@ export class SettingsService {
   loadToken() {
     const token = localStorage.getItem('id_token')
     this.authToken = token
+  }
+
+  async savePackage(id) {
+    var headers = new HttpHeaders().set('Authorization', localStorage.getItem('id_token'))
+    const file = await this.http.get(`${environment.PG_URI}/frontend/log/package/${id}`, { observe: 'response', responseType: "blob", headers: headers }).toPromise()
+    this.saveToFileSystem(file)
+  }
+
+  async downloadLog(id) {
+    var headers = new HttpHeaders().set('Authorization', localStorage.getItem('id_token'))
+    const file = await this.http.get(`${environment.PG_URI}/frontend/log/${id}`, { observe: 'response', responseType: "blob", headers: headers }).toPromise()
+    this.saveToFileSystem(file)
+  }
+
+  saveToFileSystem(response) {
+    const contentDispositionHeader: string = response.headers.get('content-disposition')
+    const parts: string[] = contentDispositionHeader.split(';')
+    const filename = parts[1].split('=')[1]
+    const blob = new Blob([response.body])
+    saveAs(blob, filename)
   }
 
   getSettings () {

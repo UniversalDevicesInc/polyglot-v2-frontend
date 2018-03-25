@@ -77,6 +77,7 @@ export class AuthService {
     this.user = null
     localStorage.clear()
     this.isLoggedIn.next(false)
+    //this.sockets.stop()
   }
 
   tokenNotExpired(tokenName, jwt?:string): boolean {

@@ -58,7 +58,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout()
-    //this.sockets.stop()
+    this.sockets.stop()
     this.flashMessage.show('Password Changed. Logging you out.', {
       cssClass: 'alert-success',
       timeout: 3000

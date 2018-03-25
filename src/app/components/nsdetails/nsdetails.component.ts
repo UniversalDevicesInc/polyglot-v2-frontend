@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ElementRef, ViewChild, Component, OnInit, OnDestroy } from '@angular/core'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NodeServer } from '../../models/nodeserver.model'
@@ -13,6 +13,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
   styleUrls: ['./nsdetails.component.css']
 })
 export class NsdetailsComponent implements OnInit, OnDestroy {
+  @ViewChild('nslogScroll') private logScrollContainer: ElementRef
 
   nodeServers: NodeServer[]
   public mqttConnected: boolean = false
@@ -28,6 +29,8 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   public uptimeInterval: any
   public selectedNodeServer: any
   public currentlyEnabled: any
+  public autoScroll: boolean
+  public child: any
 
   constructor(
     private sockets: WebsocketsService,
@@ -43,16 +46,19 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.autoScroll = true
     this.getConnected()
     this.getNodeServers()
     this.getNodeServerResponses()
   }
 
   ngOnDestroy() {
-    if (this.mqttConnected) {
-      this.sockets.sendMessage('log', { stop: this.selectedNodeServer.profileNum })
+    if (this.logConn) {
+      this.logConn.unsubscribe()
+      if (this.mqttConnected) {
+        this.sockets.sendMessage('log', { stop: this.selectedNodeServer.profileNum })
+      }
     }
-    if (this.logConn) { this.logConn.unsubscribe() }
     if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
     if (this.subResponses) { this.subResponses.unsubscribe() }
     if (this.uptimeInterval) { clearInterval(this.uptimeInterval) }
@@ -101,11 +107,19 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   showControl(type) {
     if (this.currentlyEnabled === type) { return this.currentlyEnabled = null }
     this.currentlyEnabled = type
+
     if (type === 'log') {
       if (this.mqttConnected) {
         this.sockets.sendMessage('log', { start: this.selectedNodeServer.profileNum })
         this.getLog()
       } else this.showDisconnected()
+    } else {
+      if (this.logConn) {
+        this.logConn.unsubscribe()
+        if (this.mqttConnected) {
+          this.sockets.sendMessage('log', { stop: this.selectedNodeServer.profileNum })
+        }
+      }
     }
   }
 
@@ -213,6 +227,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
         if (message.hasOwnProperty('node')) {
           if (message.node === 'polyglot') {
             this.logData.push(data.log)
+            if (this.autoScroll) this.scrollToBottom()
           }
         }
       } catch (e) { }
@@ -249,6 +264,14 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
         }
       }
     })
+  }
+
+  scrollToTop() {
+    this.logScrollContainer.nativeElement.scrollTop = 0
+  }
+
+  scrollToBottom() {
+    this.logScrollContainer.nativeElement.scrollTop = this.logScrollContainer.nativeElement.scrollHeight
   }
 
 }

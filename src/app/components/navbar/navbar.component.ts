@@ -6,7 +6,6 @@ import { WebsocketsService } from '../../services/websockets.service'
 import { SimpleModalService } from 'ngx-simple-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 
-
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -44,11 +43,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
     })
   }
 
+  showRestartConfirm() {
+    this.simpleModalService.addModal(ConfirmComponent, {
+      title: 'Restart Polyglot?',
+      message: `Like the upgrade procedure this will shut down Polyglot. If you do NOT have the auto-start scripts installed for linux(systemd) or OSX(launchctl) then Polyglot will NOT restart
+                automatically. You will have to manually restart. You will be logged out. Continue?`})
+      .subscribe((isConfirmed) => {
+        if (isConfirmed)
+          this.restartClick()
+    })
+  }
+
 
   getConnected() {
     this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
       this.mqttConnected = connected
     })
+  }
+
+  restartClick() {
+    if (this.mqttConnected) {
+      this.sockets.sendMessage('nodeservers', {restartPolyglot: {}})
+      this.flashMessage.show('Sent Restart command to Polyglot. Please wait till this message disappears to attempt to login again.', {
+        cssClass: 'alert-success',
+        timeout: 20000})
+        setTimeout(() => {
+          this.onLogoutClick()
+        }, 2000)
+    } else
+      this.showDisconnected()
   }
 
   rebootClick() {
@@ -70,7 +93,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   onLogoutClick() {
     this.authService.logout()
     if (this.subConnected) { this.subConnected.unsubscribe() }
-    //this.sockets.stop()
+    this.sockets.stop()
     this.flashMessage.show('You are logged out.', {
       cssClass: 'alert-success',
       timeout: 3000})

@@ -31,7 +31,29 @@
   </div>
 </div>
 <hr />
+<div *ngIf="currentlyEnabled === 'log'">
+  <div style="text-align: center;">
+    <h1>Real-time {{selectedNodeServer.name}} log file</h1>
+    <button (click)="scrollToBottom()" class="btn btn-default">Scroll to Bottom</button>
+    <button (click)="settingsService.downloadLog(selectedNodeServer.profileNum)" class="btn btn-default">Download Log</button>
+    <button (click)="settingsService.savePackage(selectedNodeServer.profileNum)" class="btn btn-default">Download Log Package</button>
+    <div>
+      <label>
+        <input name="autoScrollSwitch" type="checkbox" [(ngModel)]="autoScroll" [checked]="autoScroll">
+        AutoScroll
+      </label>
+    </div>
+  </div><br />
+  <div class="well well-sm" style="height: 50vh">
+    <pre #nslogScroll style="overflow-y:auto; height: 96%">
+      <div *ngFor="let data of logData">{{data}}</div>
+    </pre>
+  </div>
+  <div style="text-align: center;">
+    <button (click)="scrollToTop()" class="btn btn-default">Scroll to Top</button>
+  </div><br />
+</div>
+
 <app-nodedetails></app-nodedetails>
 <app-nscontrol></app-nscontrol>
 <app-customdetails></app-customdetails>
-<app-nslog></app-nslog>

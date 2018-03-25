@@ -161,8 +161,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   logout() {
     this.updateAvail = false
     this.cleanup()
-    //this.sockets.stop()
+    this.pgVersion = null
     this.authService.logout()
+    this.sockets.stop()
     this.flashMessage.show('You are logged out.', {
       cssClass: 'alert-success',
       timeout: 3000
@@ -209,7 +210,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.simpleModalService.addModal(ConfirmComponent, {
       title: `Upgrade Polyglot? New version available ${this.currentVersion}`,
       message: `Upgrading Polyglot from here will automatically download the latest binary for your system type and extract it OVER the existing binary. It will
-                then exit Polyglot. If you do NOT have the auto-start scripts installed for linux(systemctl) or OSX(launchctl) then Polyglot will NOT restart
+                then exit Polyglot. If you do NOT have the auto-start scripts installed for linux(systemd) or OSX(launchctl) then Polyglot will NOT restart
                 automatically. You will have to manually restart. If you are not using the binary, upgrade via git. Continue?`
       })
       .subscribe((isConfirmed) => {

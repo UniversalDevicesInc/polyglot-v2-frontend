@@ -61,7 +61,7 @@ export class ShowlogComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (message.hasOwnProperty('node')) {
           if (message.node === 'polyglot') {
             this.logData.push(data.log)
-            if (this.autoScroll) this.scrollToBottom()
+            if (this.autoScroll) setTimeout(() => { this.scrollToBottom() }, 100)
           }
         }
       } catch (e) { }

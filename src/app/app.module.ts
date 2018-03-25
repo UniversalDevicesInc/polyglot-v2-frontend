@@ -33,7 +33,6 @@ import { NodedetailsComponent } from './components/nodedetails/nodedetails.compo
 import { CustomdetailsComponent } from './components/customdetails/customdetails.component';
 import { ShowlogComponent } from './components/showlog/showlog.component';
 import { GetnsComponent } from './components/getns/getns.component';
-import { NscontrolComponent } from './components/nscontrol/nscontrol.component';
 import { ModalNsUpdateComponent } from './components/modal-ns-update/modal-ns-update.component';
 import { ModalNsAddComponent } from './components/modal-ns-add/modal-ns-add.component';
 import { NsnoticesComponent } from './components/nsnotices/nsnotices.component';
@@ -72,7 +71,6 @@ const appRoutes: Routes = [
     CustomdetailsComponent,
     ShowlogComponent,
     GetnsComponent,
-    NscontrolComponent,
     ModalNsUpdateComponent,
     ModalNsAddComponent,
     NsnoticesComponent,

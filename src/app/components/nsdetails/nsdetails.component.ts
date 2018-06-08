@@ -141,7 +141,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
             }, 1000)
           }
           this.customParams = JSON.parse(JSON.stringify(this.selectedNodeServer.customParams))
-          this.arrayOfKeys = Object.keys(this.customParams)
+          this.arrayOfKeys = Object.keys(this.customParams).sort();
         }
       }
     })
@@ -200,14 +200,12 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
 
   saveCustom(key: string, value) {
     this.customParams[key] = value
-    this.arrayOfKeys = Object.keys(this.customParams)
-    this.sendCustom()
+    this.arrayOfKeys = Object.keys(this.customParams).sort()
   }
 
   removeCustom(key: string, index) {
     this.arrayOfKeys.splice(index, 1)
     delete this.customParams[key]
-    this.sendCustom()
   }
 
   sendCustom() {

@@ -33,12 +33,14 @@
         <tbody>
             <tr *ngFor="let key of nsdetails.arrayOfKeys; let i = index" style="margin-bottom: 10px;">
                 <td>{{key}}</td>
-                <td><input class="form-control input-sm" type="text" #value value={{nsdetails.customParams[key]}}></td>
-                <td align="middle"><button class="btn btn-primary btn-xs" (click)="nsdetails.saveCustom(key, value.value)">Save</button></td>
+                <td><input class="form-control input-sm" type="text" [(ngModel)]="nsdetails.customParams[key]"></td>
                 <td><button class="btn btn-primary btn-xs" (click)="nsdetails.removeCustom(key, i)">Delete</button></td>
             </tr>
         </tbody>
     </table>
+    <div align="center" style="margin-bottom: 10px;">
+      <button class="btn btn-primary btn-xs" (click)="nsdetails.sendCustom()">Save Changes</button>
+    </div>
     <div class="addCustom" align="center">
       <input #newkey id="newkey" placeholder="key" value= "" style="width:16%" />
       <input #newvalue id="newvalue" placeholder="value" value="" style="width:41%" />

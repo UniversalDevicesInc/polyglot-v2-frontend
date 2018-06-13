@@ -132,9 +132,14 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   getNodeServers() {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
       this.nodeServers = nodeServers
-      for (const i in this.nodeServers) {
-        if (this.nodeServers[i].profileNum === this.profileNum) {
-          this.selectedNodeServer = this.nodeServers[i]
+      for (var nodeServer of this.nodeServers) {
+        // If notices is an object, convert to array of values
+        if (nodeServer.notices != null && !Array.isArray(nodeServer.notices)) {
+          nodeServer.notices = Object.keys(nodeServer.notices).map(key => nodeServer.notices[key]);
+        }
+
+        if (nodeServer.profileNum === this.profileNum) {
+          this.selectedNodeServer = nodeServer
           if (!this.uptimeInterval && this.selectedNodeServer.timeStarted) {
             this.uptimeInterval = setInterval(() => {
               this.calculateUptime()

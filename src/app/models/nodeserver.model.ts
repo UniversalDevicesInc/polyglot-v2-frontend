@@ -6,4 +6,6 @@ export class NodeServer {
   encyptPayload: boolean
   isConnected: boolean
   customParams: Object
+  customParamsDoc?: string
+  notices?: any
 }

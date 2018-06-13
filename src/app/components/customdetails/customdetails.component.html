@@ -22,6 +22,15 @@
         </tbody>
     </table>
     <br />
+    <div align="center" *ngIf="nsdetails.selectedNodeServer.customParamsDoc != null">
+        <button type="button" class="btn btn-default btn-lg"
+            (click)="helpCollapsed = !helpCollapsed"
+            [attr.aria-expanded]="!helpCollapsed" aria-controls="configDocs">
+            Configuration Help</button>
+        <div id="configDocs" [collapse]="helpCollapsed"
+            class="card card-block card-header"
+            [innerHTML]="nsdetails.selectedNodeServer.customParamsDoc"></div>
+    </div>
     <h2>Custom Configuration Parameters</h2>
     <table class="table">
         <thead>

@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, Injector } from '@angular/core';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { FlashMessagesModule } from 'angular2-flash-messages';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http'
-import { RouterModule, Routes } from '@angular/router';
+import { Injector, NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FlashMessagesModule } from 'angular2-flash-messages';
+import { Routes, RouterModule } from '@angular/router';
 import { SimpleModalModule } from 'ngx-simple-modal';
 
 import { SettingsService } from './services/settings.service';
@@ -78,12 +79,13 @@ const appRoutes: Routes = [
   ],
   imports: [
     BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    RouterModule.forRoot(appRoutes),
+    CollapseModule.forRoot(),
     FlashMessagesModule,
-    SimpleModalModule
+    FormsModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot(appRoutes),
+    SimpleModalModule,
   ],
   entryComponents: [
     ConfirmComponent,

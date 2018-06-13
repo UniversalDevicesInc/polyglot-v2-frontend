@@ -8,6 +8,8 @@ import { NsdetailsComponent } from '../nsdetails/nsdetails.component'
 })
 export class CustomdetailsComponent implements OnInit {
 
+  helpCollapsed = false
+
   constructor(
     public nsdetails: NsdetailsComponent
   ) {}

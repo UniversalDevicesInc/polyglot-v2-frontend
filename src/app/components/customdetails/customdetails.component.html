@@ -27,7 +27,7 @@
             (click)="helpCollapsed = !helpCollapsed"
             [attr.aria-expanded]="!helpCollapsed" aria-controls="configDocs">
             Configuration Help</button>
-        <div id="configDocs" [collapse]="helpCollapsed"
+        <div align="left" id="configDocs" [collapse]="helpCollapsed"
             class="card card-block card-header"
             [innerHTML]="nsdetails.selectedNodeServer.customParamsDoc"></div>
     </div>

@@ -6,7 +6,7 @@ import { NodeServer } from '../../models/nodeserver.model'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { DashboardComponent } from '../dashboard/dashboard.component'
 import { Router } from '@angular/router'
-import { SimpleModalService } from "ngx-simple-modal"
+import { SimpleModalService } from 'ngx-simple-modal';
 import { ConfirmComponent } from '../confirm/confirm.component'
 
 
@@ -21,15 +21,15 @@ export class AddnodeComponent implements OnInit, OnDestroy {
   baseUrl: String
   nodeServers: NodeServer[]
 
-  public mqttConnected: boolean = false
+  public mqttConnected = false
   private subConnected: any
   private subNodeServers: any
   private subNsTypes: any
   public nsTypes: string[] = []
-  public indexes: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  public indexes: number[] = Array.from({ length: 25 }, (value, key) => key + 1);
   public types: string[] = ['Local (Co-Resident with Polyglot)', 'Remote']
   public typeSet: string[] = ['local', 'remote']
-  public received: boolean = false
+  public received = false
   public selectedType: string = this.typeSet[0]
   public selectedNS: Object = this.nsTypes[0]
 
@@ -56,7 +56,7 @@ export class AddnodeComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    //if (!this.sockets.connected) this.sockets.start()
+    // if (!this.sockets.connected) this.sockets.start()
     this.getConnected()
     this.getNsTypes()
     this.getNodeServers()
@@ -71,8 +71,9 @@ export class AddnodeComponent implements OnInit, OnDestroy {
   getConnected() {
     this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
       this.mqttConnected = connected
-      if (connected)
+      if (connected) {
         this.sockets.sendMessage('nodeservers', { 'nodetypes': '' })
+      }
     })
   }
 
@@ -80,7 +81,7 @@ export class AddnodeComponent implements OnInit, OnDestroy {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
       this.nodeServers = nodeServers
       this.nodeServers.forEach((ns) => {
-        var ind = this.indexes.indexOf(parseInt(ns.profileNum))
+        const ind = this.indexes.indexOf(parseInt(ns.profileNum, 10));
         if (ind > -1) {
           this.indexes.splice(ind, 1)
         }
@@ -100,7 +101,9 @@ export class AddnodeComponent implements OnInit, OnDestroy {
   showConfirm() {
     this.simpleModalService.addModal(ConfirmComponent, {
       title: 'Add NodeServer',
-      message: `Typically it is only necessary to restart the admin console by closing and re-opening it. If this doesn't show your new NodeServer, use the Reboot ISY button on the navigation bar above.`})
+      message: `Typically it is only necessary to restart the admin console by
+ closing and re-opening it. If this doesn't show your new NodeServer, use the
+ Reboot ISY button on the navigation bar above.`})
       .subscribe((isConfirmed) => {
         this.onRegisterSubmit(isConfirmed)
     })
@@ -114,15 +117,15 @@ export class AddnodeComponent implements OnInit, OnDestroy {
 
   onRegisterSubmit(confirmed) {
     if (!confirmed) { return }
+    let name: string, path: string;
     if (!this.sockets.isyConnected) {
-      this.flashMessage.show('ISY not connected to Polyglot. Can\'t add NodeServers.', {
-        cssClass: 'alert-danger',
-        timeout: 5000})
+      this.flashMessage.show('ISY not connected to Polyglot. Can\'t add NodeServers.',
+        { cssClass: 'alert-danger', timeout: 5000 });
       window.scrollTo(0, 0)
     } else {
       if (this.selectedType === 'local') {
-        var name = this.selectedNS['name']
-        var path = this.selectedNS['_folder']
+        name = this.selectedNS['name']
+        path = this.selectedNS['_folder']
       } else {
         name = this.name
       }
@@ -138,13 +141,16 @@ export class AddnodeComponent implements OnInit, OnDestroy {
       }
 
       if (!this.validateService.validateProfileNum(node.profileNum)) {
-        this.flashMessage.show('Please use 1 through 10 for Node Server Number.', {cssClass: 'alert-danger', timeout: 3000})
+        this.flashMessage.show('Please use 1 through 10 for Node Server Number.',
+          {cssClass: 'alert-danger', timeout: 3000})
         return false
       }
 
       if (this.sockets.connected) {
         this.sockets.sendMessage('nodeservers', {addns: node}, false, true)
-        this.flashMessage.show(`Successfully submitted ${node.type} NodeServer ${node.name} at slot ${node.profileNum}`, {cssClass: 'alert-success', timeout: 3000})
+        this.flashMessage.show(`Successfully submitted ${node.type} NodeServer
+ ${node.name} at slot ${node.profileNum}`,
+          {cssClass: 'alert-success', timeout: 3000})
         window.scrollTo(0, 0)
         this.router.navigate(['/dashboard'])
       } else {

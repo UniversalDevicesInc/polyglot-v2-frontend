@@ -45,10 +45,16 @@
                 <td><input class="form-control input-sm" type="text" [(ngModel)]="nsdetails.customParams[key]"></td>
                 <td><button class="btn btn-primary btn-xs" (click)="nsdetails.removeCustom(key, i)">Delete</button></td>
             </tr>
+            <tr *ngFor="let key of nsdetails.selectedNodeServer.typedParams; index as i"
+                style="margin-bottom: 10px;" app-customparam
+                [desc]='nsdetails.selectedNodeServer.typedParams[i]'
+                [(data)]='nsdetails.selectedNodeServer.typedCustomData'>
+            </tr>
         </tbody>
     </table>
     <div align="center" style="margin-bottom: 10px;">
-      <button class="btn btn-primary btn-xs" (click)="nsdetails.sendCustom()">Save Changes</button>
+      <!--button class="btn btn-primary btn-xs" (click)="nsdetails.sendCustom()" type="submit">Save Changes</button-->
+      <button class="btn btn-primary btn-xs" (click)="saveChanges()">Save Changes</button>
     </div>
     <div class="addCustom" align="center">
       <input #newkey id="newkey" placeholder="key" value= "" style="width:16%" />

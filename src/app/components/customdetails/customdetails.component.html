@@ -22,6 +22,15 @@
         </tbody>
     </table>
     <br />
+    <div align="center" *ngIf="nsdetails.selectedNodeServer.customParamsDoc != null">
+        <button type="button" class="btn btn-default btn-lg"
+            (click)="helpCollapsed = !helpCollapsed"
+            [attr.aria-expanded]="!helpCollapsed" aria-controls="configDocs">
+            Configuration Help</button>
+        <div align="left" id="configDocs" [collapse]="helpCollapsed"
+            class="card card-block card-header"
+            [innerHTML]="nsdetails.selectedNodeServer.customParamsDoc"></div>
+    </div>
     <h2>Custom Configuration Parameters</h2>
     <table class="table">
         <thead>
@@ -33,12 +42,20 @@
         <tbody>
             <tr *ngFor="let key of nsdetails.arrayOfKeys; let i = index" style="margin-bottom: 10px;">
                 <td>{{key}}</td>
-                <td><input class="form-control input-sm" type="text" #value value={{nsdetails.customParams[key]}}></td>
-                <td align="middle"><button class="btn btn-primary btn-xs" (click)="nsdetails.saveCustom(key, value.value)">Save</button></td>
+                <td><input class="form-control input-sm" type="text" [(ngModel)]="nsdetails.customParams[key]"></td>
                 <td><button class="btn btn-primary btn-xs" (click)="nsdetails.removeCustom(key, i)">Delete</button></td>
+            </tr>
+            <tr *ngFor="let key of nsdetails.selectedNodeServer.typedParams; index as i"
+                style="margin-bottom: 10px;" app-customparam
+                [desc]='nsdetails.selectedNodeServer.typedParams[i]'
+                [(data)]='nsdetails.selectedNodeServer.typedCustomData'>
             </tr>
         </tbody>
     </table>
+    <div align="center" style="margin-bottom: 10px;">
+      <!--button class="btn btn-primary btn-xs" (click)="nsdetails.sendCustom()" type="submit">Save Changes</button-->
+      <button class="btn btn-primary btn-xs" (click)="saveChanges()">Save Changes</button>
+    </div>
     <div class="addCustom" align="center">
       <input #newkey id="newkey" placeholder="key" value= "" style="width:16%" />
       <input #newvalue id="newvalue" placeholder="value" value="" style="width:41%" />

@@ -2,7 +2,7 @@ import { ElementRef, ViewChild, Component, OnInit, OnDestroy } from '@angular/co
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NodeServer } from '../../models/nodeserver.model'
-import { Router, ActivatedRoute } from "@angular/router"
+import { Router, ActivatedRoute } from '@angular/router'
 import { SimpleModalService } from 'ngx-simple-modal'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
@@ -16,12 +16,12 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   @ViewChild('nslogScroll') private logScrollContainer: ElementRef
 
   nodeServers: NodeServer[]
-  public mqttConnected: boolean = false
+  public mqttConnected = false
   private subConnected: any
   private subNodeServers: any
   private subResponses: any
   private logConn: any
-  public logData: string[]=[]
+  public logData: string[] = []
   public arrayOfKeys: any
   public customParams: any
   public profileNum: any
@@ -41,8 +41,8 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.route.params.subscribe((params) => {
-        this.profileNum = params["id"]
-      })
+      this.profileNum = params['id']
+    })
   }
 
   ngOnInit() {
@@ -75,8 +75,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       title: 'Delete NodeServer',
       message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
-        if (isConfirmed)
-          this.deleteNodeServer(nodeServer, isConfirmed)
+        if (isConfirmed) {
+          this.deleteNodeServer(nodeServer, isConfirmed);
+        }
     })
   }
 
@@ -85,23 +86,32 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       title: 'Delete Node?',
       message: `This will delete the node: ${i.address} from Polyglot and ISY if it exists. Are you sure?`})
       .subscribe((isConfirmed) => {
-        if (isConfirmed)
-          this.deleteNode(i)
+        if (isConfirmed) {
+          this.deleteNode(i);
+        }
     })
   }
 
   deleteNode(i) {
-    if (this.mqttConnected)
-      this.sockets.sendMessage('nodeservers', {removenode: {address: i.address, profileNum: this.selectedNodeServer.profileNum}}, false, true)
-    else
-      this.showDisconnected()
+    if (this.mqttConnected) {
+      this.sockets.sendMessage('nodeservers',
+        {
+          removenode: {
+            address: i.address, profileNum: this.selectedNodeServer.profileNum
+          }
+        }, false, true);
+    } else {
+      this.showDisconnected();
+    }
   }
 
   deleteNodeServer(nodeServer, confirmed) {
     if (this.mqttConnected) {
       this.sockets.sendMessage('nodeservers', {delns: {profileNum: nodeServer.profileNum}})
       this.router.navigate(['/dashboard'])
-    } else this.showDisconnected()
+    } else {
+      this.showDisconnected();
+    }
   }
 
   showControl(type) {
@@ -112,7 +122,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       if (this.mqttConnected) {
         this.sockets.sendMessage('log', { start: this.selectedNodeServer.profileNum })
         this.getLog()
-      } else this.showDisconnected()
+      } else {
+        this.showDisconnected();
+      }
     } else {
       if (this.logConn) {
         this.logConn.unsubscribe()
@@ -132,26 +144,34 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   getNodeServers() {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
       this.nodeServers = nodeServers
-      for (const i in this.nodeServers) {
-        if (this.nodeServers[i].profileNum === this.profileNum) {
-          this.selectedNodeServer = this.nodeServers[i]
+      for (const nodeServer of this.nodeServers) {
+        // If notices is an object, convert to array of values
+        if (nodeServer.notices != null && !Array.isArray(nodeServer.notices)) {
+          nodeServer.notices = Object.keys(nodeServer.notices).map(key => nodeServer.notices[key]);
+        }
+
+        if (nodeServer.profileNum === this.profileNum) {
+          this.selectedNodeServer = nodeServer
           if (!this.uptimeInterval && this.selectedNodeServer.timeStarted) {
             this.uptimeInterval = setInterval(() => {
               this.calculateUptime()
             }, 1000)
           }
           this.customParams = JSON.parse(JSON.stringify(this.selectedNodeServer.customParams))
-          this.arrayOfKeys = Object.keys(this.customParams)
+          this.arrayOfKeys = Object.keys(this.customParams).sort();
+          if (nodeServer.typedCustomData == null) {
+            nodeServer.typedCustomData = {};
+          }
         }
       }
     })
   }
 
   calculateUptime() {
-    //var seconds = Math.floor(()/1000)
-    var d = Math.abs(+ new Date() - this.selectedNodeServer.timeStarted) / 1000
-    var r = {}
-    var s = {
+    // var seconds = Math.floor(()/1000)
+    let d = Math.abs(+ new Date() - this.selectedNodeServer.timeStarted) / 1000
+    const r = {}
+    const s = {
         'Year(s)': 31536000,
         'Month(s)': 2592000,
         'Week(s)': 604800,
@@ -161,34 +181,41 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
         'Second(s)': 1
     }
 
-    Object.keys(s).forEach(function(key){
+    Object.keys(s).forEach(function(key) {
         r[key] = Math.floor(d / s[key])
         d -= r[key] * s[key]
     })
     let uptime = ''
-    for (let key in r) {
-      if (r[key] !== 0 )
+    for (const key in r) {
+      if (r[key] !== 0 ) {
         uptime += `${r[key]} ${key} `
+      }
     }
     this.uptime = uptime
   }
 
   savePolls(shortPoll, longPoll) {
-    shortPoll = parseInt(shortPoll)
-    longPoll = parseInt(longPoll)
+    shortPoll = parseInt(shortPoll, 10);
+    longPoll = parseInt(longPoll, 10);
     if (typeof shortPoll === 'number' && typeof longPoll === 'number') {
       if (shortPoll < longPoll) {
         if (this.mqttConnected) {
-          var message = {
+          const message = {
             shortPoll: shortPoll,
             longPoll: longPoll
           }
-          var updatedPolls = JSON.parse(JSON.stringify(message))
+          const updatedPolls = JSON.parse(JSON.stringify(message))
           updatedPolls['profileNum'] = this.selectedNodeServer.profileNum
           this.sockets.sendMessage('nodeservers', {polls: updatedPolls}, false, true)
-        } else this.badValidate('Websockets not connected to Polyglot. Poll Parameters not saved.')
-      } else this.badValidate('shortPoll must be smaller than longPoll')
-    } else this.badValidate('Both Poll values must be numbers')
+        } else {
+          this.badValidate('Websockets not connected to Polyglot. Poll Parameters not saved.')
+        }
+      } else {
+        this.badValidate('shortPoll must be smaller than longPoll')
+      }
+    } else {
+      this.badValidate('Both Poll values must be numbers')
+    }
   }
 
   badValidate(message) {
@@ -200,34 +227,46 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
 
   saveCustom(key: string, value) {
     this.customParams[key] = value
-    this.arrayOfKeys = Object.keys(this.customParams)
-    this.sendCustom()
+    this.arrayOfKeys = Object.keys(this.customParams).sort()
   }
 
   removeCustom(key: string, index) {
     this.arrayOfKeys.splice(index, 1)
     delete this.customParams[key]
-    this.sendCustom()
   }
 
   sendCustom() {
     if (this.sockets.connected) {
-        // Deepcopy hack
-        var updatedParams = JSON.parse(JSON.stringify(this.customParams))
-        updatedParams['profileNum'] = this.selectedNodeServer.profileNum
-        this.sockets.sendMessage('nodeservers', {customparams: updatedParams}, false, true)
-    } else this.badValidate('Websockets not connected to Polyglot. Custom Parameters not saved.')
+      // Deepcopy hack
+      const updatedParams = JSON.parse(JSON.stringify(this.customParams))
+      updatedParams['profileNum'] = this.selectedNodeServer.profileNum
+      this.sockets.sendMessage('nodeservers', { customparams: updatedParams },
+        false, true)
+    } else {
+      this.badValidate('Websockets not connected to Polyglot. Custom Parameters not saved.');
+    }
+  }
+
+  sendTypedCustom() {
+    if (this.sockets.connected) {
+      const data = JSON.parse(JSON.stringify(this.selectedNodeServer.typedCustomData))
+      data['profileNum'] = this.selectedNodeServer.profileNum
+      this.sockets.sendMessage('nodeservers', { typedcustomdata: data },
+        false, true)
+    } else {
+      this.badValidate('Websockets not connected to Polyglot. Typed Custom Parameters not saved.');
+    }
   }
 
   getLog() {
     if (this.logConn) { return }
     this.logConn = this.sockets.logData.subscribe(data => {
       try {
-        var message = data
+        const message = data
         if (message.hasOwnProperty('node')) {
           if (message.node === 'polyglot') {
             this.logData.push(data.log)
-            if (this.autoScroll) setTimeout(() => { this.scrollToBottom() }, 100)
+            if (this.autoScroll) { setTimeout(() => { this.scrollToBottom() }, 100); }
           }
         }
       } catch (e) { }
@@ -236,10 +275,10 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
 
   sendControl(command) {
     if (this.mqttConnected) {
-      let cmd = {
+      const cmd = {
         node: this.selectedNodeServer.profileNum,
       }
-      cmd[command] = ""
+      cmd[command] = '';
       this.sockets.sendMessage(this.selectedNodeServer.profileNum, cmd, false, false)
       this.flashMessage.show(`Sent ${command} command to NodeServer ${this.selectedNodeServer.name}.`, {
         cssClass: 'alert-success',

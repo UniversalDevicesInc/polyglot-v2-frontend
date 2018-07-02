@@ -1,17 +1,20 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, Injector } from '@angular/core';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { FlashMessagesModule } from 'angular2-flash-messages';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http'
-import { RouterModule, Routes } from '@angular/router';
+import { Injector, NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FlashMessagesModule } from 'angular2-flash-messages';
+import { Routes, RouterModule } from '@angular/router';
 import { SimpleModalModule } from 'ngx-simple-modal';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 import { SettingsService } from './services/settings.service';
 import { WebsocketsService } from './services/websockets.service';
 import { FlashMessagesService } from 'angular2-flash-messages';
 import { AddnodeService } from './services/addnode.service';
 import { ValidateService } from './services/validate.service';
+import { ValidateparamsService } from './services/validateparams.service';
 import { AuthService } from './services/auth.service';
 
 import { AuthGuard } from './guards/auth.guard';
@@ -37,7 +40,10 @@ import { ModalNsUpdateComponent } from './components/modal-ns-update/modal-ns-up
 import { ModalNsAddComponent } from './components/modal-ns-add/modal-ns-add.component';
 import { NsnoticesComponent } from './components/nsnotices/nsnotices.component';
 
-import { DropdownDirective } from "./components/navbar/dropdown"
+import { DropdownDirective } from "./components/navbar/dropdown";
+import { CustomparamComponent } from './components/params/customparam/customparam.component';
+import { CustomparamsetComponent } from './components/params/customparamset/customparamset.component';
+import { CustomparamlistComponent } from './components/params/customparamlist/customparamlist.component'
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
@@ -75,15 +81,20 @@ const appRoutes: Routes = [
     ModalNsAddComponent,
     NsnoticesComponent,
     DropdownDirective,
+    CustomparamComponent,
+    CustomparamsetComponent,
+    CustomparamlistComponent,
   ],
   imports: [
     BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    RouterModule.forRoot(appRoutes),
+    CollapseModule.forRoot(),
     FlashMessagesModule,
-    SimpleModalModule
+    FormsModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot(appRoutes),
+    SimpleModalModule,
+    TooltipModule.forRoot()
   ],
   entryComponents: [
     ConfirmComponent,
@@ -91,7 +102,7 @@ const appRoutes: Routes = [
     ModalNsUpdateComponent,
     ModalNsAddComponent,
   ],
-  providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService],
+  providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService, ValidateparamsService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

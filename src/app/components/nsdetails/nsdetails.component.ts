@@ -22,8 +22,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   private subResponses: any
   private logConn: any
   public logData: string[] = []
-  public arrayOfKeys: any
+  public arrayOfKeys: string[] = []
   public customParams: any
+  public typedCustomData: any
   public profileNum: any
   public uptime: any
   public uptimeInterval: any
@@ -40,6 +41,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    this.arrayOfKeys = []
     this.route.params.subscribe((params) => {
       this.profileNum = params['id']
     })
@@ -73,7 +75,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   showConfirm(nodeServer) {
     this.simpleModalService.addModal(ConfirmComponent, {
       title: 'Delete NodeServer',
-      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
+      message: `This will delete the ${nodeServer.name} NodeServer.
+ You will need to restart the ISY admin console to reflect the changes,
+ if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
         if (isConfirmed) {
           this.deleteNodeServer(nodeServer, isConfirmed);
@@ -145,23 +149,35 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
       this.nodeServers = nodeServers
       for (const nodeServer of this.nodeServers) {
-        // If notices is an object, convert to array of values
-        if (nodeServer.notices != null && !Array.isArray(nodeServer.notices)) {
-          nodeServer.notices = Object.keys(nodeServer.notices).map(key => nodeServer.notices[key]);
-        }
-
         if (nodeServer.profileNum === this.profileNum) {
+          if (this.selectedNodeServer === undefined
+            || this.selectedNodeServer.profileNum !== this.profileNum) {
+            this.customParams = JSON.parse(JSON.stringify(nodeServer.customParams));
+            this.arrayOfKeys = Object.keys(this.customParams).sort();
+            if (nodeServer.typedCustomData === null) {
+              nodeServer.typedCustomData = {};
+            }
+            if (!Array.isArray(nodeServer.typedParams)) {
+              nodeServer.typedParams = [];
+            }
+            this.typedCustomData = JSON.parse(JSON.stringify(nodeServer.typedCustomData));
+          }
           this.selectedNodeServer = nodeServer
+          // If notices is an object, convert to array of values
+          if (nodeServer.notices != null && !Array.isArray(nodeServer.notices)) {
+            nodeServer.notices = Object.keys(nodeServer.notices).map(key => nodeServer.notices[key]);
+          }
+          for (const node of nodeServer.nodes) {
+            if (Array.isArray(node.hint)) {
+              node.hint = node.hint.join('.');
+            }
+          }
           if (!this.uptimeInterval && this.selectedNodeServer.timeStarted) {
             this.uptimeInterval = setInterval(() => {
               this.calculateUptime()
             }, 1000)
           }
-          this.customParams = JSON.parse(JSON.stringify(this.selectedNodeServer.customParams))
-          this.arrayOfKeys = Object.keys(this.customParams).sort();
-          if (nodeServer.typedCustomData == null) {
-            nodeServer.typedCustomData = {};
-          }
+
         }
       }
     })
@@ -249,7 +265,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
 
   sendTypedCustom() {
     if (this.sockets.connected) {
-      const data = JSON.parse(JSON.stringify(this.selectedNodeServer.typedCustomData))
+      const data = JSON.parse(JSON.stringify(this.typedCustomData))
       data['profileNum'] = this.selectedNodeServer.profileNum
       this.sockets.sendMessage('nodeservers', { typedcustomdata: data },
         false, true)

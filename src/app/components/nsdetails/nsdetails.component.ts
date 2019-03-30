@@ -22,8 +22,11 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   private subResponses: any
   private logConn: any
   public logData: string[] = []
-  public arrayOfKeys: any
+  public arrayOfKeys: string[] = []
   public customParams: any
+  public customParamsChangePending: boolean
+  public typedCustomData: any
+  public typedParams: any
   public profileNum: any
   public uptime: any
   public uptimeInterval: any
@@ -40,6 +43,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    this.arrayOfKeys = []
+    this.customParams = {}
+    this.customParamsChangePending = false
     this.route.params.subscribe((params) => {
       this.profileNum = params['id']
     })
@@ -73,7 +79,9 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   showConfirm(nodeServer) {
     this.simpleModalService.addModal(ConfirmComponent, {
       title: 'Delete NodeServer',
-      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
+      message: `This will delete the ${nodeServer.name} NodeServer.
+ You will need to restart the ISY admin console to reflect the changes,
+ if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
       .subscribe((isConfirmed) => {
         if (isConfirmed) {
           this.deleteNodeServer(nodeServer, isConfirmed);
@@ -145,26 +153,50 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
     this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
       this.nodeServers = nodeServers
       for (const nodeServer of this.nodeServers) {
-        // If notices is an object, convert to array of values
-        if (nodeServer.notices != null && !Array.isArray(nodeServer.notices)) {
-          nodeServer.notices = Object.keys(nodeServer.notices).map(key => nodeServer.notices[key]);
-        }
-
         if (nodeServer.profileNum === this.profileNum) {
           this.selectedNodeServer = nodeServer
+          // If notices is an object, convert to array of values
+          if (nodeServer.notices != null && !Array.isArray(nodeServer.notices)) {
+            nodeServer.notices = Object.keys(nodeServer.notices).map(key => nodeServer.notices[key]);
+          }
+          for (const node of nodeServer.nodes) {
+            if (Array.isArray(node.hint)) {
+              node.hint = node.hint.join('.');
+            }
+          }
           if (!this.uptimeInterval && this.selectedNodeServer.timeStarted) {
             this.uptimeInterval = setInterval(() => {
               this.calculateUptime()
             }, 1000)
           }
-          this.customParams = JSON.parse(JSON.stringify(this.selectedNodeServer.customParams))
-          this.arrayOfKeys = Object.keys(this.customParams).sort();
-          if (nodeServer.typedCustomData == null) {
-            nodeServer.typedCustomData = {};
+          if (!Array.isArray(nodeServer.typedParams)) {
+            nodeServer.typedParams = [];
+          }
+          const keys = Object.keys(nodeServer.customParams).sort();
+          if (!this.customParamsChangePending
+              && JSON.stringify(this.arrayOfKeys) !== JSON.stringify(keys)) {
+            this.setCustomParams(nodeServer, keys);
+          }
+          if (JSON.stringify(this.typedParams)
+            !== JSON.stringify(nodeServer.typedParams)) {
+            this.setTypedCustomData(nodeServer);
           }
         }
       }
     })
+  }
+
+  setCustomParams(nodeServer, keys) {
+    this.customParams = JSON.parse(JSON.stringify(nodeServer.customParams));
+    this.arrayOfKeys = keys;
+  }
+
+  setTypedCustomData(nodeServer) {
+    if (nodeServer.typedCustomData === null) {
+        nodeServer.typedCustomData = {};
+    }
+    this.typedParams = JSON.parse(JSON.stringify(nodeServer.typedParams));
+    this.typedCustomData = JSON.parse(JSON.stringify(nodeServer.typedCustomData));
   }
 
   calculateUptime() {
@@ -226,6 +258,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   saveCustom(key: string, value) {
+    this.customParamsChangePending = true
     this.customParams[key] = value
     this.arrayOfKeys = Object.keys(this.customParams).sort()
   }
@@ -242,6 +275,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
       updatedParams['profileNum'] = this.selectedNodeServer.profileNum
       this.sockets.sendMessage('nodeservers', { customparams: updatedParams },
         false, true)
+      this.customParamsChangePending = false
     } else {
       this.badValidate('Websockets not connected to Polyglot. Custom Parameters not saved.');
     }
@@ -249,7 +283,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
 
   sendTypedCustom() {
     if (this.sockets.connected) {
-      const data = JSON.parse(JSON.stringify(this.selectedNodeServer.typedCustomData))
+      const data = JSON.parse(JSON.stringify(this.typedCustomData))
       data['profileNum'] = this.selectedNodeServer.profileNum
       this.sockets.sendMessage('nodeservers', { typedcustomdata: data },
         false, true)

@@ -38,7 +38,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     this.authSub = this.authService.authenticateUser(user).subscribe(data => {
-      if (data.success) {
+      if (data === null) { return }
+      if (data && data['success']) {
         //this.authService.storeUserData(data['token'], ['data.user'])
         //this.settingsService.getSettings().subscribe(settings => {
         //  this.settingsService.storeSettings(settings)

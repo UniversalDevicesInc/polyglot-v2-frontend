@@ -1,6 +1,6 @@
 import { AfterViewChecked, ElementRef, ViewChild, Component, OnInit, OnDestroy } from '@angular/core'
 import { environment } from '../../../environments/environment'
-import { Observable } from 'rxjs/Rx'
+import { Observable } from 'rxjs'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
@@ -11,7 +11,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
   styleUrls: ['./showlog.component.css']
 })
 export class ShowlogComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('logScroll') private logScrollContainer: ElementRef;
+  @ViewChild('logScroll', {static: false}) private logScrollContainer: ElementRef;
 
   public mqttConnected: boolean = false
   private subConnected: any

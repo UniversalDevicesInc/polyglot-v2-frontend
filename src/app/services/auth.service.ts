@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { environment } from '../../environments/environment'
-import 'rxjs/add/operator/map'
+
 import { SettingsService } from './settings.service'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { ReplaySubject } from 'rxjs'
+import { tap } from 'rxjs/operators'
 //import { WebsocketsService } from './websockets.service'
 import { JwtHelper } from '../helpers/token'
 
@@ -33,18 +34,20 @@ export class AuthService {
       'Content-Type': 'application/json'
     })
     return this.http.post(`${environment.PG_URI}/frontend/authenticate`, user, {headers: headers})
-    .map((response: Response) => {
-      let data = {success: false, msg: response['msg'] }
-      let token = response['token']
-      if (token) {
-        this.authToken = token
-        this.storeUserData(token, response['user'].username)
-        this.settingsService.storeSettings(response['settings'])
-        data.success = true
-        this.isLoggedIn.next(true)
-        return data
-      } else return data
-    })
+    .pipe(
+      tap((response: Response) => {
+        let data = {success: false, msg: response['msg'] }
+        let token = response['token']
+        if (token) {
+          this.authToken = token
+          this.storeUserData(token, response['user'].username)
+          this.settingsService.storeSettings(response['settings'])
+          data.success = true
+          this.isLoggedIn.next(true)
+          return data
+        } else return data
+      })
+    )
   }
 
   getProfile() {
@@ -85,4 +88,5 @@ export class AuthService {
     const jwtHelper = new JwtHelper();
     return token != null && !jwtHelper.isTokenExpired(token);
   }
+
 }

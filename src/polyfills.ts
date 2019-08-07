@@ -17,7 +17,16 @@
 /***************************************************************************************************
 * BROWSER POLYFILLS
 */
+import 'setimmediate'
 
+(window as any).global = window;
+(window as any).process = {
+  env: { DEBUG: undefined },
+  version: [],
+  nextTick: setImmediate,
+  title: 'browser',
+};
+global.Buffer = global.Buffer || require('buffer').Buffer;
 
 /** IE10 and IE11 requires the following for NgClass support on SVG elements */
 // import 'classlist.js';  // Run `npm install --save classlist.js`.

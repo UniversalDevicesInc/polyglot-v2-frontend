@@ -10,8 +10,13 @@ export class Param {
     if (desc.isRequired && (value == null || value === '')) {
       return [ false, value, 'Value cannot be empty' ];
     }
-
-    const type = desc.type == null ? ParamType.STRING : ParamType[desc.type];
+    let type
+    if (desc.type === null) {
+      type = ParamType.STRING
+    } else {
+      type = ParamType[desc.type]
+    }
+    //const type = desc.type === null ? ParamType.STRING : ParamType[desc.type]
     if (type === ParamType.NUMBER) {
       if ((+value) + '' === value + '') {
         value = +value;

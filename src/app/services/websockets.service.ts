@@ -4,10 +4,8 @@ import { SettingsService } from './settings.service'
 import { AuthService } from './auth.service'
 import { NodeServer } from '../models/nodeserver.model'
 import { Mqttmessage } from '../models/mqttmessage.model'
-import { Observable } from 'rxjs/Observable'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
-import { Subject } from 'rxjs/Subject'
-import 'rxjs/add/observable/of'
+import { Observable ,  ReplaySubject ,  Subject } from 'rxjs'
+
 
 @Injectable()
 export class WebsocketsService {

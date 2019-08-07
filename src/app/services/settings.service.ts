@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/toPromise'
+import { Observable } from 'rxjs'
+
+
 import { finalize, tap } from 'rxjs/operators';
 
-import { saveAs } from 'file-saver/FileSaver'
+import { saveAs } from 'file-saver'
 
 //import { NodeServer } from '../models/nodeserver.model'
 

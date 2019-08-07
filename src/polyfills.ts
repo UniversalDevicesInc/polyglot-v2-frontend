@@ -36,7 +36,7 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 
 
 /** Evergreen browsers require these. **/
-import 'core-js/es6/reflect';
+//import 'core-js/es/reflect';
 
 
 /** ALL Firefox browsers require the following to support `@angular/animation`. **/

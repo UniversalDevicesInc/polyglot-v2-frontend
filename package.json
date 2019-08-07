@@ -5,8 +5,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "start:dev": "ng serve --host polyglot --ssl 1 --ssl-key ~/.polyglot/ssl/polyglot_private.key --ssl-cert ~/.polyglot/ssl/polyglot.crt",
-    "start:local": "ng serve --ssl 1 --ssl-key ~/.polyglot/ssl/polyglot_private.key --ssl-cert ~/.polyglot/ssl/polyglot.crt",
+    "start:dev": "ng serve --host polyglot --ssl true --ssl-key ~/.polyglot/ssl/polyglot_private.key --ssl-cert ~/.polyglot/ssl/polyglot.crt",
+    "start:local": "ng serve --ssl true --ssl-key ~/.polyglot/ssl/polyglot_private.key --ssl-cert ~/.polyglot/ssl/polyglot.crt",
     "start:devhttp": "ng serve --host polyglot",
     "build": "ng build",
     "test": "ng test",

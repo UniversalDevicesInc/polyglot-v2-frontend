@@ -12,10 +12,8 @@
     "postversion": "git push && git push --tags",
     "update:check": "ncu",
     "update:run": "ncu -u; npm install",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "build:test": "ng build",
+    "build:prod": "ng build --prod"
   },
   "private": true,
   "dependencies": {
@@ -38,7 +36,6 @@
     "mqtt": "3.0.0",
     "ngx-bootstrap": "5.1.2",
     "ngx-simple-modal": "1.4.3",
-    "node-gyp": "^5.0.3",
     "randomstring": "^1.1.5",
     "rxjs": "6.5.3",
     "setimmediate": "^1.0.5",
@@ -48,21 +45,8 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.803.6",
     "@angular/cli": "8.3.6",
-    "@types/jasmine": "^3.4.0",
-    "@types/jasminewd2": "^2.0.6",
     "@types/node": "12.7.8",
-    "codelyzer": "^5.1.1",
-    "jasmine-core": "^3.5.0",
-    "jasmine-spec-reporter": "^4.2.1",
-    "karma": "^4.3.0",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-cli": "^2.0.0",
-    "karma-coverage-istanbul-reporter": "^2.1.0",
-    "karma-jasmine": "^2.0.1",
-    "karma-jasmine-html-reporter": "^1.4.2",
-    "karma-phantomjs-launcher": "^1.0.4",
     "lodash": "^4.17.15",
-    "protractor": "~5.4.2",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typescript": "3.5.3"

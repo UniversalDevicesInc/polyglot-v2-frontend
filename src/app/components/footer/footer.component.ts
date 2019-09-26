@@ -7,6 +7,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
 import { SimpleModalService } from 'ngx-simple-modal'
 import { Router } from '@angular/router'
 import { ConfirmComponent } from '../confirm/confirm.component'
+import { environment } from '../../../environments/environment'
 
 @Component({
   selector: 'app-footer',
@@ -34,6 +35,8 @@ export class FooterComponent implements OnInit, OnDestroy {
   public mqttConnected: any
   public uptimeInterval: any
   private upgrading: boolean = false
+  version: string = environment.VERSION
+  stage: string = environment.STAGE
   private progress = {
     percent: 0
   }

@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "outDir": "../out-tsc/app",
     "baseUrl": "",

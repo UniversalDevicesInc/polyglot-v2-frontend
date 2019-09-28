@@ -12,7 +12,7 @@
     "postversion": "git push && git push --tags",
     "update:check": "ncu",
     "update:run": "ncu -u; npm install",
-    "build:test": "ng build",
+    "build:test": "ng build --configuration=test",
     "build:prod": "ng build --prod"
   },
   "private": true,

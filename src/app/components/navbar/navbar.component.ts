@@ -3,7 +3,7 @@ import { AuthService } from '../../services/auth.service'
 import { Router } from '@angular/router'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { WebsocketsService } from '../../services/websockets.service'
-import { SimpleModalService } from 'ngx-simple-modal'
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
 
 @Component({
@@ -20,7 +20,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   constructor(
     public authService: AuthService,
     private router: Router,
-    private simpleModalService: SimpleModalService,
+    private modal: NgbModal,
     private flashMessage: FlashMessagesService,
     public sockets: WebsocketsService
   ) { }
@@ -34,24 +34,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   showConfirm() {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Reboot ISY?',
-      message: `This will reboot the ISY. This is usually not necessary. You should try to restart the admin console first. Are you sure?`})
-      .subscribe((isConfirmed) => {
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Reboot ISY?'
+    modalRef.componentInstance.body = `This will reboot the ISY. This is usually not necessary. You should try to restart the admin console first. Are you sure?`
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed)
           this.rebootClick()
-    })
+    }).catch((error) => {})
   }
 
   showRestartConfirm() {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Restart Polyglot?',
-      message: `Like the upgrade procedure this will shut down Polyglot. If you do NOT have the auto-start scripts installed for linux(systemd) or OSX(launchctl) then Polyglot will NOT restart
-                automatically. You will have to manually restart. You will be logged out. Continue?`})
-      .subscribe((isConfirmed) => {
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Restart Polyglot?'
+    modalRef.componentInstance.body = `Like the upgrade procedure this will shut down Polyglot. If you do NOT have the auto-start scripts installed for linux(systemd) or OSX(launchctl) then Polyglot will NOT restart
+                automatically. You will have to manually restart. You will be logged out. Continue?`
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed)
           this.restartClick()
-    })
+    }).catch((error) => {})
   }
 
 

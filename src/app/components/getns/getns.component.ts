@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { AddnodeService } from '../../services/addnode.service'
-import { SimpleModalService } from 'ngx-simple-modal'
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { ModalNsUpdateComponent } from '../modal-ns-update/modal-ns-update.component'
 import { ModalNsAddComponent } from '../modal-ns-add/modal-ns-add.component'
@@ -30,7 +30,7 @@ export class GetnsComponent implements OnInit, OnDestroy {
     private sockets: WebsocketsService,
     private settingsService: SettingsService,
     private flashMessage: FlashMessagesService,
-    private simpleModalService: SimpleModalService
+    private modal: NgbModal,
   ) { this.Math = Math }
 
   ngOnInit() {
@@ -90,10 +90,10 @@ export class GetnsComponent implements OnInit, OnDestroy {
   }
 
   addNS() {
-    this.simpleModalService.addModal(ModalNsAddComponent, {
-      title: 'Add NodeServer to Polyglot Repository',
-      message: `Please enter the Github repository link to submit to the Polyglot team for addition into the NodeServer Store.`
-    }).subscribe((nslink) => {
+    const modalRef = this.modal.open(ModalNsAddComponent, { centered: true })
+    modalRef.componentInstance.title = 'Add NodeServer to Polyglot Repository'
+    modalRef.componentInstance.body = `Please enter the Github repository link to submit to the Polyglot team for addition into the NodeServer Store.`
+    modalRef.result.then((nslink) => {
         if (nslink) {
           this.addNodeService.submitNewNS(nslink).subscribe(response => {
             this.flashMessage.show(`Submitted new NodeServer for approval to the Polyglot team.`, {
@@ -111,7 +111,7 @@ export class GetnsComponent implements OnInit, OnDestroy {
             }
           })
         }
-    })
+    }).catch((error) => {})
   }
 
   installNS(ns) {
@@ -124,10 +124,10 @@ export class GetnsComponent implements OnInit, OnDestroy {
   }
 
   updateNS(ns) {
-    this.simpleModalService.addModal(ModalNsUpdateComponent, {
-      title: 'Upload profile to ISY?',
-      message: `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will NOT automatically reboot the ISY. Typically only a restart of the admin console is necessary. However, if your expected changes do not appear, please restart the ISY with the 'Reboot ISY' button above. 'No' will proceed with the update WITHOUT uploading the profile.`
-    }).subscribe((isConfirmed) => {
+    const modalRef = this.modal.open(ModalNsUpdateComponent, { centered: true })
+    modalRef.componentInstance.title = 'Upload profile to ISY?'
+    modalRef.componentInstance.body = `Do you want to re-upload the profile.zip for ${ns.name} to ISY? This will NOT automatically reboot the ISY. Typically only a restart of the admin console is necessary. However, if your expected changes do not appear, please restart the ISY with the 'Reboot ISY' button above. 'No' will proceed with the update WITHOUT uploading the profile.`
+    modalRef.result.then((isConfirmed) => {
       if (isConfirmed !== null) {
         if (isConfirmed) {
           ns['updateProfile'] = isConfirmed
@@ -140,7 +140,7 @@ export class GetnsComponent implements OnInit, OnDestroy {
               timeout: 5000})
           } else this.showDisconnected()
       }
-    })
+    }).catch((error) => {})
   }
 
   uninstallNS(ns) {
@@ -170,23 +170,23 @@ export class GetnsComponent implements OnInit, OnDestroy {
   }
 
   addConfirm(ns) {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Install NodeServer?',
-      message: `Do you really want to install the NodeServer named ${ns.name}? This will clone the repository from: ${ns.url}`})
-      .subscribe((isConfirmed) => {
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Install NodeServer?'
+    modalRef.componentInstance.body = `Do you really want to install the NodeServer named ${ns.name}? This will clone the repository from: ${ns.url}`
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed)
           this.installNS(ns)
-    })
+    }).catch((error) => {})
   }
 
   delConfirm(ns) {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Uninstall NodeServer?',
-      message: `Do you really want to uninstall the NodeServer named ${ns.name}? This will completely delete the NodeServer folder from Polyglot. CANNOT BE UNDONE.`})
-      .subscribe((isConfirmed) => {
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Uninstall NodeServer?'
+    modalRef.componentInstance.body = `Do you really want to uninstall the NodeServer named ${ns.name}? This will completely delete the NodeServer folder from Polyglot. CANNOT BE UNDONE.`
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed)
           this.uninstallNS(ns)
-    })
+    }).catch((error) => {})
   }
 
   showDisconnected() {

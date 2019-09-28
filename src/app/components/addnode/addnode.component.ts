@@ -6,7 +6,7 @@ import { NodeServer } from '../../models/nodeserver.model'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { DashboardComponent } from '../dashboard/dashboard.component'
 import { Router } from '@angular/router'
-import { SimpleModalService } from 'ngx-simple-modal';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
 
 
@@ -36,7 +36,7 @@ export class AddnodeComponent implements OnInit, OnDestroy {
   constructor(
     private validateService: ValidateService,
     private flashMessage: FlashMessagesService,
-    private simpleModalService: SimpleModalService,
+    private modal: NgbModal,
     private addNodeService: AddnodeService,
     private sockets: WebsocketsService,
     private router: Router
@@ -99,14 +99,14 @@ export class AddnodeComponent implements OnInit, OnDestroy {
   }
 
   showConfirm() {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Add NodeServer',
-      message: `Typically it is only necessary to restart the admin console by
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Add NodeServer'
+    modalRef.componentInstance.body = `Typically it is only necessary to restart the admin console by
  closing and re-opening it. If this doesn't show your new NodeServer, use the
- Reboot ISY button on the navigation bar above.`})
-      .subscribe((isConfirmed) => {
+ Reboot ISY button on the navigation bar above.`
+    modalRef.result.then((isConfirmed) => {
         this.onRegisterSubmit(isConfirmed)
-    })
+    }).catch((error) => {})
   }
 
   showDisconnected() {

@@ -5,7 +5,7 @@
        <h4 class="modal-title">{{title || 'Confirm'}}</h4>
      </div>
      <div class="modal-body">
-       <p>{{message || 'Are you sure?'}}</p>
+       <p>{{body || 'Are you sure?'}}</p>
        <div class="form-group">
            <label class="col-form-label" for="inputNS">Enter git clone link</label>
            <input [(ngModel)]='nslink' type="text" width="80%" class="form-control" placeholder="https://github.com/Einstein42/udi-poly-template-python.git" id="inputNS">

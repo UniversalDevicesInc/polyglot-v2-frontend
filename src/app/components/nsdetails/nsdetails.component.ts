@@ -3,7 +3,7 @@ import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NodeServer } from '../../models/nodeserver.model'
 import { Router, ActivatedRoute } from '@angular/router'
-import { SimpleModalService } from 'ngx-simple-modal'
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { FlashMessagesService } from 'angular2-flash-messages'
 
@@ -38,7 +38,7 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   constructor(
     private sockets: WebsocketsService,
     private settingsService: SettingsService,
-    private simpleModalService: SimpleModalService,
+    private modal: NgbModal,
     private flashMessage: FlashMessagesService,
     private route: ActivatedRoute,
     private router: Router
@@ -77,27 +77,27 @@ export class NsdetailsComponent implements OnInit, OnDestroy {
   }
 
   showConfirm(nodeServer) {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Delete NodeServer',
-      message: `This will delete the ${nodeServer.name} NodeServer.
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Delete NodeServer'
+    modalRef.componentInstance.body = `This will delete the ${nodeServer.name} NodeServer.
  You will need to restart the ISY admin console to reflect the changes,
- if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
-      .subscribe((isConfirmed) => {
+ if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed) {
           this.deleteNodeServer(nodeServer, isConfirmed);
         }
-    })
+    }).catch((error) => {})
   }
 
   confirmNodeDelete(i) {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Delete Node?',
-      message: `This will delete the node: ${i.address} from Polyglot and ISY if it exists. Are you sure?`})
-      .subscribe((isConfirmed) => {
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Delete Node?'
+    modalRef.componentInstance.body = `This will delete the node: ${i.address} from Polyglot and ISY if it exists. Are you sure?`
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed) {
           this.deleteNode(i);
         }
-    })
+    }).catch((error) => {})
   }
 
   deleteNode(i) {

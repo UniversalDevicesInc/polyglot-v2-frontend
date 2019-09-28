@@ -1,8 +1,8 @@
 <div style="text-align: center;">
   <h1>Polyglot NodeServer Store</h1>
-  <h4 *ngIf="nsList">Current NodeServers: <span style="vertical-align: top" class="badge badge-default">{{nsList.length}}</span></h4>
-  <button (click)=getNSList() class="btn btn-default">Refresh</button>
-  <button (click)=addNS() class="btn btn-default">Add New NodeServer</button>
+  <h4 *ngIf="nsList">Current NodeServers: <span style="vertical-align: top" class="badge badge-secondary">{{nsList.length}}</span></h4>
+  <button (click)=getNSList() class="btn btn-primary">Refresh</button>
+  <button (click)=addNS() class="btn btn-primary">Add New NodeServer</button>
 </div><br />
 
 <div *ngIf="received">
@@ -27,13 +27,13 @@
          <td style="vertical-align:middle">{{ns.language}}</td>
          <td style="vertical-align:middle">{{ns.desc}}</td>
          <td style="text-align: center; vertical-align:middle; margin: auto;">
-            <button *ngIf="updateAvailable(ns) && isInstalled(ns)" (click)=updateNS(ns) class="btn btn-default btn-sm">Update</button>
+            <button *ngIf="updateAvailable(ns) && isInstalled(ns)" (click)=updateNS(ns) class="btn btn-primary btn-sm">Update</button>
          </td>
          <td *ngIf="!isInstalled(ns)" style="text-align: center; vertical-align:middle; margin: auto;">
-           <button (click)=addConfirm(ns) class="btn btn-default btn-sm">Install</button>
+           <button (click)=addConfirm(ns) class="btn btn-primary btn-sm">Install</button>
          </td>
          <td *ngIf="isInstalled(ns)" style="text-align: center; vertical-align:middle; margin: auto;">
-             <button (click)=delConfirm(ns) class="btn btn-default btn-sm">Uninstall</button>
+             <button (click)=delConfirm(ns) class="btn btn-primary btn-sm">Uninstall</button>
          </td>
        </tr>
      </tbody>

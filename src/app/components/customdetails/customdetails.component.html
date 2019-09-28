@@ -1,7 +1,7 @@
 <div *ngIf="nsdetails.currentlyEnabled === 'custom'">
   <div *ngIf="nsdetails.selectedNodeServer">
     <h2>Advanced Configuration</h2>
-    <table class="table">
+    <table class="table table-striped table-bordered table-hover">
         <thead>
             <tr>
                 <td>Option</td>
@@ -22,17 +22,17 @@
         </tbody>
     </table>
     <br />
-    <div align="center" *ngIf="nsdetails.selectedNodeServer.customParamsDoc != null">
-        <button type="button" class="btn btn-default btn-lg"
+    <div align="center" *ngIf="nsdetails.selectedNodeServer.customParamsDoc">
+        <button type="button" class="btn btn-primary btn-lg"
             (click)="helpCollapsed = !helpCollapsed"
             [attr.aria-expanded]="!helpCollapsed" aria-controls="configDocs">
             Configuration Help</button>
-        <div align="left" id="configDocs" [collapse]="helpCollapsed"
+        <div align="left" id="configDocs" [ngbCollapse]="helpCollapsed"
             class="card card-block card-header"
             [innerHTML]="nsdetails.selectedNodeServer.customParamsDoc"></div>
     </div>
     <h2>Custom Configuration Parameters</h2>
-    <table class="table">
+    <table class="table table-striped table-bordered table-hover">
         <thead>
             <tr>
                 <td>Key</td>

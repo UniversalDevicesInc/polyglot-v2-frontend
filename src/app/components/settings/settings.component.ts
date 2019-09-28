@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
 import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
 import { WebsocketsService } from '../../services/websockets.service'
@@ -15,12 +15,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 
 export class SettingsComponent implements OnInit, OnDestroy {
-
+  //@ViewChild('file', { static: false }) file
   public mqttConnected: boolean = false
   private subConnected: any
   public settingsForm: FormGroup
   private subSettings: any
   private subResponses: any
+
+  file: File
 
   constructor(
     private fb: FormBuilder,
@@ -144,4 +146,32 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  onFileChanged(event) {
+    this.file = event.target.files[0]
+  }
+
+  getBackup() {
+    this.settingsService.downloadBackup()
+  }
+
+  restoreBackup() {
+    if (this.file) {
+      const formData = new FormData()
+      formData.append('file', this.file)
+      this.settingsService.restoreBackup(formData).subscribe(data => {
+        if (data['success']) {
+          this.flashMessage.show('Restore Completed Sucessfully. Polyglot Restarting in 5 seconds.', {
+            cssClass: 'alert-success',
+            timeout: 5000})
+          window.scrollTo(0, 0)
+        } else {
+          this.flashMessage.show(data['msg'], {
+            cssClass: 'alert-danger',
+            timeout: 5000})
+          window.scrollTo(0, 0)
+        }
+        this.file = null
+      })
+    }
+  }
 }

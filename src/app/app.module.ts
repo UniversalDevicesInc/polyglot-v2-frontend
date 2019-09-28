@@ -6,8 +6,8 @@ import { HttpClientModule } from '@angular/common/http'
 import { Injector, NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
-import { SimpleModalModule } from 'ngx-simple-modal';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 
 import { SettingsService } from './services/settings.service';
 import { WebsocketsService } from './services/websockets.service';
@@ -43,7 +43,8 @@ import { NsnoticesComponent } from './components/nsnotices/nsnotices.component';
 import { DropdownDirective } from "./components/navbar/dropdown";
 import { CustomparamComponent } from './components/params/customparam/customparam.component';
 import { CustomparamsetComponent } from './components/params/customparamset/customparamset.component';
-import { CustomparamlistComponent } from './components/params/customparamlist/customparamlist.component'
+import { CustomparamlistComponent } from './components/params/customparamlist/customparamlist.component';
+import { SafePipe } from './pipes/safe.pipe'
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
@@ -84,16 +85,17 @@ const appRoutes: Routes = [
     CustomparamComponent,
     CustomparamsetComponent,
     CustomparamlistComponent,
+    SafePipe,
   ],
   imports: [
     BrowserModule,
     CollapseModule.forRoot(),
     FlashMessagesModule,
     FormsModule,
+    NgbModule,
     HttpClientModule,
     ReactiveFormsModule,
     RouterModule.forRoot(appRoutes),
-    SimpleModalModule,
     TooltipModule.forRoot()
   ],
   entryComponents: [

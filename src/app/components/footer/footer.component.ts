@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
 import { AddnodeService } from '../../services/addnode.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
-import { SimpleModalService } from 'ngx-simple-modal'
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { Router } from '@angular/router'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { environment } from '../../../environments/environment'
@@ -42,7 +42,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private simpleModalService: SimpleModalService,
+    private modal: NgbModal,
     private addNodeService: AddnodeService,
     private flashMessage: FlashMessagesService,
     private router: Router,
@@ -210,13 +210,12 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   showConfirm() {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: `Upgrade Polyglot? New version available ${this.currentVersion}`,
-      message: `Upgrading Polyglot from here will automatically download the latest binary for your system type and extract it OVER the existing binary. It will
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = `Upgrade Polyglot? New version available ${this.currentVersion}`
+    modalRef.componentInstance.body = `Upgrading Polyglot from here will automatically download the latest binary for your system type and extract it OVER the existing binary. It will
                 then exit Polyglot. If you do NOT have the auto-start scripts installed for linux(systemd) or OSX(launchctl) then Polyglot will NOT restart
                 automatically. You will have to manually restart. If you are not using the binary, upgrade via git. Continue?`
-      })
-      .subscribe((isConfirmed) => {
+    modalRef.result.then((isConfirmed) => {
         if (isConfirmed)
           this.upgradeSubmit()
     })

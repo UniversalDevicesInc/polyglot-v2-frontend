@@ -1,15 +1,2 @@
-html {
-  position: relative;
-  min-height: 100%;
-}
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 150px;
-}
-.footer {
-  position: relative;
-  bottom: 0;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 130px;
-}
+.card { background-color: rgba(0, 0, 0, 0.3); }
+.card-header, .card-footer { opacity: 1}

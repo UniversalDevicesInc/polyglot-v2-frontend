@@ -84,4 +84,19 @@ export class SettingsService {
     this.settings = JSON.parse(localStorage.getItem('settings'))
     return JSON.parse(localStorage.getItem('settings'))
   }
+
+  async downloadBackup() {
+    this.loadToken()
+    var headers = new HttpHeaders({'Authorization': this.authToken})
+    const file = await this.http.get(`${environment.PG_URI}/frontend/backup`, { observe: 'response', responseType: "blob", headers: headers }).toPromise()
+    this.saveToFileSystem(file)
+  }
+
+  restoreBackup(file) {
+    this.loadToken()
+    const headers = new HttpHeaders({
+      Authorization: this.authToken
+    })
+    return this.http.post(`${environment.PG_URI}/frontend/restore`, file, { headers: headers })
+  }
 }

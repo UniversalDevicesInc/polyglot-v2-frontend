@@ -1,10 +1,5 @@
-import { Component, OnInit } from '@angular/core'
-import { SimpleModalComponent } from 'ngx-simple-modal'
-
-export interface ConfirmModel {
-  title: string
-  message: string
-}
+import { Component, OnInit, Input } from '@angular/core'
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap'
 
 @Component({
   selector: 'app-modal-ns-update',
@@ -12,29 +7,28 @@ export interface ConfirmModel {
   styleUrls: ['./modal-ns-update.component.css']
 })
 
-export class ModalNsUpdateComponent extends SimpleModalComponent<ConfirmModel, boolean> implements ConfirmModel  {
-  title: string
-  message: string
+export class ModalNsUpdateComponent implements OnInit {
+  @Input() title
+  @Input() body
 
   constructor(
-  ) {
-    super()
+    public activeModal: NgbActiveModal
+  ) {}
+
+  ngOnInit() {
   }
 
   confirm() {
     // on click on confirm button we set dialog result as true,
     // ten we can get dialog result from caller code
-    this.result = true
-    this.close();
+    this.activeModal.close(true)
   }
 
   deny() {
-    this.result = false
-    this.close()
+    this.activeModal.close(false)
   }
 
   cancel() {
-    this.result = null
-    this.close();
+    this.activeModal.close(null)
   }
 }

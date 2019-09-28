@@ -1,8 +1,8 @@
 <div style="text-align: center;">
   <h1>Real-time Polyglot log file.</h1>
-  <!-- <button onclick="window.scrollTo(0,document.body.scrollHeight)" class="btn btn-default">Scroll to Bottom</button> -->
-  <button (click)="scrollToBottom()" class="btn btn-default">Scroll to Bottom</button>
-  <button (click)="settingsService.downloadLog('polyglot')" class="btn btn-default">Download Log</button>
+  <!-- <button onclick="window.scrollTo(0,document.body.scrollHeight)" class="btn btn-primary">Scroll to Bottom</button> -->
+  <button (click)="scrollToBottom()" class="btn btn-primary">Scroll to Bottom</button>
+  <button (click)="settingsService.downloadLog('polyglot')" class="btn btn-primary">Download Log</button>
   <div>
     <label>
       <input name="autoScrollSwitch" type="checkbox" [(ngModel)]="autoScroll" [checked]="autoScroll">
@@ -16,5 +16,5 @@
   </pre>
 </div>
 <div style="text-align: center;">
-  <button (click)="scrollToTop()" class="btn btn-default">Scroll to Top</button>
+  <button (click)="scrollToTop()" class="btn btn-primary">Scroll to Top</button>
 </div><br />

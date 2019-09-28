@@ -1,5 +1,5 @@
 <div *ngIf="nsdetails.currentlyEnabled === 'nodes'" >
-  <h1>Node Details</h1>
+  <h3>Node Details</h3>
   <table *ngFor="let node of nsdetails.selectedNodeServer.nodes; let i = index"  [class.active]="i == selectedRow" class="table table-striped table-bordered table-hover">
     <table  class="table table-striped table-bordered table-hover">
      <thead>
@@ -23,7 +23,7 @@
          <td>{{node.hint}}</td>
          <td>{{node.enabled}}</td>
          <td>{{node.isprimary}}</td>
-         <td style="text-align: center;"><button type="button" class="btn btn-default btn-xs" (click)="nsdetails.confirmNodeDelete(nsdetails.selectedNodeServer.nodes[i])" aria-label="Delete Node">&#10006;</button></td>
+         <td style="text-align: center;"><button type="button" class="btn btn-primary btn-xs" (click)="nsdetails.confirmNodeDelete(nsdetails.selectedNodeServer.nodes[i])" aria-label="Delete Node">&#10006;</button></td>
 
        </tr>
      </tbody>

@@ -1,8 +1,8 @@
 import { Component, OnInit, QueryList, ViewChildren } from '@angular/core'
 
-import { CustomparamComponent } from '../params/customparam/customparam.component'
+//import { CustomparamComponent } from '../params/customparam/customparam.component'
 import { NsdetailsComponent } from '../nsdetails/nsdetails.component'
-import { ValidateparamsService } from '../../services/validateparams.service';
+import { ValidateparamsService } from '../../services/validateparams.service'
 
 @Component({
   selector: 'app-customdetails',
@@ -27,8 +27,8 @@ export class CustomdetailsComponent implements OnInit {
 
   saveChanges() {
     if (this.params.validate()) {
-      this.nsdetails.sendCustom();
-      this.nsdetails.sendTypedCustom();
+      this.nsdetails.sendCustom()
+      this.nsdetails.sendTypedCustom()
     }
   }
 

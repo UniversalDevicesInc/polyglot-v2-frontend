@@ -4,7 +4,7 @@ import { AddnodeService } from '../../services/addnode.service'
 import { FlashMessagesService } from 'angular2-flash-messages'
 import { NodeServer } from '../../models/nodeserver.model'
 import { Router } from '@angular/router'
-import { SimpleModalService } from "ngx-simple-modal"
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { NodepopComponent } from '../nodepop/nodepop.component'
 import { SettingsService } from '../../services/settings.service'
@@ -21,6 +21,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   nodeDetails: any = null
   selectedNode: any
 
+  public objectValues = Object.values
+  public objectKeys = Object.keys
   public isyFound: boolean
   public isyHttps: boolean
   public isyHost: string
@@ -38,7 +40,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private sockets: WebsocketsService,
     private flashMessage: FlashMessagesService,
     private addNodeService: AddnodeService,
-    private simpleModalService: SimpleModalService,
+    private modal: NgbModal,
     private router: Router,
     private settingsService: SettingsService
   ) { }
@@ -115,16 +117,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   showConfirm(nodeServer) {
-    this.simpleModalService.addModal(ConfirmComponent, {
-      title: 'Delete NodeServer',
-      message: `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`})
-      .subscribe((isConfirmed) => {
-        if (isConfirmed)
-          if (this.mqttConnected)
-            this.deleteNodeServer(nodeServer)
-          else
-            this.showDisconnected()
-    })
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = 'Delete NodeServer'
+    modalRef.componentInstance.body = `This will delete the ${nodeServer.name} NodeServer. You will need to restart the ISY admin console to reflect the changes, if you are still having problems, click on 'Reboot ISY' above. Are you sure you want to delete?`
+    modalRef.result.then((isConfirmed) => {
+      if (isConfirmed)
+        if (this.mqttConnected)
+          this.deleteNodeServer(nodeServer)
+        else
+          this.showDisconnected()
+    }).catch((error) => {})
   }
 
   showNodes(nodeServer) {

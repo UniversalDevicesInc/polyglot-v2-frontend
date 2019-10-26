@@ -14,7 +14,7 @@
             <br />Frontend Version: <b>{{version}}</b>
             <br />ISY Version: <b>{{isyVersion}}</b>
             <br />Uptime: <strong>{{mqttConnected ? uptime : 'Not Connected'}}</strong>
-            <br>(c) 2019 UDI<br>
+            <br>(c) {{year}} UDI<br>
             <a href="https://github.com/UniversalDevicesInc/polyglot-v2/blob/master/README.md">Documentation</a><br>
           </p>
           <div *ngIf="updateAvail && !upgrading">

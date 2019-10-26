@@ -35,6 +35,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   public mqttConnected: any
   public uptimeInterval: any
   private upgrading: boolean = false
+  public year = new Date().getFullYear()
   version: string = environment.VERSION
   stage: string = environment.STAGE
   private progress = {

@@ -22,6 +22,15 @@
 <hr style="border:1px solid;">
 <form [formGroup]="settingsForm" class="form-group column">
   <fieldset>
+    <legend>Polyglot Settings</legend>
+    <div class="row">
+      <legend class="col-form-label col-2">Polyglot Web Port</legend>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" formControlName="listenPort">
+      </div>
+    </div><br>
+  </fieldset><br  />
+  <fieldset>
     <legend>ISY Settings</legend>
     <div class="row">
       <legend class="col-form-label col-2">Address / Hostname</legend>

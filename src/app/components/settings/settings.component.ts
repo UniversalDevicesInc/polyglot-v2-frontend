@@ -37,6 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getConnected()
     this.settingsForm = this.fb.group({
+      listenPort: [3000, Validators.required],
       isyHost: ['', Validators.required],
       isyPort: [80, Validators.required],
       isyUsername: ['', Validators.required],
@@ -67,6 +68,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.settingsService.storeSettings(settings)
       this.addNodeService.getPolyglotVersion()
       this.settingsForm.patchValue({
+        listenPort: settings.listenPort,
         isyHost: settings.isyHost,
         isyPort: settings.isyPort,
         isyUsername: settings.isyUsername,
@@ -82,9 +84,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.subResponses = this.sockets.settingsResponse.subscribe(response => {
       if (response.hasOwnProperty('success')) {
         if (response.success) {
-          this.flashMessage.show('Settings saved successfully.', {
+          this.flashMessage.show('Settings saved successfully. If you changed the Polyglot Web Port, please restart Polyglot.', {
             cssClass: 'alert-success',
-            timeout: 5000})
+            timeout: 10000})
           window.scrollTo(0, 0)
         } else {
           this.flashMessage.show(response.msg, {
@@ -158,12 +160,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (this.file) {
       const formData = new FormData()
       formData.append('file', this.file)
+      this.flashMessage.show('Restore starting. This may take some time, please wait...', {
+        cssClass: 'alert-success',
+        timeout: 10000})
+      window.scrollTo(0, 0)
       this.settingsService.restoreBackup(formData).subscribe(data => {
         if (data['success']) {
           this.flashMessage.show('Restore Completed Sucessfully. Polyglot Restarting in 5 seconds.', {
             cssClass: 'alert-success',
             timeout: 5000})
           window.scrollTo(0, 0)
+          this.logout()
         } else {
           this.flashMessage.show(data['msg'], {
             cssClass: 'alert-danger',
@@ -173,5 +180,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.file = null
       })
     }
+  }
+
+  logout() {
+    this.authService.logout()
+    this.sockets.stop()
+    this.flashMessage.show('Logging you out.', {
+      cssClass: 'alert-success',
+      timeout: 3000
+    })
+    this.router.navigate(['/login'])
   }
 }

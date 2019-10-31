@@ -127,6 +127,7 @@ export class WebsocketsService {
   stop() {
     this.sendMessage('connections', {connected: false})
     this.client.end()
+    this.client = null
     this.connectionState(false)
     this.connected = false
   }

@@ -21,7 +21,7 @@ export class ShowlogComponent implements OnInit, OnDestroy, AfterViewChecked {
   private headers: Headers
   private websocket: any
   private receivedMsg: any
-  public autoScroll: boolean
+  public autoScroll: boolean = true
 
   constructor(
     public settingsService: SettingsService,
@@ -30,7 +30,6 @@ export class ShowlogComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) {}
 
   ngOnInit() {
-    this.autoScroll = true
     this.getConnected()
     this.getLog()
   }

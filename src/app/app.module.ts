@@ -44,7 +44,8 @@ import { DropdownDirective } from "./components/navbar/dropdown";
 import { CustomparamComponent } from './components/params/customparam/customparam.component';
 import { CustomparamsetComponent } from './components/params/customparamset/customparamset.component';
 import { CustomparamlistComponent } from './components/params/customparamlist/customparamlist.component';
-import { SafePipe } from './pipes/safe.pipe'
+import { SafePipe } from './pipes/safe.pipe';
+import { PolisyconfComponent } from './components/polisyconf/polisyconf.component'
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
@@ -53,6 +54,7 @@ const appRoutes: Routes = [
   {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
   {path: 'addnode', component: AddnodeComponent, canActivate: [AuthGuard]},
   {path: 'settings', component: SettingsComponent, canActivate: [AuthGuard]},
+  {path: 'polisyconf', component: PolisyconfComponent, canActivate: [AuthGuard]},
   {path: 'log', component: ShowlogComponent, canActivate: [AuthGuard]},
   {path: 'getns', component: GetnsComponent, canActivate: [AuthGuard]},
   {path: 'nsdetails/:id', component: NsdetailsComponent, canActivate: [AuthGuard]},
@@ -86,6 +88,7 @@ const appRoutes: Routes = [
     CustomparamsetComponent,
     CustomparamlistComponent,
     SafePipe,
+    PolisyconfComponent,
   ],
   imports: [
     BrowserModule,

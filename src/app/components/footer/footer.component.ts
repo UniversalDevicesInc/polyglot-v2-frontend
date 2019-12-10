@@ -25,6 +25,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   private gotPackage: boolean = false
   public polyPackage: String
   public loggedIn: boolean = false
+  public isPolisy: boolean
   public isyVersion: String
   public pgVersion: String
   public currentVersion: String
@@ -48,7 +49,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     private flashMessage: FlashMessagesService,
     private router: Router,
     private sockets: WebsocketsService,
-    private settings: SettingsService,
+    public settings: SettingsService,
     public authService: AuthService
   ) { this.Math = Math }
 

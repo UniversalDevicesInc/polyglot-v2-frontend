@@ -18,6 +18,7 @@ export class SettingsService {
   authToken: any
   settings: any
   currentNode: any
+  isPolisy: boolean = false
 
   constructor(private http: HttpClient) { }
 
@@ -77,11 +78,13 @@ export class SettingsService {
   }
 
   storeSettings(settings) {
+    if (settings.hasOwnProperty('isPolisy')) this.isPolisy = settings['isPolisy']
     localStorage.setItem('settings', JSON.stringify(settings))
   }
 
   loadSettings() {
     this.settings = JSON.parse(localStorage.getItem('settings'))
+    if (this.settings.hasOwnProperty('isPolisy')) this.isPolisy = this.settings['isPolisy']
     return JSON.parse(localStorage.getItem('settings'))
   }
 

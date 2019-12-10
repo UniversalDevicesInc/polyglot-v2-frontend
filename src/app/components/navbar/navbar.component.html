@@ -30,7 +30,9 @@
           <div ngbDropdown>
             <span class="nav-link text-light" id="setMenu" ngbDropdownToggle>Settings</span>
             <div ngbDropdownMenu aria-labelledby="setMenu">
-              <button class="dropdown-item" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}" [routerLink]="['/settings']" (click)="isCollapsed = !isCollapsed">Settings</button>
+              <button *ngIf="settings.isPolisy" class="dropdown-item" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}" [routerLink]="['/polisyconf']" (click)="isCollapsed = !isCollapsed">Polisy Configuration</button>
+              <li *ngIf="settings.isPolisy" class="dropdown-divider"></li>
+              <button class="dropdown-item" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}" [routerLink]="['/settings']" (click)="isCollapsed = !isCollapsed">Polyglot Settings</button>
               <li class="dropdown-divider"></li>
               <button class="dropdown-item" [routerLinkActive] = "['active']" [routerLinkActiveOptions] = "{exact:true}" [routerLink]="['/profile']" (click)="isCollapsed = !isCollapsed">Profile</button>
             </div>

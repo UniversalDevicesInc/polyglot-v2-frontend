@@ -15,6 +15,7 @@
             <br />ISY Version: <b>{{isyVersion}}</b>
             <br />Uptime: <strong>{{mqttConnected ? uptime : 'Not Connected'}}</strong>
             <br>(c) {{year}} UDI<br>
+            <span *ngIf="settings.isPolisy">Running on Polisy<br></span>
             <a href="https://github.com/UniversalDevicesInc/polyglot-v2/blob/master/README.md">Documentation</a><br>
           </p>
           <div *ngIf="updateAvail && !upgrading">

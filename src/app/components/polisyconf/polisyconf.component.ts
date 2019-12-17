@@ -1484,11 +1484,12 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       this.sockets.sendMessage('config/network/nics', null)
       this.sockets.sendMessage('config/datetime', null)
       this.sockets.sendMessage('config/datetime/all', null)
+      /*
       setTimeout(() => {
          this.sockets.sendMessage('sconfig/network/nics', this.nicAllTest)
          this.sockets.sendMessage('sconfig/datetime', this.dateTimeTest)
          this.sockets.sendMessage('sconfig/datetime/all', this.dateTimeAllTest)
-      }, 1000)
+      }, 1000) */
    }
 
    confirmSystem(type) {

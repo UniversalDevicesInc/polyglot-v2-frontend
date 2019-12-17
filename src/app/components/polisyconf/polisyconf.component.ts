@@ -1449,7 +1449,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
          if (datetime) { this.currentDatetime = datetime }
       }))
       of(this.sockets.polisySystemData.subscribe(msg => {
-         console.log(msg)
+         //console.log(msg)
          if (msg) {
             if (msg.hasOwnProperty('numOps')) {
                this.flashMessage.show(`Upgrade Check complete. ${msg.numOps} ${msg.numOps > 1 ? 'packages' : 'package'} available for upgrade. Click the upgrade button to start.`,
@@ -1598,7 +1598,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
 
    changeNic(confirmed) {
       if (!confirmed) { return }
-      console.log(this.nicForm.value)
+      //console.log(this.nicForm.value)
       if (this.selectedNic.isRunning && !this.nicEnabled) {
          this.flashMessage.show(`Disabled interface ${this.selectedNic.name}`, {
             cssClass: 'alert-success',
@@ -1647,6 +1647,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             const msg = {
                ip: this.nicForm.value.IPInfo.ip,
                gateway: this.nicForm.value.IPInfo.gateway,
+               mask: this.nicForm.value.IPInfo.mask,
                dns1: this.nicForm.value.IPInfo.dns1,
                dns2: this.nicForm.value.IPInfo.dns2,
                dns3: this.nicForm.value.IPInfo.dns3,

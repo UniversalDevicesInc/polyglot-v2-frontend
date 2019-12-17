@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core'
 import * as mqtt from 'mqtt'
 import { SettingsService } from './settings.service'
 import { AuthService } from './auth.service'
-import { NodeServer } from '../models/nodeserver.model'
-import { Mqttmessage } from '../models/mqttmessage.model'
+// import { NodeServer } from '../models/nodeserver.model'
+// import { Mqttmessage } from '../models/mqttmessage.model'
 import { Observable ,  ReplaySubject ,  Subject } from 'rxjs'
 
 
@@ -16,6 +16,12 @@ export class WebsocketsService {
   public isyConnected: boolean = false
   public polyglotData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerData: ReplaySubject<any> = new ReplaySubject(1)
+  public polisyNicsData: ReplaySubject<any> = new ReplaySubject(1)
+  public polisySystemData: ReplaySubject<any> = new ReplaySubject(1)
+  public polisyNicData: ReplaySubject<any> = new ReplaySubject(1)
+  public polisyWifiData: ReplaySubject<any> = new ReplaySubject(1)
+  public polisyDatetimeData: ReplaySubject<any> = new ReplaySubject(1)
+  public polisyDatetimeAllData: ReplaySubject<any> = new ReplaySubject(1)
   public installedNSData: ReplaySubject<any> = new ReplaySubject(1)
   public settingsData: ReplaySubject<any> = new ReplaySubject(1)
   public nodeServerResponse: Subject<any> = new Subject
@@ -69,6 +75,8 @@ export class WebsocketsService {
       this.client.subscribe('udi/polyglot/connections/polyglot', null)
       this.client.subscribe('udi/polyglot/frontend/#', null)
       this.client.subscribe('udi/polyglot/log/' + this.id, null)
+      this.client.subscribe('sconfig/#')
+      this.client.subscribe('spolisy/#')
       //this.client.subscribe('udi/polyglot/log/' + this.id, null)
       const message = { connected: true }
       this.sendMessage('connections', message)
@@ -76,6 +84,9 @@ export class WebsocketsService {
 
     this.client.on('message', (topic, message, packet) => {
       const msg = JSON.parse(message.toString())
+      if (topic.startsWith('sconfig') || topic.startsWith('spolisy')) {
+        this.processSconfig(topic, msg)
+      }
       if (msg.node === undefined || msg.node.substring(0, 18) === 'polyglot_frontend-') { return }
       if (topic === 'udi/polyglot/connections/polyglot') {
         //this.processConnection(msg)
@@ -103,7 +114,14 @@ export class WebsocketsService {
   }
 
   sendMessage(topic, message, retained = false, needResponse = false) {
-    const msg = JSON.stringify(Object.assign({node: this.id}, message, needResponse ? {seq: this._seq} : undefined))
+    let msg = null
+    if (message !== null) {
+      if (topic.startsWith('polisy') || topic.startsWith('config') || topic.startsWith('sconfig')) {
+        msg = JSON.stringify(message)
+      } else {
+        msg = JSON.stringify(Object.assign({node: this.id}, message, needResponse ? {seq: this._seq} : undefined))
+      }
+    }
     if (needResponse) {
       if (topic === 'settings') {
         this.setResponses.push(JSON.parse(msg))
@@ -118,6 +136,7 @@ export class WebsocketsService {
     } else if (topic === 'upgrade') { topic = 'udi/polyglot/frontend/upgrade'
     } else if (topic === 'nodeservers') { topic = 'udi/polyglot/frontend/nodeservers'
     } else if (topic === 'log') { topic = 'udi/polyglot/frontend/log'
+    } else if (topic.startsWith('config/') || topic.startsWith('sconfig/')) {
     } else { topic = 'udi/polyglot/ns/' + topic }
     //packet.destinationName = topic
     //packet.retained = retained
@@ -185,6 +204,22 @@ export class WebsocketsService {
     } else {
       //this.getNodeServers(message)
       this.nodeServerData.next(message.nodeservers)
+    }
+  }
+
+  processSconfig(topic, message) {
+    if (topic === 'sconfig/network/nics') {
+      this.polisyNicsData.next(message)
+    } else if (topic.startsWith('sconfig/network/nic/')) {
+      this.polisyNicData.next(message)
+    } else if (topic === 'sconfig/datetime') {
+      this.polisyDatetimeData.next(message)
+    } else if (topic === 'sconfig/datetime/all') {
+      this.polisyDatetimeAllData.next(message)
+    } else if (topic === 'sconfig/network/wifi/networks') {
+      this.polisyWifiData.next(message)
+    } else if (topic.startsWith('spolisy/')) {
+      this.polisySystemData.next(message)
     }
   }
 

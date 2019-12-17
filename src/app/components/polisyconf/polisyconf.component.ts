@@ -38,6 +38,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    public nicForm: FormGroup
    public dhcpChecked: boolean
    public nicEnabled: boolean
+   public allowIpv6: boolean = false
 
    private dateTimeAllTest = [
       {
@@ -1575,18 +1576,17 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
 
    selectTz(index) {
       this.selectedDatetime = this.polisyDatetimes[index]
-      console.log(index)
    }
 
    changeTz(confirmed) {
    //console.log(this.selectedDatetime)
    if (!confirmed) { return }
-   this.sockets.sendMessage('config/datetime/set', this.selectedDatetime)
-   this.currentDatetime = this.selectedDatetime
-   this.flashMessage.show(`Updated Timezone to ${this.selectedDatetime.name}`, {
-      cssClass: 'alert-success',
-      timeout: 3000})
-   window.scrollTo(0, 0)
+      this.sockets.sendMessage('config/datetime/set', this.selectedDatetime)
+      this.currentDatetime = this.selectedDatetime
+      this.flashMessage.show(`Updated Timezone to ${this.selectedDatetime.name}`, {
+         cssClass: 'alert-success',
+         timeout: 3000})
+      window.scrollTo(0, 0)
    }
 
    selectNic(index) {

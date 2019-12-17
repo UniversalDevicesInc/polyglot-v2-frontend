@@ -116,7 +116,7 @@ export class WebsocketsService {
   sendMessage(topic, message, retained = false, needResponse = false) {
     let msg = null
     if (message !== null) {
-      if (topic.startsWith('polisy') || topic.startsWith('config') || topic.startsWith('sconfig')) {
+      if (topic.startsWith('polisy') || topic.startsWith('config') || topic.startsWith('sconfig') || topic.startsWith('polisy')) {
         msg = JSON.stringify(message)
       } else {
         msg = JSON.stringify(Object.assign({node: this.id}, message, needResponse ? {seq: this._seq} : undefined))
@@ -136,7 +136,7 @@ export class WebsocketsService {
     } else if (topic === 'upgrade') { topic = 'udi/polyglot/frontend/upgrade'
     } else if (topic === 'nodeservers') { topic = 'udi/polyglot/frontend/nodeservers'
     } else if (topic === 'log') { topic = 'udi/polyglot/frontend/log'
-    } else if (topic.startsWith('config/') || topic.startsWith('sconfig/')) {
+    } else if (topic.startsWith('config/') || topic.startsWith('sconfig/') || topic.startsWith('polisy/')) {
     } else { topic = 'udi/polyglot/ns/' + topic }
     //packet.destinationName = topic
     //packet.retained = retained

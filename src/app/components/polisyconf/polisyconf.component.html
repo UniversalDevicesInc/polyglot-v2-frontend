@@ -131,21 +131,21 @@
       <input class="btn btn-primary mx-sm-3" value="Save" type="submit"
         data-toggle="tooltip" data-placement="right" title="This will change the configuration of this interface on your Polisy device.">
     </div>
-    <hr style="border:1px solid;">
-    <legend>IPv6 Networking</legend>
-    <div class="row" formGroupName="IPInfo">
+    <hr *ngIf="allowIpv6" style="border:1px solid;">
+    <legend *ngIf="allowIpv6">IPv6 Networking</legend>
+    <div class="row" formGroupName="IPInfo" *ngIf="allowIpv6">
       <legend class="col-form-label col-2">IPv6 Address</legend>
       <div class="col-lg-10">
         <input [readonly]="!nicEnabled" type="text" class="form-control" formControlName="ipV6">
       </div>
     </div>
-    <div class="row" formGroupName="IPInfo">
+    <div class="row" formGroupName="IPInfo" *ngIf="allowIpv6">
       <legend class="col-form-label col-2">IPv6 Gateway</legend>
       <div class="col-lg-10">
         <input [readonly]="!nicEnabled" type="text" class="form-control" formControlName="gatewayV6">
       </div>
     </div>
-    <div class="row">
+    <div class="row" *ngIf="allowIpv6">
       <legend class="col-form-label col-2"></legend>
       <input class="btn btn-primary mx-sm-3" value="Save" type="submit"
         data-toggle="tooltip" data-placement="right" title="This will change the configuration of this interface on your Polisy device.">

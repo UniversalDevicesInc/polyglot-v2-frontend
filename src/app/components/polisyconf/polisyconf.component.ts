@@ -29,16 +29,19 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    private subPolisyDatetime: any
    private subPolisyDatetimeAll: any
 
-   public polisyNics: []
-   public polisyWifi: []
+   public polisyNics: any
+   public polisyWifi: any
    public polisyDatetimes: []
    public currentDatetime: Object
    public selectedDatetime: any
    public selectedNic: any
+   public selectedWifi: any
    public nicForm: FormGroup
    public dhcpChecked: boolean
    public nicEnabled: boolean
+   public gotWifi: boolean = false
    public allowIpv6: boolean = false
+   public wifiKey: String
 
    private dateTimeAllTest = [
       {
@@ -1313,9 +1316,10 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       "NICs": [
         {
           "name": "ath0",
-          "logicalName": "ath0",
+          "logicalName": "wlan0",
           "mac": "00:00:00:00:00:00",
-          "isRunning": false,
+          "isEnabledIPv4": false,
+          "isEnabledIPv6": false,
           "isDHCP": false,
           "isRTADV": false,
           "isWiFi": true,
@@ -1331,7 +1335,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
           "name": "igb0",
           "logicalName": "igb0",
           "mac": "00:0d:ffffffb9:4e:3a:5c",
-          "isRunning": true,
+          "isEnabledIPv4": true,
+          "isEnabledIPv6": true,
           "isDHCP": true,
           "isRTADV": true,
           "isWiFi": false,
@@ -1350,7 +1355,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
           "name": "igb1",
           "logicalName": "igb1",
           "mac": "00:0d:ffffffb9:4e:3a:5d",
-          "isRunning": false,
+          "isEnabledIPv4": false,
+          "isEnabledIPv6": false,
           "isDHCP": false,
           "isRTADV": false,
           "isWiFi": false,
@@ -1366,7 +1372,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
           "name": "igb2",
           "logicalName": "igb2",
           "mac": "00:0d:ffffffb9:4e:3a:5e",
-          "isRunning": false,
+          "isEnabledIPv4": false,
+          "isEnabledIPv6": false,
           "isDHCP": false,
           "isRTADV": false,
           "isWiFi": false,
@@ -1399,7 +1406,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       "name": "",
       "logicalName": "",
       "mac": "",
-      "isRunning": false,
+      "isEnabledIPv4": false,
+      "isEnabledIPv6": false,
       "isDHCP": false,
       "isRTADV": false,
       "isWiFi": false,
@@ -1421,22 +1429,34 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
          //console.log(nics)
          if (nics && nics.hasOwnProperty('NICs')) {
             this.polisyNics = nics.NICs
-            this.selectedNic = this.polisyNics.find(nic => nic['isRunning'] )
+            if (!this.selectedNic) {
+               this.selectedNic = this.polisyNics.find(nic => nic['isEnabledIPv4'] )
+            }
+            if (this.selectedNic && this.selectedNic.isWiFi && !this.gotWifi) {
+               this.scanWifi()
+            }
             this.nicForm.patchValue(this.selectedNic)
             if (this.selectedNic) {
                this.dhcpChecked = this.selectedNic.isDHCP
-               this.nicEnabled = this.selectedNic.isRunning
+               this.nicEnabled = this.selectedNic.isEnabledIPv4
             }
          }
       }))
       of(this.sockets.polisyNicData.subscribe(nic => {
          //console.log(nic)
-         if (nic) { this.selectedNic = nic }
+         if (nic) {
+            this.selectedNic = nic
+            if (this.selectedNic.isWiFi && !this.gotWifi) {
+               this.scanWifi()
+            }
+         }
       }))
       of(this.sockets.polisyWifiData.subscribe(wifi => {
          console.log(wifi)
          if (wifi && wifi.hasOwnProperty('WiFiNetworks')) {
             this.polisyWifi = wifi.WiFiNetworks
+            this.selectedWifi = this.polisyWifi[0]
+            this.gotWifi = true
          }
       }))
       of(this.sockets.polisyDatetimeAllData.subscribe(datetimes => {
@@ -1448,27 +1468,10 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
          //console.log(datetime)
          if (datetime) { this.currentDatetime = datetime }
       }))
-      of(this.sockets.polisySystemData.subscribe(msg => {
-         //console.log(msg)
-         if (msg) {
-            if (msg.hasOwnProperty('numOps')) {
-               this.flashMessage.show(`Upgrade Check complete. ${msg.numOps} ${msg.numOps > 1 ? 'packages' : 'package'} available for upgrade. Click the upgrade button to start.`,
-                  {cssClass: 'alert-success', timeout: 10000})
-               window.scrollTo(0, 0)
-            }
-            if (msg.hasOwnProperty('status')) {
-               this.flashMessage.show(`Upgrade ${msg.status}! Check polisy logs for details.`,
-                  {cssClass: `alert-${msg.status === 'success' ? 'success' : 'danger'}`, timeout: 10000})
-               window.scrollTo(0, 0)
-            }
-         }
-      }))
 
    }
 
    ngOnInit() {
-      //this.getConnected()
-      //this.subPolisy()
       this.getPolisyData()
    }
 
@@ -1485,28 +1488,14 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       this.sockets.sendMessage('config/network/nics', null)
       this.sockets.sendMessage('config/datetime', null)
       this.sockets.sendMessage('config/datetime/all', null)
-      /*
+
       setTimeout(() => {
-         this.sockets.sendMessage('sconfig/network/nics', this.nicAllTest)
-         this.sockets.sendMessage('sconfig/datetime', this.dateTimeTest)
-         this.sockets.sendMessage('sconfig/datetime/all', this.dateTimeAllTest)
-      }, 1000) */
+         //this.sockets.sendMessage('sconfig/network/nics', this.nicAllTest)
+         //this.sockets.sendMessage('sconfig/datetime', this.dateTimeTest)
+         //this.sockets.sendMessage('sconfig/datetime/all', this.dateTimeAllTest)
+      }, 1000)
    }
 
-   confirmSystem(type) {
-      const modalRef = this.modal.open(ConfirmComponent, { centered: true })
-      modalRef.componentInstance.title = `${type.charAt(0).toUpperCase() + type.slice(1)}?`
-      if (type === 'reboot') {
-         modalRef.componentInstance.body = `Are you sure you want to ${type}? This could take 3-5 minutes to restart the Polisy device.`
-      } else if (type === 'upgrade') {
-         modalRef.componentInstance.body = `Are you sure you want to ${type}?`
-      } else {
-         modalRef.componentInstance.body = `Are you sure you want to ${type}? You will have to manually restart your Polisy device.`
-      }
-      modalRef.result.then(isConfirmed => {
-         this.systemControl(type, isConfirmed)
-      }).catch(error => console.log(error))
-   }
 
    confirmTz() {
       if (this.currentDatetime && (this.selectedDatetime.name === this.currentDatetime['name'])) {
@@ -1525,53 +1514,19 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    }
 
    confirmNic() {
-      if (!this.nicForm.dirty && this.selectedNic.isRunning === this.nicEnabled && this.selectedNic.isDHCP === this.dhcpChecked) {
-         this.flashMessage.show(`No Changes detected to ${this.selectedNic.name}`, {
+      if (!this.nicForm.dirty && this.selectedNic.isEnabledIPv4 === this.nicEnabled && this.selectedNic.isDHCP === this.dhcpChecked) {
+         this.flashMessage.show(`No Changes detected to ${this.selectedNic.logicalName}`, {
             cssClass: 'alert-danger',
             timeout: 5000})
          window.scrollTo(0, 0)
       } else {
          const modalRef = this.modal.open(ConfirmComponent, { centered: true })
          modalRef.componentInstance.title = `Change Network Configuration?`
-         modalRef.componentInstance.body = `Are you sure you want to change the network configuration for ${this.selectedNic.name}?`
+         modalRef.componentInstance.body = `Are you sure you want to change the network configuration for ${this.selectedNic.logicalName}?`
          modalRef.result.then(isConfirmed => {
                this.changeNic(isConfirmed)
          }).catch(error => console.log(error))
       }
-   }
-
-   systemControl(type, confirmed) {
-      if (confirmed) {
-         this.sockets.sendMessage(`polisy/${type}`, null)
-         window.scrollTo(0, 0)
-         if (type === 'upgrade') {
-            this.flashMessage.show(`Sent ${type} command to Polisy.`,
-               {cssClass: 'alert-success', timeout: 5000})
-         } else {
-            this.flashMessage.show(`Sent ${type} command to Polisy. Logging you out in 3 seconds.`,
-               {cssClass: 'alert-success', timeout: 5000})
-            setTimeout(() => {
-               this.logout()
-            }, 5000)
-         }
-      }
-   }
-
-   upgradecheck() {
-      this.sockets.sendMessage(`polisy/upgrade/check`, null)
-      this.flashMessage.show(`Sent upgrade check command to Polisy. This could take a few minutes, please stay on this page.`,
-         {cssClass: 'alert-success', timeout: 10000})
-      window.scrollTo(0, 0)
-   }
-
-   logout() {
-      this.authService.logout()
-      if (this.subConnected) { this.subConnected.unsubscribe() }
-      this.sockets.stop()
-      this.flashMessage.show('You are logged out.', {
-      cssClass: 'alert-success',
-      timeout: 3000})
-      this.router.navigate(['/login'])
    }
 
    selectTz(index) {
@@ -1593,22 +1548,61 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       this.selectedNic = this.polisyNics[index]
       this.nicForm.patchValue(this.selectedNic)
       this.dhcpChecked = this.selectedNic.isDHCP
-      this.nicEnabled = this.selectedNic.isRunning
+      this.nicEnabled = this.selectedNic.isEnabledIPv4
+      if (this.selectedNic.isWiFi) {
+         this.scanWifi()
+      }
+   }
+
+   scanWifi() {
+      this.sockets.sendMessage(`config/network/nic/${this.selectedNic.logicalName}/scan`, null)
+   }
+
+   selectWifi(index) {
+      this.selectedWifi = this.polisyWifi[index]
+   }
+
+   forgetWifi() {
+      this.sockets.sendMessage(`config/network/wifi/forget`, {ssid: this.selectedWifi.ssid})
+      this.flashMessage.show(`Forgot WiFi SSID ${this.selectedWifi.ssid}`, {
+         cssClass: 'alert-success',
+         timeout: 3000})
+      window.scrollTo(0, 0)
+   }
+
+   forgetAllWifi() {
+      this.sockets.sendMessage(`config/network/wifi/forgetall`, null)
+      this.flashMessage.show(`Forgot All WiFi SSIDs`, {
+         cssClass: 'alert-success',
+         timeout: 3000})
+      window.scrollTo(0, 0)
+   }
+
+   saveWifi() {
+      this.sockets.sendMessage(`config/network/wifi/associate`, {
+         ssid: this.selectedWifi.ssid,
+         psk: this.wifiKey
+      })
+      this.wifiKey = undefined
+      this.flashMessage.show(`Configured ${this.selectedWifi.ssid} with Key. Connecting...`, {
+         cssClass: 'alert-success',
+         timeout: 3000})
+      window.scrollTo(0, 0)
    }
 
    changeNic(confirmed) {
       if (!confirmed) { return }
       //console.log(this.nicForm.value)
-      if (this.selectedNic.isRunning && !this.nicEnabled) {
-         this.flashMessage.show(`Disabled interface ${this.selectedNic.name}`, {
+      if (this.selectedNic.isEnabledIPv4 && !this.nicEnabled) {
+         this.flashMessage.show(`Disabled interface ${this.selectedNic.logicalName}`, {
             cssClass: 'alert-success',
             timeout: 5000})
          setTimeout(() => {
             window.scrollTo(0, 0)
          },100)
          return this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/disable`, null)
-      } else if (!this.selectedNic.isRunning && this.nicEnabled) {
-         this.flashMessage.show(`Enabled interface ${this.selectedNic.name}`, {
+      } else if (!this.selectedNic.isEnabledIPv4 && this.nicEnabled) {
+         this.flashMessage.show(`Enabled interface ${this.selectedNic.logicalName}`, {
             cssClass: 'alert-success',
             timeout: 5000})
          setTimeout(() => {
@@ -1617,7 +1611,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
          this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/enable`, null)
       }
       if (!this.selectedNic.isDHCP && this.dhcpChecked) {
-         this.flashMessage.show(`Enabling DHCP on ${this.selectedNic.name}`, {
+         this.flashMessage.show(`Enabling DHCP on ${this.selectedNic.logicalName}`, {
             cssClass: 'alert-success',
             timeout: 5000})
          setTimeout(() => {
@@ -1634,14 +1628,14 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             },100)
          } else {
             if ([this.nicForm.value.IPInfo.gateway, this.nicForm.value.IPInfo.ip, this.nicForm.value.IPInfo.dns1].includes('0.0.0.0')) {
-               this.flashMessage.show(`IP Address, Gateway, nor DNS1 can be 0.0.0.0 when setting static IP addresses for ${this.selectedNic.name}`, {
+               this.flashMessage.show(`IP Address, Gateway, nor DNS1 can be 0.0.0.0 when setting static IP addresses for ${this.selectedNic.logicalName}`, {
                   cssClass: 'alert-danger',
                   timeout: 5000})
                return setTimeout(() => {
                   window.scrollTo(0, 0)
                },100)
             }
-            this.flashMessage.show(`Updated static address settings for ${this.selectedNic.name}`, {
+            this.flashMessage.show(`Updated static address settings for ${this.selectedNic.logicalName}`, {
                cssClass: 'alert-success',
                timeout: 3000})
             const msg = {

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
+import { Title }     from '@angular/platform-browser'
 import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
 import { Router } from '@angular/router'
@@ -6,6 +7,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
+import { of } from 'rxjs'
 
 @Component({
   selector: 'app-navbar',
@@ -24,8 +26,26 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private modal: NgbModal,
     private flashMessage: FlashMessagesService,
     public sockets: WebsocketsService,
-    public settings: SettingsService
-  ) { }
+    public settings: SettingsService,
+    private titleService: Title
+  ) {
+    of(this.sockets.polisySystemData.subscribe(msg => {
+      //console.log(msg)
+      if (msg) {
+         if (msg.hasOwnProperty('numOps')) {
+            this.flashMessage.show(`Update Check complete. ${msg.numOps} ${msg.numOps > 1 ? 'packages' : 'package'} available for update. Click the "Update Polisy" button to start.`,
+               {cssClass: 'alert-success', timeout: 10000})
+            window.scrollTo(0, 0)
+         }
+         if (msg.hasOwnProperty('status')) {
+            this.flashMessage.show(`Update ${msg.status}! Check polisy logs for details.`,
+               {cssClass: `alert-${msg.status === 'success' ? 'success' : 'danger'}`, timeout: 10000})
+            window.scrollTo(0, 0)
+         }
+      }
+    }))
+    this.titleService.setTitle(`${this.settings.isPolisy ? 'Polisy' : 'Polyglot'}`)
+   }
 
   ngOnInit() {
     this.getConnected()
@@ -100,6 +120,45 @@ export class NavbarComponent implements OnInit, OnDestroy {
       cssClass: 'alert-success',
       timeout: 3000})
     this.router.navigate(['/login'])
+  }
+
+  confirmSystem(type) {
+    const modalRef = this.modal.open(ConfirmComponent, { centered: true })
+    modalRef.componentInstance.title = `${type.charAt(0).toUpperCase() + type.slice(1)}?`
+    if (type === 'reboot') {
+       modalRef.componentInstance.body = `Are you sure you want to ${type}? This could take serveral minutes to restart the Polisy device.`
+    } else if (type === 'upgrade') {
+       modalRef.componentInstance.body = `Are you sure you want to ${type}?`
+    } else {
+       modalRef.componentInstance.body = `Are you sure you want to ${type}? You will have to manually restart your Polisy device.`
+    }
+    modalRef.result.then(isConfirmed => {
+       this.systemControl(type, isConfirmed)
+    }).catch(error => console.log(error))
+  }
+
+  systemControl(type, confirmed) {
+    if (confirmed) {
+       this.sockets.sendMessage(`polisy/${type}`, null)
+       window.scrollTo(0, 0)
+       if (type === 'upgrade') {
+          this.flashMessage.show(`Sent ${type} command to Polisy.`,
+             {cssClass: 'alert-success', timeout: 5000})
+       } else {
+          this.flashMessage.show(`Sent ${type} command to Polisy. Please wait till this message disappears to attempt to login again.`,
+             {cssClass: 'alert-success', timeout: 20000})
+          setTimeout(() => {
+             this.onLogoutClick()
+          }, 5000)
+       }
+    }
+  }
+
+  upgradecheck() {
+    this.sockets.sendMessage(`polisy/upgrade/check`, null)
+    this.flashMessage.show(`Sent upgrade check command to Polisy. This could take a few minutes. A notice will display when it is complete.`,
+        {cssClass: 'alert-success', timeout: 10000})
+    window.scrollTo(0, 0)
   }
 
 }

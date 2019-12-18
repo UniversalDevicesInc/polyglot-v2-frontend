@@ -10,7 +10,7 @@
               <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [style.width]="(Math.round(progress.percent*100)) + '%'">{{Math.round(progress.percent*100)}}%</div>
             </div>
           </div>
-          <p align="center">Polyglot Version <b>{{pgVersion}}</b> Status: <span class='badge badge-secondary'>{{mqttConnected ? 'Connected' : 'Disconnected'}}</span>
+          <p align="center">Version <b>{{pgVersion}}</b> Status: <span class='badge badge-secondary'>{{mqttConnected ? 'Connected' : 'Disconnected'}}</span>
             <br />Frontend Version: <b>{{version}}</b>
             <br />ISY Version: <b>{{isyVersion}}</b>
             <br />Uptime: <strong>{{mqttConnected ? uptime : 'Not Connected'}}</strong>

@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { FlashMessagesModule } from 'angular2-flash-messages';
 import { FormsModule } from '@angular/forms';
@@ -107,7 +107,17 @@ const appRoutes: Routes = [
     ModalNsUpdateComponent,
     ModalNsAddComponent,
   ],
-  providers: [AuthService, AuthGuard, SettingsService, WebsocketsService, FlashMessagesService, AddnodeService, ValidateService, ValidateparamsService ],
+  providers: [
+    Title,
+    AuthService,
+    AuthGuard,
+    SettingsService,
+    WebsocketsService,
+    FlashMessagesService,
+    AddnodeService,
+    ValidateService,
+    ValidateparamsService
+   ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

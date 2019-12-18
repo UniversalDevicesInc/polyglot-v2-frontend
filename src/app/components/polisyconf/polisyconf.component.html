@@ -1,31 +1,6 @@
-<fieldset class="form-group">
-  <legend>Polisy System Control</legend>
-  <div class="row">
-    <legend class="col-form-label col-2">Check Upgrade</legend>
-    <div class="col-lg-2">
-        <button class="form-control btn btn-primary mr-1" (click)="upgradecheck()" data-toggle="tooltip" data-placement="right" title="This will reboot your Polisy device.">Check Upgrade</button>
-    </div>
-  </div>
-  <div class="row">
-    <legend class="col-form-label col-2">Upgrade</legend>
-    <div class="col-lg-2">
-        <button class="form-control btn btn-primary" (click)="confirmSystem('upgrade')" data-toggle="tooltip" data-placement="right" title="This will reboot your Polisy device.">Upgrade</button>
-    </div>
-  </div>
-  <div class="row">
-    <legend class="col-form-label col-2">Reboot</legend>
-    <div class="col-lg-2">
-        <button class="form-control btn btn-primary" (click)="confirmSystem('reboot')" data-toggle="tooltip" data-placement="right" title="This will reboot your Polisy device.">Reboot</button>
-    </div>
-  </div>
-  <div class="row">
-    <legend class="col-form-label col-2">Shutdown</legend>
-    <div class="col-lg-2">
-        <button class="form-control btn btn-primary" (click)="confirmSystem('shutdown')" data-toggle="tooltip" data-placement="right" title="This will shutdown your Polisy device. You will have to power it back up manually">Shutdown</button>
-    </div>
-  </div><br>
-  <hr style="border:1px solid;">
-</fieldset>
+<div *ngIf="!polisyDatetimes && !polisyNics">
+  Please wait, getting configuration...
+</div>
 <fieldset *ngIf="polisyDatetimes && currentDatetime" >
   <legend>Timezone</legend>
   <div class="row">
@@ -36,7 +11,7 @@
     <legend class="col-form-label col-2">Change Timezone</legend>
     <form (ngSubmit)="confirmTz()">
       <div class="form-inline mx-sm-3 mb-2">
-        <select type="button" class="btn btn-primary dropdown-toggle btn-block form-control"
+        <select type="dropdown-toggle" class="btn btn-primary dropdown-toggle btn-block form-control"
           style="width:auto;" (change)="selectTz($event.target.value)">
           <option *ngFor="let tz of polisyDatetimes; let i = index" [value]="i"
           [selected]="tz.name === currentDatetime.name">
@@ -49,23 +24,22 @@
     </form>
   </div>
   <hr style="border:1px solid;">
-
 </fieldset>
 <fieldset *ngIf="selectedNic">
   <legend>IPv4 Networking</legend>
   <div class="row">
-    <legend class="col-form-label col-2">Network Interface</legend>
-      <div class="form-inline mx-sm-3 mb-2">
-        <select type="button" class="btn btn-primary dropdown-toggle btn-block form-control"
-          style="width:auto;" (change)="selectNic($event.target.value)">
+    <legend class="col-form-label col-2 align-self-center">Network Interface</legend>
+      <div class="col-2" >
+        <select type="dropdown-toggle" class="btn btn-primary dropdown-toggle btn-block form-control"
+          (change)="selectNic($event.target.value)">
           <option *ngFor="let nic of polisyNics; let i = index" [value]="i"
-          [selected]="nic.isRunning">
-            {{nic.name}}
+          [selected]="nic.isEnabledIPv4">
+            {{nic.logicalName}}
           </option>
         </select>
       </div>
   </div>
-  <form *ngIf="this.selectedNic" [formGroup]="nicForm" class="form-group column" (ngSubmit)="confirmNic()">
+  <form *ngIf="this.selectedNic" [formGroup]="nicForm" class="form-group" (ngSubmit)="confirmNic()">
     <div class="row">
       <legend class="col-form-label col-2">MAC Address</legend>
       <div class="col-lg-2 align-self-center text-white">{{selectedNic.mac}}</div>
@@ -151,4 +125,47 @@
         data-toggle="tooltip" data-placement="right" title="This will change the configuration of this interface on your Polisy device.">
     </div>
   </form>
+  <hr style="border:1px solid;">
+</fieldset>
+<fieldset *ngIf="selectedNic && selectedNic.isWiFi && gotWifi">
+  <legend>WiFi</legend>
+  <div class="row">
+    <legend class="col-form-label col-2">Available WiFi Networks</legend>
+    <div class="col-2" align-self-center>
+      <select type="dropdown-toggle" class="btn btn-primary dropdown-toggle btn-block"
+        style="width:auto;" (change)="selectWifi($event.target.value)">
+        <option *ngFor="let net of polisyWifi; let i = index" [value]="i">
+          {{net.ssid}}
+        </option>
+      </select>
+    </div>
+  </div>
+  <form (ngSubmit)="saveWifi()">
+    <div class="row">
+      <legend class="col-form-label col-2">Key</legend>
+      <div class="col-lg-10">
+        <input type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="wifiKey" class="form-control">
+      </div>
+    </div>
+    <div class="row">
+      <legend class="col-form-label col-2"></legend>
+      <input class="btn btn-primary mx-sm-3 mx-auto" value="Save" type="submit"
+        data-toggle="tooltip" data-placement="right" title="This will configure the WiFi key for the selected SSID.">
+    </div>
+    <div class="row">
+      <legend class="col-form-label col-2">Forget This SSID</legend>
+      <div class="col-2">
+        <input class="btn btn-primary" value="Forget This SSID" (click)="forgetWifi()"
+          data-toggle="tooltip" data-placement="right" title="This will Forget this SSID">
+      </div>
+    </div>
+    <div class="row">
+      <legend class="col-form-label col-2">WiFi Forget All SSIDs</legend>
+      <div class="col-2">
+        <input class="btn btn-primary" value="Forget all SSIDs" (click)="forgetAllWifi()"
+          data-toggle="tooltip" data-placement="right" title="This will Forget all SSIDs">
+      </div>
+    </div>
+  </form>
+
 </fieldset>

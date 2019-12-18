@@ -1,7 +1,9 @@
 input[type=text], .txtarea{
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 
   .btn {
+    margin-top: 5px;
     margin-bottom: 5px;
 }

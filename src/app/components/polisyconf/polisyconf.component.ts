@@ -1431,11 +1431,11 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             this.polisyNics = nics.NICs
             if (!this.selectedNic) {
                this.selectedNic = this.polisyNics.find(nic => nic['isEnabledIPv4'] )
+               this.nicForm.patchValue(this.selectedNic)
             }
             if (this.selectedNic && this.selectedNic.isWiFi && !this.gotWifi) {
                this.scanWifi()
             }
-            this.nicForm.patchValue(this.selectedNic)
             if (this.selectedNic) {
                this.dhcpChecked = this.selectedNic.isDHCP
                this.nicEnabled = this.selectedNic.isEnabledIPv4

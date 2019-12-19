@@ -1317,18 +1317,29 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
         {
           "name": "ath0",
           "logicalName": "wlan0",
-          "mac": "00:00:00:00:00:00",
-          "isEnabledIPv4": false,
+          "mac": "ffffffac:ffffffd1:ffffffb8:5c:fffffff4:fffffff5",
+          "isEnabledIPv4": true,
           "isEnabledIPv6": false,
-          "isDHCP": false,
+          "isRunning": true,
+          "isDHCP": true,
           "isRTADV": false,
           "isWiFi": true,
           "IPInfo": {
-            "ip": "0.0.0.0",
+            "ip": "10.0.0.109",
             "ipV6": "::",
-            "mask": "0.0.0.0",
+            "mask": "255.255.255.0",
             "gateway": "0.0.0.0",
             "gatewayV6": "::"
+          },
+          "WiFiInfo": {
+            "ssid": "Milne-GW",
+            "bssid": "60:a4:4c:a1:05:30",
+            "rate": 54,
+            "channel": 8,
+            "bars": 64,
+            "supportedProtocols": "RSN",
+            "keyManagement": "PSK",
+            "isRemembered": true
           }
         },
         {
@@ -1337,6 +1348,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
           "mac": "00:0d:ffffffb9:4e:3a:5c",
           "isEnabledIPv4": true,
           "isEnabledIPv6": true,
+          "isRunning": true,
           "isDHCP": true,
           "isRTADV": true,
           "isWiFi": false,
@@ -1355,14 +1367,15 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
           "name": "igb1",
           "logicalName": "igb1",
           "mac": "00:0d:ffffffb9:4e:3a:5d",
-          "isEnabledIPv4": false,
-          "isEnabledIPv6": false,
-          "isDHCP": false,
-          "isRTADV": false,
+          "isEnabledIPv4": true,
+          "isEnabledIPv6": true,
+          "isRunning": false,
+          "isDHCP": true,
+          "isRTADV": true,
           "isWiFi": false,
           "IPInfo": {
             "ip": "0.0.0.0",
-            "ipV6": "::",
+            "ipV6": "fe80::20d:b9ff:fe4e:3a5d",
             "mask": "0.0.0.0",
             "gateway": "0.0.0.0",
             "gatewayV6": "::"
@@ -1374,6 +1387,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
           "mac": "00:0d:ffffffb9:4e:3a:5e",
           "isEnabledIPv4": false,
           "isEnabledIPv6": false,
+          "isRunning": false,
           "isDHCP": false,
           "isRTADV": false,
           "isWiFi": false,
@@ -1445,7 +1459,15 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       of(this.sockets.polisyNicData.subscribe(nic => {
          //console.log(nic)
          if (nic) {
-            this.selectedNic = nic
+            if (nic.name === this.selectedNic.name) {
+               this.selectedNic = nic
+               this.nicForm.patchValue(this.selectedNic)
+            }
+            let index = this.polisyNics.findIndex(element => element.name === nic.name)
+            if (index > -1) {
+                  this.polisyNics[index] = nic
+            }
+
             if (this.selectedNic.isWiFi && !this.gotWifi) {
                this.scanWifi()
             }
@@ -1563,11 +1585,18 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    }
 
    forgetWifi() {
-      this.sockets.sendMessage(`config/network/wifi/forget`, {ssid: this.selectedWifi.ssid})
-      this.flashMessage.show(`Forgot WiFi SSID ${this.selectedWifi.ssid}`, {
-         cssClass: 'alert-success',
-         timeout: 3000})
-      window.scrollTo(0, 0)
+      if (this.selectedNic.hasOwnProperty('WiFiInfo') && this.selectedNic.WiFiInfo.hasOwnProperty('ssid')) {
+         this.sockets.sendMessage(`config/network/wifi/forget`, {ssid: this.selectedNic.WiFiInfo.ssid})
+         this.flashMessage.show(`Forgot WiFi SSID ${this.selectedWifi.ssid}`, {
+            cssClass: 'alert-success',
+            timeout: 3000})
+         window.scrollTo(0, 0)
+      } else {
+         this.flashMessage.show(`Not connected to WiFi.`, {
+            cssClass: 'alert-danger',
+            timeout: 3000})
+         window.scrollTo(0, 0)
+      }
    }
 
    forgetAllWifi() {

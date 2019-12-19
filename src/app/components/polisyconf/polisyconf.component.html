@@ -126,45 +126,66 @@
   </form>
   <hr style="border:1px solid;">
 </fieldset>
-<fieldset *ngIf="selectedNic && selectedNic.isWiFi && gotWifi">
+<fieldset *ngIf="selectedNic && selectedNic.isWiFi">
   <legend>WiFi</legend>
-  <div class="row">
-    <legend class="col-form-label col-2">Available WiFi Networks</legend>
-    <div class="col-2" align-self-center>
-      <select type="dropdown-toggle" class="btn btn-primary dropdown-toggle btn-block"
-        style="width:auto;" (change)="selectWifi($event.target.value)">
-        <option *ngFor="let net of polisyWifi; let i = index" [value]="i">
-          {{net.ssid}}
-        </option>
-      </select>
-    </div>
-  </div>
-  <form (ngSubmit)="saveWifi()">
+  <div>
     <div class="row">
-      <legend class="col-form-label col-2">Key</legend>
-      <div class="col-lg-10">
-        <input type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="wifiKey" class="form-control">
+      <legend class="col-form-label col-2">Currently Connected SSID</legend>
+      <div class="col-lg-2 align-self-center text-white" *ngIf="selectedNic.WiFiInfo && selectedNic.WiFiInfo.ssid">
+        {{selectedNic.WiFiInfo.ssid}} - {{selectedNic.WiFiInfo.bssid}}
+      </div>
+      <div class="col-lg-2 align-self-center text-white" *ngIf="!selectedNic.WiFiInfo || !selectedNic.WiFiInfo.ssid">
+        Not Connected
       </div>
     </div>
-    <div class="row">
-      <legend class="col-form-label col-2"></legend>
-      <input class="btn btn-primary mx-sm-3 mx-auto" value="Save" type="submit"
-        data-toggle="tooltip" data-placement="right" title="This will configure the WiFi key for the selected SSID.">
+    <div class="row" *ngIf="selectedNic.WiFiInfo && selectedNic.WiFiInfo.channel">
+      <legend class="col-form-label col-2">WiFi Channel</legend>
+      <div class="col-lg-2 align-self-center text-white">{{selectedNic.WiFiInfo.channel || 'Not Connected'}}</div>
     </div>
-    <div class="row">
-      <legend class="col-form-label col-2">Forget This SSID</legend>
+    <div class="row" *ngIf="selectedNic.WiFiInfo && selectedNic.WiFiInfo.bars">
+      <legend class="col-form-label col-2">WiFi Bars</legend>
+      <div class="col-lg-2 align-self-center text-white">{{selectedNic.WiFiInfo.bars || 'Not Connected'}}</div>
+    </div>
+    <div class="row" *ngIf="selectedNic.WiFiInfo && selectedNic.WiFiInfo.ssid">
+      <legend class="col-form-label col-2">Forget This Network</legend>
       <div class="col-2">
-        <input class="btn btn-primary" value="Forget This SSID" (click)="forgetWifi()"
+        <input class="btn btn-primary" value="Forget This Network" (click)="forgetWifi()"
           data-toggle="tooltip" data-placement="right" title="This will Forget this SSID">
       </div>
     </div>
+  </div>
+  <div class="row">
+    <legend class="col-form-label col-2">WiFi Forget All Networks</legend>
+    <div class="col-2">
+      <input class="btn btn-primary" value="Forget all Networks" (click)="forgetAllWifi()"
+        data-toggle="tooltip" data-placement="right" title="This will Forget all SSIDs">
+    </div>
+  </div>
+  <div *ngIf="gotWifi">
     <div class="row">
-      <legend class="col-form-label col-2">WiFi Forget All SSIDs</legend>
-      <div class="col-2">
-        <input class="btn btn-primary" value="Forget all SSIDs" (click)="forgetAllWifi()"
-          data-toggle="tooltip" data-placement="right" title="This will Forget all SSIDs">
+      <legend class="col-form-label col-2">Available WiFi Networks</legend>
+      <div class="col-2" align-self-center>
+        <select type="dropdown-toggle" class="btn btn-primary dropdown-toggle btn-block"
+          style="width:auto;" (change)="selectWifi($event.target.value)">
+          <option *ngFor="let net of polisyWifi; let i = index" [value]="i">
+            {{net.ssid}}
+          </option>
+        </select>
       </div>
     </div>
-  </form>
+    <form (ngSubmit)="saveWifi()">
+      <div class="row">
+        <legend class="col-form-label col-2">Key</legend>
+        <div class="col-lg-10">
+          <input type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="wifiKey" class="form-control">
+        </div>
+      </div>
+      <div class="row">
+        <legend class="col-form-label col-2"></legend>
+        <input class="btn btn-primary mx-sm-3 mx-auto" value="Connect" type="submit"
+          data-toggle="tooltip" data-placement="right" title="This will configure the WiFi key for the selected SSID.">
+      </div>
+    </form>
+  </div>
 
 </fieldset>

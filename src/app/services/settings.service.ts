@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { environment } from '../../environments/environment'
+import { Title }     from '@angular/platform-browser'
 
 import { Observable } from 'rxjs'
 
@@ -20,7 +21,10 @@ export class SettingsService {
   currentNode: any
   isPolisy: boolean = false
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private titleService: Title
+    ) { }
 
   loadToken() {
     const token = localStorage.getItem('id_token')
@@ -84,7 +88,10 @@ export class SettingsService {
 
   loadSettings() {
     this.settings = JSON.parse(localStorage.getItem('settings'))
-    if (this.settings.hasOwnProperty('isPolisy')) this.isPolisy = this.settings['isPolisy']
+    if (this.settings.hasOwnProperty('isPolisy')) {
+      this.isPolisy = this.settings['isPolisy']
+      this.titleService.setTitle(`${this.isPolisy ? 'Polisy' : 'Polyglot'}`)
+    }
     return JSON.parse(localStorage.getItem('settings'))
   }
 

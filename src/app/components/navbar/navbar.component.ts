@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { Title }     from '@angular/platform-browser'
 import { AuthService } from '../../services/auth.service'
 import { SettingsService } from '../../services/settings.service'
 import { Router } from '@angular/router'
@@ -26,8 +25,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private modal: NgbModal,
     private flashMessage: FlashMessagesService,
     public sockets: WebsocketsService,
-    public settings: SettingsService,
-    private titleService: Title
+    public settings: SettingsService
   ) {
     of(this.sockets.polisySystemData.subscribe(msg => {
       //console.log(msg)
@@ -44,7 +42,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
          }
       }
     }))
-    this.titleService.setTitle(`${this.settings.isPolisy ? 'Polisy' : 'Polyglot'}`)
    }
 
   ngOnInit() {
@@ -142,11 +139,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
        this.sockets.sendMessage(`polisy/${type}`, null)
        window.scrollTo(0, 0)
        if (type === 'upgrade') {
-          this.flashMessage.show(`Sent ${type} command to Polisy.`,
-             {cssClass: 'alert-success', timeout: 5000})
+          this.flashMessage.show(`Sent ${type} command to Polisy. Please wait...`,
+             {cssClass: 'alert-success', timeout: 20000})
        } else {
           this.flashMessage.show(`Sent ${type} command to Polisy. Please wait till this message disappears to attempt to login again.`,
-             {cssClass: 'alert-success', timeout: 20000})
+             {cssClass: 'alert-success', timeout: 30000})
           setTimeout(() => {
              this.onLogoutClick()
           }, 5000)

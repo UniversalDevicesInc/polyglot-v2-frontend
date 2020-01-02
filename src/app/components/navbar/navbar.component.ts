@@ -6,7 +6,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
 import { WebsocketsService } from '../../services/websockets.service'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
-import { of } from 'rxjs'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-navbar',
@@ -15,6 +15,7 @@ import { of } from 'rxjs'
 })
 export class NavbarComponent implements OnInit, OnDestroy {
 
+  private subscription: Subscription = new Subscription()
   isCollapsed: boolean = true
   public mqttConnected: boolean = false
   private subConnected: any
@@ -27,29 +28,36 @@ export class NavbarComponent implements OnInit, OnDestroy {
     public sockets: WebsocketsService,
     public settings: SettingsService
   ) {
-    of(this.sockets.polisySystemData.subscribe(msg => {
+    this.subscription.add(this.sockets.polisySystemData.subscribe(msg => {
       //console.log(msg)
       if (msg) {
-         if (msg.hasOwnProperty('numOps')) {
-            this.flashMessage.show(`Update Check complete. ${msg.numOps} ${msg.numOps > 1 ? 'packages' : 'package'} available for update. Click the "Update Polisy" button to start.`,
-               {cssClass: 'alert-success', timeout: 10000})
+        if (msg.hasOwnProperty('numOps')) {
+          if (msg.numOps <= 0) {
+            this.flashMessage.show(`Update Check complete. No updates available!`,
+              {cssClass: 'alert-success', timeout: 10000})
             window.scrollTo(0, 0)
-         }
-         if (msg.hasOwnProperty('status')) {
+          } else {
+            this.flashMessage.show(`Update Check complete. ${msg.numOps} ${msg.numOps > 1 ? 'packages' : 'package'} available for update. Click on the "System > Update Polisy" button to start.`,
+              {cssClass: 'alert-success', timeout: 10000})
+            window.scrollTo(0, 0)
+          }
+        }
+        if (msg.hasOwnProperty('status')) {
             this.flashMessage.show(`Update ${msg.status}! Check polisy logs for details.`,
-               {cssClass: `alert-${msg.status === 'success' ? 'success' : 'danger'}`, timeout: 10000})
+              {cssClass: `alert-${msg.status === 'success' ? 'success' : 'danger'}`, timeout: 10000})
             window.scrollTo(0, 0)
-         }
+        }
       }
     }))
    }
 
   ngOnInit() {
+    this.settings.getPolisy()
     this.getConnected()
   }
 
   ngOnDestroy() {
-    if (this.subConnected) { this.subConnected.unsubscribe() }
+    this.subscription.unsubscribe()
   }
 
   showConfirm() {
@@ -75,9 +83,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
 
   getConnected() {
-    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+    this.subscription.add(this.sockets.mqttConnected.subscribe(connected => {
       this.mqttConnected = connected
-    })
+    }))
   }
 
   restartClick() {
@@ -111,7 +119,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   onLogoutClick() {
     this.authService.logout()
-    if (this.subConnected) { this.subConnected.unsubscribe() }
+    this.subscription.unsubscribe()
     this.sockets.stop()
     this.flashMessage.show('You are logged out.', {
       cssClass: 'alert-success',

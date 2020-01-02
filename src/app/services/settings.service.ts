@@ -63,6 +63,19 @@ export class SettingsService {
     })
   }
 
+  getPolisy() {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    })
+    this.http.get(`${environment.PG_URI}/frontend/ispolisy`, {headers: headers})
+    .subscribe(payload => {
+      if (payload && payload.hasOwnProperty('isPolisy')) {
+        this.isPolisy = payload['isPolisy']
+        this.titleService.setTitle(`${this.isPolisy ? 'Polisy' : 'Polyglot'}`)
+      }
+    })
+  }
+
   setSettings(settings) {
     this.loadToken()
     const headers = new HttpHeaders({
@@ -82,16 +95,17 @@ export class SettingsService {
   }
 
   storeSettings(settings) {
-    if (settings.hasOwnProperty('isPolisy')) this.isPolisy = settings['isPolisy']
+    //if (settings.hasOwnProperty('isPolisy')) this.isPolisy = settings['isPolisy']
     localStorage.setItem('settings', JSON.stringify(settings))
   }
 
   loadSettings() {
     this.settings = JSON.parse(localStorage.getItem('settings'))
+    /*
     if (this.settings.hasOwnProperty('isPolisy')) {
       this.isPolisy = this.settings['isPolisy']
       this.titleService.setTitle(`${this.isPolisy ? 'Polisy' : 'Polyglot'}`)
-    }
+    } */
     return JSON.parse(localStorage.getItem('settings'))
   }
 

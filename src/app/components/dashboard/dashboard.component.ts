@@ -8,6 +8,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfirmComponent } from '../confirm/confirm.component'
 import { NodepopComponent } from '../nodepop/nodepop.component'
 import { SettingsService } from '../../services/settings.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   confirmResult: boolean = null
   nodeDetails: any = null
   selectedNode: any
+  private subscription: Subscription = new Subscription()
 
   public objectValues = Object.values
   public objectKeys = Object.keys
@@ -43,31 +45,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private modal: NgbModal,
     private router: Router,
     private settingsService: SettingsService
-  ) { }
-
-  ngOnInit() {
-    this.getConnected()
-    this.getSettings()
-    this.getNodeServers()
-    this.getNodeServerResponses()
-    this.addNodeService.getPolyglotVersion()
-  }
-
-  ngOnDestroy() {
-    if (this.subConnected) { this.subConnected.unsubscribe() }
-    if (this.subSettings) { this.subSettings.unsubscribe() }
-    if (this.subNodeServers) { this.subNodeServers.unsubscribe() }
-    if (this.subResponses) { this.subResponses.unsubscribe() }
-  }
-
-  getConnected() {
-    this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
+  ) {
+    this.subscription.add(this.sockets.mqttConnected.subscribe(connected => {
       this.mqttConnected = connected
-    })
-  }
+    }))
 
-  getNodeServers() {
-    this.subNodeServers = this.sockets.nodeServerData.subscribe(nodeServers => {
+    this.subscription.add(this.sockets.settingsData.subscribe(settings => {
+      this.addNodeService.getPolyglotVersion()
+      this.isyConnected = settings.isyConnected
+      this.isyFound = settings.isyFound
+      this.isyHttps = settings.isyHttps
+      this.isyHost = settings.isyHost
+      this.isyPort = settings.isyPort
+      this.gotSettings = true
+    }))
+
+    this.subscription.add(this.sockets.nodeServerData.subscribe(nodeServers => {
       nodeServers.sort((a, b) => {
         return parseInt(a.profileNum, 10) - parseInt(b.profileNum, 10)
       })
@@ -79,11 +72,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         }
       }
-    })
-  }
+    }))
 
-  getNodeServerResponses() {
-    this.subResponses = this.sockets.nodeServerResponse.subscribe(response => {
+    this.subscription.add(this.sockets.nodeServerResponse.subscribe(response => {
       if (response.hasOwnProperty('success')) {
         if (response.success) {
           this.flashMessage.show(response.msg, {
@@ -97,19 +88,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
           window.scrollTo(0, 0)
         }
       }
-    })
+    }))
+
   }
 
-  getSettings() {
-    this.subSettings = this.sockets.settingsData.subscribe(settings => {
-      this.addNodeService.getPolyglotVersion()
-      this.isyConnected = settings.isyConnected
-      this.isyFound = settings.isyFound
-      this.isyHttps = settings.isyHttps
-      this.isyHost = settings.isyHost
-      this.isyPort = settings.isyPort
-      this.gotSettings = true
-    })
+  ngOnInit() {
+    this.addNodeService.getPolyglotVersion()
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe()
   }
 
   deleteNodeServer(nodeServer) {

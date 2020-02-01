@@ -74,7 +74,10 @@
           <div class="row" formGroupName="IPInfo">
             <legend class="col-form-label col-4">IPv4 Address</legend>
             <div class="col-8">
-              <input [readonly]="dhcpChecked || !nicEnabled" type="text" class="form-control" formControlName="ip">
+              <input [readonly]="dhcpChecked || !nicEnabled" type="text" class="form-control" formControlName="ip" [ngClass]="{'is-invalid': submitted && f('IPInfo.ip').errors}">
+            </div>
+            <div class="invalid-feedback">
+              <div>Failed IP Validataion</div>
             </div>
           </div>
           <div class="row" formGroupName="IPInfo">
@@ -90,8 +93,8 @@
                 data-toggle="tooltip" data-placement="right" title="If DHCP is enabled, the gateway will show 0.0.0.0">
             </div>
           </div>
-          <hr style="border:1px solid;">
-          <ng-container>
+          <hr *ngIf="allowIpv6" style="border:1px solid;">
+          <ng-container *ngIf="allowIpv6">
             <legend>IPv6 Networking</legend>
             <div class="row">
               <legend class="col-form-label col-4">IPv6 Enabled</legend>

@@ -43,8 +43,9 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    public ipv6Enabled: boolean
    public nicEnabled: boolean
    public gotWifi: boolean = false
-   public allowIpv6: boolean = true
+   public allowIpv6: boolean = false
    public wifiKey: String
+   nicSubmitted = false
 
    private dateTimeAllTest = [
       {
@@ -1416,32 +1417,33 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       private modal: NgbModal,
       public authService: AuthService
    ) {
-      const ipPattern = '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
-      const ipv6pattern = '/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$|^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/'
+      const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/
 
       this.nicForm = this.fb.group({
-      "name": "",
-      "logicalName": "",
-      "mac": "",
-      "isEnabledIPv4": false,
-      "isEnabledIPv6": false,
-      "isDHCP": false,
-      "isRTADV": false,
-      "isWiFi": false,
-      "IPInfo": this.fb.group({
-         "ip": ["0.0.0.0", Validators.pattern(ipPattern)],
-         "ipV6": ["::", Validators.pattern(ipv6pattern)],
-         "mask": ["0.0.0.0", Validators.pattern(ipPattern)],
-         "gateway": ["0.0.0.0", Validators.pattern(ipPattern)],
-         "gatewayV6": ["::", Validators.pattern(ipv6pattern)],
-         "dns1": "0.0.0.0",
-         "dns2": "0.0.0.0",
-         "dns3": "0.0.0.0"
+         "name": "",
+         "logicalName": "",
+         "mac": "",
+         "isEnabledIPv4": false,
+         "isEnabledIPv6": false,
+         "isDHCP": false,
+         "isRTADV": false,
+         "isWiFi": false,
+         "IPInfo": this.fb.group({
+            "ip": ["0.0.0.0", Validators.pattern(ipPattern)],
+            "ipV6": ["::", Validators.pattern(ipPattern)],
+            "mask": ["0.0.0.0", Validators.pattern(ipPattern)],
+            "gateway": ["0.0.0.0", Validators.pattern(ipPattern)],
+            "gatewayV6": ["::", Validators.pattern(ipPattern)],
+            "dns1": "0.0.0.0",
+            "dns2": "0.0.0.0",
+            "dns3": "0.0.0.0"
+         })
       })
-      })
+
       this.subscription.add(this.sockets.mqttConnected.subscribe(connected => {
          this.mqttConnected = connected
       }))
+
       this.subscription.add(this.sockets.polisyNicsData.subscribe(nics => {
          //console.log(nics)
          if (nics && nics.hasOwnProperty('NICs')) {
@@ -1461,6 +1463,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             }
          }
       }))
+
       this.subscription.add(this.sockets.polisyNicData.subscribe(nic => {
          //console.log(nic)
          if (nic) {
@@ -1478,6 +1481,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             }
          }
       }))
+
       this.subscription.add(this.sockets.polisyWifiData.subscribe(wifi => {
          //console.log(wifi)
          if (wifi && wifi.hasOwnProperty('WiFiNetworks')) {
@@ -1489,6 +1493,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             this.gotWifi = true
          }
       }))
+
       this.subscription.add(this.sockets.polisyDatetimeAllData.subscribe(datetimes => {
          if (datetimes) {
             this.polisyDatetimes = datetimes.sort((a, b) => { return parseInt(a.tzOffset, 10) - parseInt(b.tzOffset, 10) })
@@ -1497,6 +1502,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             }
          }
       }))
+
       this.subscription.add(this.sockets.polisyDatetimeData.subscribe(datetime => {
          //console.log(datetime)
          if (datetime) {
@@ -1515,6 +1521,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       this.subscription.unsubscribe()
    }
 
+   f(name) { return this.nicForm.get(`${name}`) }
+
    getConnected() {
       this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
       this.mqttConnected = connected
@@ -1523,14 +1531,17 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
 
    getPolisyData() {
       this.sockets.sendMessage('config/network/nics', null)
+      // this.sockets.sendMessage('config/dns', null)
       this.sockets.sendMessage('config/datetime', null)
       this.sockets.sendMessage('config/datetime/all', null)
 
-      /*setTimeout(() => {
+      /*
+      setTimeout(() => {
          this.sockets.sendMessage('sconfig/network/nics', this.nicAllTest)
          this.sockets.sendMessage('sconfig/datetime', this.dateTimeTest)
          this.sockets.sendMessage('sconfig/datetime/all', this.dateTimeAllTest)
-      }, 1000)*/
+      }, 1000)
+      */
    }
 
 
@@ -1587,9 +1598,10 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    selectNic(index) {
       this.selectedNic = this.polisyNics[index]
       this.nicForm.patchValue(this.selectedNic)
-      if (!this.selectedNic.IPInfo.hasOwnProperty('dns1')) { this.nicForm.patchValue({IPInfo: {dns1: '0.0.0.0'}})}
-      if (!this.selectedNic.IPInfo.hasOwnProperty('dns2')) { this.nicForm.patchValue({IPInfo: {dns2: '0.0.0.0'}})}
-      if (!this.selectedNic.IPInfo.hasOwnProperty('dns3')) { this.nicForm.patchValue({IPInfo: {dns3: '0.0.0.0'}})}
+      // DNS is consistent across interfaces
+      // if (!this.selectedNic.IPInfo.hasOwnProperty('dns1')) { this.nicForm.patchValue({IPInfo: {dns1: '0.0.0.0'}})}
+      // if (!this.selectedNic.IPInfo.hasOwnProperty('dns2')) { this.nicForm.patchValue({IPInfo: {dns2: '0.0.0.0'}})}
+      // if (!this.selectedNic.IPInfo.hasOwnProperty('dns3')) { this.nicForm.patchValue({IPInfo: {dns3: '0.0.0.0'}})}
       this.dhcpChecked = this.selectedNic.isDHCP
       this.nicEnabled = this.selectedNic.isEnabledIPv4
       this.ipv6Enabled = this.selectedDatetime.isEnabledIPv6
@@ -1648,6 +1660,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
 
    changeNic(confirmed) {
       if (!confirmed) { return }
+      this.nicSubmitted = true
+      console.log(this.nicForm.get('IPInfo').errors)
       //console.log(this.nicForm.value)
       if (this.selectedNic.isEnabledIPv4 && !this.nicEnabled) {
          this.flashMessage.show(`Disabled interface ${this.selectedNic.logicalName}`, {
@@ -1675,7 +1689,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
          },100)
          this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/dhcp/ipv4`, null)
       } else if (!this.dhcpChecked) {
-         if (this.nicForm.status !== 'VALID') {
+         if (this.nicForm.invalid) {
             this.flashMessage.show('Malformed IPv4 Address in the form. Please verify your entries.', {
                cssClass: 'alert-danger',
                timeout: 5000})
@@ -1708,57 +1722,56 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/static/ipv4`, msg)
          }
       }
-      if (this.selectedNic.isEnabledIPv6 && !this.ipv6Enabled) {
-         this.flashMessage.show(`Disabled IPv6 for interface ${this.selectedNic.logicalName}`, {
-            cssClass: 'alert-success',
-            timeout: 5000})
-         setTimeout(() => {
-            window.scrollTo(0, 0)
-         },100)
-         this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/disable/ipv6`, null)
-      } else if (!this.selectedNic.isEnabledIPv6 && this.ipv6Enabled) {
-         this.flashMessage.show(`Enabled IPV6 for interface ${this.selectedNic.logicalName}`, {
-            cssClass: 'alert-success',
-            timeout: 5000})
-         setTimeout(() => {
-            window.scrollTo(0, 0)
-         },100)
-         this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/enable/ipv6`, null)
-      }
-      if (!this.selectedNic.isRTADV && this.rtadvChecked) {
-         this.flashMessage.show(`Enabling IPv6 Router Advertisment auto configuration for ${this.selectedNic.logicalName}`, {
-            cssClass: 'alert-success',
-            timeout: 5000})
-         setTimeout(() => {
-            window.scrollTo(0, 0)
-         },100)
-         this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/dhcp/ipv6`, null)
-      } else if (!this.rtadvChecked) {
-         if ([this.nicForm.value.IPInfo.ipV6, this.nicForm.value.IPInfo.gatewayV6, this.nicForm.value.IPInfo.v6dns1].includes('::')) {
-            this.flashMessage.show(`IPv6 Address, nor Gateway can be blank or '::' when setting static IPv6 addresses for ${this.selectedNic.logicalName}`, {
-               cssClass: 'alert-danger',
+      if (this.allowIpv6) {
+         if (this.selectedNic.isEnabledIPv6 && !this.ipv6Enabled) {
+            this.flashMessage.show(`Disabled IPv6 for interface ${this.selectedNic.logicalName}`, {
+               cssClass: 'alert-success',
                timeout: 5000})
-            return setTimeout(() => {
+            setTimeout(() => {
                window.scrollTo(0, 0)
             },100)
+            this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/disable/ipv6`, null)
+         } else if (!this.selectedNic.isEnabledIPv6 && this.ipv6Enabled) {
+            this.flashMessage.show(`Enabled IPV6 for interface ${this.selectedNic.logicalName}`, {
+               cssClass: 'alert-success',
+               timeout: 5000})
+            setTimeout(() => {
+               window.scrollTo(0, 0)
+            },100)
+            this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/enable/ipv6`, null)
          }
-         this.flashMessage.show(`Updated IPv6 static address settings for ${this.selectedNic.logicalName}`, {
-            cssClass: 'alert-success',
-            timeout: 3000})
-         const msg = {
-            ip: this.nicForm.value.IPInfo.ipV6,
-            gateway: this.nicForm.value.IPInfo.gatewayV6,
-            dns1: this.nicForm.value.IPInfo.dns1,
-            dns2: this.nicForm.value.IPInfo.dns2,
-            dns3: this.nicForm.value.IPInfo.dns3,
+         if (!this.selectedNic.isRTADV && this.rtadvChecked) {
+            this.flashMessage.show(`Enabling IPv6 Router Advertisment auto configuration for ${this.selectedNic.logicalName}`, {
+               cssClass: 'alert-success',
+               timeout: 5000})
+            setTimeout(() => {
+               window.scrollTo(0, 0)
+            },100)
+            this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/dhcp/ipv6`, null)
+         } else if (!this.rtadvChecked) {
+            if ([this.nicForm.value.IPInfo.ipV6, this.nicForm.value.IPInfo.gatewayV6, this.nicForm.value.IPInfo.v6dns1].includes('::')) {
+               this.flashMessage.show(`IPv6 Address, nor Gateway can be blank or '::' when setting static IPv6 addresses for ${this.selectedNic.logicalName}`, {
+                  cssClass: 'alert-danger',
+                  timeout: 5000})
+               return setTimeout(() => {
+                  window.scrollTo(0, 0)
+               },100)
+            }
+            this.flashMessage.show(`Updated IPv6 static address settings for ${this.selectedNic.logicalName}`, {
+               cssClass: 'alert-success',
+               timeout: 3000})
+            const msg = {
+               ip: this.nicForm.value.IPInfo.ipV6,
+               gateway: this.nicForm.value.IPInfo.gatewayV6,
+               dns1: this.nicForm.value.IPInfo.dns1,
+               dns2: this.nicForm.value.IPInfo.dns2,
+               dns3: this.nicForm.value.IPInfo.dns3,
+            }
+            setTimeout(() => {
+               window.scrollTo(0, 0)
+            },100)
+            this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/static/ipv6`, msg)
          }
-         setTimeout(() => {
-            window.scrollTo(0, 0)
-         },100)
-         this.sockets.sendMessage(`config/network/nic/${this.selectedNic.name}/static/ipv6`, msg)
       }
-
    }
-
-
 }

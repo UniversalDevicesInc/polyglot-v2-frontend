@@ -13,7 +13,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
   styleUrls: ['./nsdetails.component.css']
 })
 export class NsdetailsComponent implements OnInit, OnDestroy {
-  @ViewChild('nslogScroll', {static: false}) private logScrollContainer: ElementRef;
+  @ViewChild('nslogScroll') private logScrollContainer: ElementRef;
 
   nodeServers: NodeServer[]
   public mqttConnected = false

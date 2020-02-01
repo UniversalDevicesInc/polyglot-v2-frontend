@@ -11,7 +11,7 @@ import { FlashMessagesService } from 'angular2-flash-messages'
   styleUrls: ['./showlog.component.css']
 })
 export class ShowlogComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('logScroll', {static: false}) private logScrollContainer: ElementRef;
+  @ViewChild('logScroll') private logScrollContainer: ElementRef;
 
   public mqttConnected: boolean = false
   private subConnected: any

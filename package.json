@@ -24,6 +24,7 @@
     "@angular/compiler-cli": "9.0.0-rc.13",
     "@angular/core": "9.0.0-rc.13",
     "@angular/forms": "9.0.0-rc.13",
+    "@angular/localize": "9.0.0-rc.0",
     "@angular/platform-browser": "9.0.0-rc.13",
     "@angular/platform-browser-dynamic": "9.0.0-rc.13",
     "@angular/platform-server": "9.0.0-rc.13",

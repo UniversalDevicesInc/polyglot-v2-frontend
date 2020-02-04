@@ -14,7 +14,7 @@
     "update:check": "ncu",
     "update:run": "ncu -u; npm install",
     "build:test": "ng build --configuration=test",
-    "build:prod": "ng build --prod",
+    "build:prod": "time ng build --prod",
     "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points"
   },
   "private": true,

@@ -1660,7 +1660,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
    changeNic(confirmed) {
       if (!confirmed) { return }
       this.nicSubmitted = true
-      console.log(this.nicForm.get('IPInfo').errors)
+      //console.log(this.nicForm.get('IPInfo').errors)
       //console.log(this.nicForm.value)
       if (this.selectedNic.isEnabledIPv4 && !this.nicEnabled) {
          this.flashMessage.show(`Disabled interface ${this.selectedNic.logicalName}`, {
@@ -1696,8 +1696,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
                window.scrollTo(0, 0)
             },100)
          } else {
-            if ([this.nicForm.value.IPInfo.gateway, this.nicForm.value.IPInfo.ip, this.nicForm.value.IPInfo.dns1].includes('0.0.0.0')) {
-               this.flashMessage.show(`IP Address, Gateway, nor DNS1 can be 0.0.0.0 when setting static IP addresses for ${this.selectedNic.logicalName}`, {
+            if ([this.nicForm.value.IPInfo.gateway, this.nicForm.value.IPInfo.ip].includes('0.0.0.0')) {
+               this.flashMessage.show(`IP Address nor Gateway can be 0.0.0.0 when setting static IP addresses for ${this.selectedNic.logicalName}`, {
                   cssClass: 'alert-danger',
                   timeout: 5000})
                return setTimeout(() => {

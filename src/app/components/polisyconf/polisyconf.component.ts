@@ -1451,6 +1451,10 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
             if (!this.selectedNic) {
                this.selectedNic = this.polisyNics.find(nic => nic['isEnabledIPv4'] )
                this.nicForm.patchValue(this.selectedNic)
+            } else {
+               if (!this.nicForm.dirty) {
+                  this.nicForm.patchValue(this.polisyNics.find(nic => nic.logicalName === this.selectedNic.logicalName))
+               }
             }
             if (this.selectedNic && this.selectedNic.isWiFi && !this.gotWifi) {
                this.scanWifi()
@@ -1469,7 +1473,9 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
          if (nic) {
             if (nic.name === this.selectedNic.name) {
                this.selectedNic = nic
-               this.nicForm.patchValue(this.selectedNic)
+               if (!this.nicForm.dirty) {
+                  this.nicForm.patchValue(this.selectedNic)
+               }
             }
             let index = this.polisyNics.findIndex(element => element.name === nic.name)
             if (index > -1) {
@@ -1485,7 +1491,7 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       this.subscription.add(this.sockets.polisyWifiData.subscribe(wifi => {
          //console.log(wifi)
          if (wifi && wifi.hasOwnProperty('WiFiNetworks')) {
-            this.flashMessage.show(`Successfully got WiFi networks on interface ${this.selectedNic.logicalName}...`, {
+            this.flashMessage.show(`Successfully got WiFi networks...`, {
                cssClass: 'alert-success',
                timeout: 3000})
             this.polisyWifi = wifi.WiFiNetworks
@@ -1523,15 +1529,8 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
 
    f(name) { return this.nicForm.get(`${name}`) }
 
-   getConnected() {
-      this.subConnected = this.sockets.mqttConnected.subscribe(connected => {
-      this.mqttConnected = connected
-      })
-   }
-
    getPolisyData() {
       this.sockets.sendMessage('config/network/nics', null)
-      // this.sockets.sendMessage('config/dns', null)
       this.sockets.sendMessage('config/datetime', null)
       this.sockets.sendMessage('config/datetime/all', null)
 
@@ -1599,9 +1598,9 @@ export class PolisyconfComponent implements OnInit, OnDestroy  {
       this.selectedNic = this.polisyNics[index]
       this.nicForm.patchValue(this.selectedNic)
       // DNS is consistent across interfaces
-      // if (!this.selectedNic.IPInfo.hasOwnProperty('dns1')) { this.nicForm.patchValue({IPInfo: {dns1: '0.0.0.0'}})}
-      // if (!this.selectedNic.IPInfo.hasOwnProperty('dns2')) { this.nicForm.patchValue({IPInfo: {dns2: '0.0.0.0'}})}
-      // if (!this.selectedNic.IPInfo.hasOwnProperty('dns3')) { this.nicForm.patchValue({IPInfo: {dns3: '0.0.0.0'}})}
+      if (!this.selectedNic.IPInfo.hasOwnProperty('dns1')) { this.nicForm.patchValue({IPInfo: {dns1: '0.0.0.0'}})}
+      if (!this.selectedNic.IPInfo.hasOwnProperty('dns2')) { this.nicForm.patchValue({IPInfo: {dns2: '0.0.0.0'}})}
+      if (!this.selectedNic.IPInfo.hasOwnProperty('dns3')) { this.nicForm.patchValue({IPInfo: {dns3: '0.0.0.0'}})}
       this.dhcpChecked = this.selectedNic.isDHCP
       this.nicEnabled = this.selectedNic.isEnabledIPv4
       this.ipv6Enabled = this.selectedDatetime.isEnabledIPv6

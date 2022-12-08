@@ -37,7 +37,7 @@
     "buffer": "^5.4.3",
     "core-js": "3.4.8",
     "file-saver": "2.0.2",
-    "mqtt": "3.0.0",
+    "mqtt": "4.3.7",
     "ngx-bootstrap": "5.2.0",
     "randomstring": "^1.1.5",
     "rxjs": "6.5.4",
